@@ -35,11 +35,10 @@ export const getSurahDetail = async (surahNumber: number, reciterIdentifier: str
 
     // The API can be inconsistent. Sometimes `data` is the array of editions,
     // but sometimes it's an object containing an `editions` array. This handles both.
-    const editions = json.data.editions || json.data;
+    const editions = Array.isArray(json.data) ? json.data : (json.data.editions || []);
 
-    // Ensure we have an array to work with.
-    if (!Array.isArray(editions)) {
-        throw new Error(`Could not find a valid array of editions for Surah ${surahNumber}`);
+    if (editions.length === 0) {
+      throw new Error(`Could not find a valid array of editions for Surah ${surahNumber}`);
     }
 
     const arabicEdition = editions.find((e: any) => e.edition.identifier === 'quran-uthmani');
@@ -68,18 +67,34 @@ export const getSurahDetail = async (surahNumber: number, reciterIdentifier: str
 };
 
 export const getAyahDetail = async (surahNumber: number, ayahInSurah: number, language: Language): Promise<Ayah | null> => {
-    const translationEdition = getEditionIdentifier(language);
-    const editions = `quran-uthmani,${translationEdition}`;
-    const response = await fetch(`${API_BASE_URL}/ayah/${surahNumber}:${ayahInSurah}/editions/${editions}`);
+    const translationEditionId = getEditionIdentifier(language);
+    const editionsToFetch = `quran-uthmani,${translationEditionId}`;
+    const response = await fetch(`${API_BASE_URL}/ayah/${surahNumber}:${ayahInSurah}/editions/${editionsToFetch}`);
+    
      if (!response.ok) {
         throw new Error('Network response was not ok');
     }
     const json = await response.json();
-    if (json.code !== 200 || !json.data || json.data.length < 2) {
+    if (json.code !== 200 || !json.data) {
+        console.error(`Failed to fetch Ayah ${surahNumber}:${ayahInSurah}`);
         return null;
     }
-    const arabicData = json.data[0];
-    const translationData = json.data[1];
+
+    // The API can return data in different shapes. This handles it robustly.
+    const editionsData = Array.isArray(json.data) ? json.data : (json.data.editions || []);
+
+    if (editionsData.length === 0) {
+        return null;
+    }
+
+    const arabicData = editionsData.find((e: any) => e.edition.identifier === 'quran-uthmani');
+    const translationData = editionsData.find((e: any) => e.edition.identifier === translationEditionId);
+
+    if (!arabicData || !translationData) {
+        console.error(`Missing required edition for Ayah ${surahNumber}:${ayahInSurah}`);
+        return null;
+    }
+
 
     return {
         number: arabicData.number,
