@@ -33,8 +33,17 @@ export const getSurahDetail = async (surahNumber: number, reciterIdentifier: str
         throw new Error(`Failed to fetch details for Surah ${surahNumber}`);
     }
 
-    const arabicEdition = json.data.find((e: any) => e.edition.identifier === 'quran-uthmani');
-    const audioEdition = json.data.find((e: any) => e.edition.identifier === reciterIdentifier);
+    // The API can be inconsistent. Sometimes `data` is the array of editions,
+    // but sometimes it's an object containing an `editions` array. This handles both.
+    const editions = json.data.editions || json.data;
+
+    // Ensure we have an array to work with.
+    if (!Array.isArray(editions)) {
+        throw new Error(`Could not find a valid array of editions for Surah ${surahNumber}`);
+    }
+
+    const arabicEdition = editions.find((e: any) => e.edition.identifier === 'quran-uthmani');
+    const audioEdition = editions.find((e: any) => e.edition.identifier === reciterIdentifier);
 
     if (!arabicEdition || !arabicEdition.ayahs || arabicEdition.ayahs.length === 0) {
         throw new Error(`API returned no ayahs for Surah ${surahNumber}`);
