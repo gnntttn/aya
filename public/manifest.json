@@ -1,0 +1,21 @@
+{
+  "short_name": "AYA",
+  "name": "AYA",
+  "description": "An AI-powered Islamic application. Generate duas, browse and listen to the Quran with verse-by-verse audio, and test your knowledge. Supports English, Arabic, and French.",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0d9488",
+  "background_color": "#020617"
+}
