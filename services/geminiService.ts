@@ -2,8 +2,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Dua, QuizQuestion, Language } from '../types';
 
+// Safely access the API key to prevent "process is not defined" error in browser environments.
+const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : undefined;
+
 // Conditionally initialize the AI client
-const apiKey = process.env.API_KEY;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 if (!ai) {
