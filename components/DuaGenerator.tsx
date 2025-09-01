@@ -30,7 +30,8 @@ const DuaGenerator: React.FC = () => {
       setDua(generatedDua);
     } catch (err) {
       console.error(err);
-      setError(t('errorMessage'));
+      const message = err instanceof Error ? err.message : t('errorMessage');
+      setError(message);
     } finally {
       setIsLoading(false);
     }

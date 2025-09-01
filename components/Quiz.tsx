@@ -29,7 +29,8 @@ const Quiz: React.FC = () => {
             setQuestions(quiz);
             setQuizState('active');
         } catch (err) {
-            setError("Failed to generate a new quiz. Please try again.");
+            const message = err instanceof Error ? err.message : "Failed to generate a new quiz. Please try again.";
+            setError(message);
             console.error(err);
             setQuizState('idle'); // Revert to idle on error
         }
