@@ -55,7 +55,13 @@ export const generateDua = async (prompt: string, language: string): Promise<Dua
       },
     });
 
-    const jsonString = response.text.trim();
+    let jsonString = response.text.trim();
+    if (jsonString.startsWith('```') && jsonString.endsWith('```')) {
+        jsonString = jsonString.slice(3, -3);
+        if (jsonString.startsWith('json')) {
+            jsonString = jsonString.slice(4).trim();
+        }
+    }
     const parsedDua: Dua = JSON.parse(jsonString);
 
     return parsedDua;
@@ -127,7 +133,13 @@ export const generateQuizQuestions = async (): Promise<QuizQuestion[]> => {
             },
         });
 
-        const jsonString = response.text.trim();
+        let jsonString = response.text.trim();
+        if (jsonString.startsWith('```') && jsonString.endsWith('```')) {
+            jsonString = jsonString.slice(3, -3);
+            if (jsonString.startsWith('json')) {
+                jsonString = jsonString.slice(4).trim();
+            }
+        }
         const parsedQuiz: QuizQuestion[] = JSON.parse(jsonString);
         
         return parsedQuiz;
