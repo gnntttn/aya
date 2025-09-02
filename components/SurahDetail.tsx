@@ -6,6 +6,7 @@ import { getSurahDetail } from '../services/quranService';
 import ErrorMessage from './common/ErrorMessage';
 import LoadingIndicator from './common/LoadingIndicator';
 import ReciterSelector from './ReciterSelector';
+import TafsirModal from './TafsirModal';
 
 interface SurahDetailProps {
   surahNumber: number;
@@ -20,6 +21,8 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const [currentPlayingAyahIndex, setCurrentPlayingAyahIndex] = useState<number | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    const [tafsirModalAyah, setTafsirModalAyah] = useState<Ayah | null>(null);
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -85,6 +88,19 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const jumpToAyah = (index: number) => {
         playAyahByIndex(index);
     }
+    
+    const handleTafsirClick = (ayah: Ayah) => {
+      // Add the full surah context to the ayah object before opening the modal
+      const ayahWithContext = {
+        ...ayah,
+        surah: {
+          number: surahData!.number,
+          name: surahData!.name,
+          englishName: surahData!.englishName,
+        }
+      };
+      setTafsirModalAyah(ayahWithContext);
+    }
 
     if (isLoading) return <div className="pt-20"><LoadingIndicator message={t('loadingSurah')} /></div>;
     if (error || !surahData) return <ErrorMessage message={error || "Could not load Surah data."} />;
@@ -97,6 +113,12 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
 
     return (
         <div className="w-full animate-fade-in pb-12">
+            {tafsirModalAyah && (
+                <TafsirModal 
+                    ayah={tafsirModalAyah} 
+                    onClose={() => setTafsirModalAyah(null)} 
+                />
+            )}
             <header className="text-center mb-6 relative">
                 <button onClick={() => setSelectedSurah(null)} className="absolute top-1/2 -translate-y-1/2 left-0 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -144,6 +166,11 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                                  <svg className="absolute top-0 left-0 w-full h-full opacity-30" viewBox="0 0 24 24" fill="currentColor"><path d="M12.0001 1.99219L14.8321 9.03219L22.4521 9.50419L16.4881 14.8082L18.4441 22.1882L12.0001 18.0002L5.55612 22.1882L7.51212 14.8082L1.54812 9.50419L9.16812 9.03219L12.0001 1.99219Z"/></svg>
                                 <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold">{ayah.numberInSurah}</span>
                             </span>
+                             <button onClick={() => handleTafsirClick(ayah)} className="relative inline-flex items-center justify-center w-9 h-9 mx-1 text-[var(--text-secondary)] align-middle hover:text-[var(--accent-primary)] transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5" title={t('getTafsirTitle')}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                </svg>
+                            </button>
                         </React.Fragment>
                     ))}
                 </div>

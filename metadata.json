@@ -1,5 +1,7 @@
 {
   "name": "AYA",
   "description": "An AI-powered Islamic application. Generate duas, browse and listen to the Quran with verse-by-verse audio, and test your knowledge. Supports English, Arabic, and French.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

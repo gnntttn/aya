@@ -1,5 +1,5 @@
 
-import type { Dua, QuizQuestion, Language } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -66,3 +66,49 @@ export const generateQuizQuestions = async (): Promise<QuizQuestion[]> => {
     }
     return data as QuizQuestion[];
 }
+
+/**
+ * Gets AI-powered tafsir for a specific Ayah.
+ * @param {Ayah} ayah - The Ayah object.
+ * @param {Language} language - The requested language for the explanation.
+ * @returns {Promise<string>} The tafsir text.
+ */
+export const getTafsir = async (ayah: Ayah, language: Language): Promise<string> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'tafsir',
+      payload: { ayah, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate tafsir.');
+  }
+  return data.tafsir as string;
+};
+
+/**
+ * Gets AI-powered explanation for one of Allah's names.
+ * @param {string} name - The name of Allah (e.g., "Ar-Rahman").
+ * @param {Language} language - The requested language for the explanation.
+ * @returns {Promise<string>} The explanation text.
+ */
+export const getAsmaulHusnaExplanation = async (name: string, language: Language): Promise<string> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'asmaulhusna',
+      payload: { name, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate explanation.');
+  }
+  return data.explanation as string;
+};

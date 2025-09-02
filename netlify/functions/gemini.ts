@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Dua, QuizQuestion, Language } from "../../types";
+import type { Dua, QuizQuestion, Language, Ayah } from "../../types";
 
 // Define TypeScript interfaces for the Lambda event and response
 interface HandlerEvent {
@@ -63,6 +64,12 @@ const getQuizSchema = () => ({
 });
 const getQuizSystemInstruction = () => `You are an expert Islamic studies educator. Generate a set of 5 unique, multiple-choice quiz questions about Islam. Topics should be diverse: Quran, Hadith, Prophets, Islamic history, and pillars of Islam, with varied difficulty. For each question, provide the question text, 4 answer options, the correct answer's index, and a brief explanation. CRITICALLY, you must provide all text (questions, options, explanations) fully translated into English, Arabic, and French. Adhere strictly to the provided JSON schema.`;
 
+// --- TAFSIR GENERATION ---
+const getTafsirSystemInstruction = (languageName: string) => `You are a knowledgeable and clear Islamic studies teacher specializing in Tafsir (Quranic exegesis). Your task is to provide a concise, easy-to-understand explanation for a specific Quranic verse, in ${languageName}. Your explanation should cover the verse's meaning, context, and key lessons. Avoid overly academic language and make it accessible to a general audience seeking spiritual insight.`;
+
+// --- ASMA'UL HUSNA EXPLANATION ---
+const getAsmaulHusnaSystemInstruction = (languageName: string) => `You are a deeply knowledgeable Islamic scholar with a gift for explaining spiritual concepts. Your task is to provide a profound and inspiring explanation of one of the 99 Names of Allah (Asma'ul Husna), in ${languageName}. The explanation should be rich in meaning, covering the linguistic roots and spiritual implications of the name, and how a believer can reflect on this attribute in their life. Make it accessible and moving for a general audience.`;
+
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   const corsHeaders = {
@@ -85,10 +92,10 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
     const { type, payload } = JSON.parse(event.body || "{}");
 
     let result;
+    const languageMap: { [key in Language]: string } = { en: 'English', ar: 'Arabic', fr: 'French' };
 
     if (type === 'dua') {
       const { prompt, language } = payload;
-      const languageMap: { [key: string]: string } = { en: 'English', ar: 'Arabic', fr: 'French' };
       const languageName = languageMap[language] || 'English';
 
       const response = await ai.models.generateContent({
@@ -113,6 +120,36 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         },
       });
       result = JSON.parse(response.text);
+
+    } else if (type === 'tafsir') {
+        const { ayah, language } = payload as { ayah: Ayah; language: Language };
+        const languageName = languageMap[language] || 'English';
+        
+        const prompt = `Provide a tafsir (explanation) for this verse: Surah ${ayah.surah?.englishName} (${ayah.surah?.name}), Ayah ${ayah.numberInSurah}, which reads: "${ayah.text}". Please provide the explanation in ${languageName}.`;
+
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: {
+                systemInstruction: getTafsirSystemInstruction(languageName),
+            },
+        });
+        result = { tafsir: response.text };
+
+    } else if (type === 'asmaulhusna') {
+        const { name, language } = payload as { name: string; language: Language };
+        const languageName = languageMap[language] || 'English';
+
+        const prompt = `Provide an explanation for the name of Allah: "${name}". The explanation should be in ${languageName}.`;
+
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: {
+                systemInstruction: getAsmaulHusnaSystemInstruction(languageName),
+            },
+        });
+        result = { explanation: response.text };
 
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };

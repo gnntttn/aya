@@ -6,8 +6,8 @@ import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
 import DuaGenerator from './components/DuaGenerator';
 import Quran from './components/Quran';
-import Quiz from './components/Quiz';
-import Settings from './components/Settings';
+import Tasbih from './components/Tasbih';
+import More from './components/More';
 import SurahDetail from './components/SurahDetail';
 import Onboarding from './components/Onboarding';
 import { recitersData } from './data/recitersData';
@@ -24,6 +24,8 @@ const translations: { [key in Language]: Translations } = {
     navHome: "Home",
     navQuran: "Quran",
     navDua: "Assistant",
+    navTasbih: "Tasbih",
+    navMore: "More",
     navQuiz: "Quiz",
     navSettings: "Settings",
     // Home Page
@@ -65,6 +67,10 @@ const translations: { [key in Language]: Translations } = {
     playSurah: "Play Surah",
     pause: "Pause",
     playAll: "Play Surah",
+    tafsirGenerating: "Generating explanation...",
+    tafsirTitle: "Explanation of Ayah {number}",
+    getTafsir: "Explain with AI",
+    getTafsirTitle: "Get AI Explanation",
     // Quiz Page
     quizTitle: "Islamic Quiz",
     quizIntro: "Ready to test your knowledge? A new set of questions will be generated for you.",
@@ -87,8 +93,36 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "Share the App",
     settingsShareButton: "Share AYA",
     settingsLinkCopied: "Link Copied!",
+    // Tasbih Page
+    tasbihTitle: "Tasbih Counter",
+    tasbihTarget: "Target: {count}",
+    tasbihReset: "Reset",
+    tasbihCycleComplete: "Cycle Complete!",
+    // More Page
+    moreTitle: "More Features",
+    morePrayerTimes: "Prayer Times",
+    moreAsmaulHusna: "Names of Allah",
+    // Prayer Times
+    prayerTimesTitle: "Prayer Times",
+    prayerTimesDescription: "Allow location access to see prayer times for your area.",
+    prayerAllowLocation: "Allow Location",
+    prayerLocationDenied: "Location access is needed to show prayer times. Please enable it in your browser settings.",
+    prayerFetching: "Fetching prayer times...",
+    prayerFajr: "Fajr",
+    prayerSunrise: "Sunrise",
+    prayerDhuhr: "Dhuhr",
+    prayerAsr: "Asr",
+    prayerMaghrib: "Maghrib",
+    prayerIsha: "Isha",
+    prayerNext: "Next prayer in",
+    // Asmaul Husna
+    asmaulHusnaTitle: "The 99 Names of Allah",
+    asmaulHusnaDescription: "Explore the beautiful names and attributes of Allah.",
+    asmaulHusnaLoading: "Generating explanation...",
     // General
     checkingConfig: "Checking configuration...",
+    back: "Back",
+    close: "Close",
   },
   ar: {
     chooseLanguage: "اختر لغتك",
@@ -98,6 +132,8 @@ const translations: { [key in Language]: Translations } = {
     navHome: "الرئيسية",
     navQuran: "القرآن",
     navDua: "المساعد",
+    navTasbih: "المسبحة",
+    navMore: "المزيد",
     navQuiz: "اختبار",
     navSettings: "الإعدادات",
     greetingMorning: "السلام عليكم",
@@ -136,6 +172,10 @@ const translations: { [key in Language]: Translations } = {
     playSurah: "تشغيل السورة",
     pause: "إيقاف",
     playAll: "تشغيل السورة",
+    tafsirGenerating: "جاري إنشاء التفسير...",
+    tafsirTitle: "تفسير الآية رقم {number}",
+    getTafsir: "تفسير بالذكاء الاصطناعي",
+    getTafsirTitle: "الحصول على تفسير بالذكاء الاصطناعي",
     quizTitle: "اختبار إسلامي",
     quizIntro: "هل أنت مستعد لاختبار معرفتك؟ سيتم إنشاء مجموعة جديدة من الأسئلة لك.",
     quizStart: "ابدأ الاختبار",
@@ -156,7 +196,31 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "شارك التطبيق",
     settingsShareButton: "مشاركة آية",
     settingsLinkCopied: "تم نسخ الرابط!",
+    tasbihTitle: "المسبحة الإلكترونية",
+    tasbihTarget: "الهدف: {count}",
+    tasbihReset: "إعادة تعيين",
+    tasbihCycleComplete: "اكتملت الدورة!",
+    moreTitle: "ميزات إضافية",
+    morePrayerTimes: "مواقيت الصلاة",
+    moreAsmaulHusna: "أسماء الله الحسنى",
+    prayerTimesTitle: "مواقيت الصلاة",
+    prayerTimesDescription: "اسمح بالوصول للموقع لعرض مواقيت الصلاة لمنطقتك.",
+    prayerAllowLocation: "السماح بالموقع",
+    prayerLocationDenied: "يلزم الوصول إلى الموقع لعرض مواقيت الصلاة. يرجى تفعيله في إعدادات المتصفح.",
+    prayerFetching: "جاري جلب مواقيت الصلاة...",
+    prayerFajr: "الفجر",
+    prayerSunrise: "الشروق",
+    prayerDhuhr: "الظهر",
+    prayerAsr: "العصر",
+    prayerMaghrib: "المغرب",
+    prayerIsha: "العشاء",
+    prayerNext: "الصلاة القادمة بعد",
+    asmaulHusnaTitle: "أسماء الله الحسنى",
+    asmaulHusnaDescription: "اكتشف أسماء الله وصفاته الحسنى.",
+    asmaulHusnaLoading: "جاري إنشاء الشرح...",
     checkingConfig: "جاري التحقق من الإعدادات...",
+    back: "رجوع",
+    close: "إغلاق",
   },
   fr: {
     chooseLanguage: "Choisissez la langue",
@@ -166,6 +230,8 @@ const translations: { [key in Language]: Translations } = {
     navHome: "Accueil",
     navQuran: "Coran",
     navDua: "Assistant",
+    navTasbih: "Tasbih",
+    navMore: "Plus",
     navQuiz: "Quiz",
     navSettings: "Paramètres",
     greetingMorning: "As-salamu alaykum",
@@ -204,6 +270,10 @@ const translations: { [key in Language]: Translations } = {
     playSurah: "Lire la Sourate",
     pause: "Pause",
     playAll: "Lire la Sourate",
+    tafsirGenerating: "Génération de l'explication...",
+    tafsirTitle: "Explication du Verset {number}",
+    getTafsir: "Expliquer avec l'IA",
+    getTafsirTitle: "Obtenir l'explication par l'IA",
     quizTitle: "Quiz Islamique",
     quizIntro: "Prêt à tester vos connaissances ? Une nouvelle série de questions sera générée pour vous.",
     quizStart: "Commencer le Quiz",
@@ -224,7 +294,31 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "Partager l'application",
     settingsShareButton: "Partager AYA",
     settingsLinkCopied: "Lien copié !",
+    tasbihTitle: "Compteur Tasbih",
+    tasbihTarget: "Objectif : {count}",
+    tasbihReset: "Réinitialiser",
+    tasbihCycleComplete: "Cycle terminé !",
+    moreTitle: "Plus de fonctionnalités",
+    morePrayerTimes: "Horaires de Prière",
+    moreAsmaulHusna: "Noms d'Allah",
+    prayerTimesTitle: "Horaires de Prière",
+    prayerTimesDescription: "Autorisez l'accès à la localisation pour voir les horaires de prière de votre région.",
+    prayerAllowLocation: "Autoriser la localisation",
+    prayerLocationDenied: "L'accès à la localisation est nécessaire pour afficher les horaires de prière. Veuillez l'activer dans les paramètres de votre navigateur.",
+    prayerFetching: "Récupération des horaires...",
+    prayerFajr: "Fajr",
+    prayerSunrise: "Sunrise",
+    prayerDhuhr: "Dhuhr",
+    prayerAsr: "Asr",
+    prayerMaghrib: "Maghrib",
+    prayerIsha: "Isha",
+    prayerNext: "Prochaine prière dans",
+    asmaulHusnaTitle: "Les 99 Noms d'Allah",
+    asmaulHusnaDescription: "Explorez les beaux noms et attributs d'Allah.",
+    asmaulHusnaLoading: "Génération de l'explication...",
     checkingConfig: "Vérification de la configuration...",
+    back: "Retour",
+    close: "Fermer",
   }
 };
 
@@ -352,8 +446,8 @@ const AppContent: React.FC = () => {
         case 'home': return <Home key="home" />;
         case 'dua': return <DuaGenerator key="dua" />;
         case 'quran': return <Quran key="quran" />;
-        case 'quiz': return <Quiz key="quiz" />;
-        case 'settings': return <Settings key="settings" />;
+        case 'tasbih': return <Tasbih key="tasbih" />;
+        case 'more': return <More key="more" />;
         default: return <Home key="home" />;
     }
   };

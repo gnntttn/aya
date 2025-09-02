@@ -11,7 +11,7 @@ export interface Dua {
 
 export type Language = 'en' | 'ar' | 'fr';
 
-export type View = 'home' | 'dua' | 'quran' | 'quiz' | 'settings';
+export type View = 'home' | 'dua' | 'quran' | 'tasbih' | 'more';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -60,6 +60,23 @@ export interface QuizQuestion {
   options: { [key in Language]: string[] };
   correctAnswerIndex: number;
   explanation: { [key in Language]: string };
+}
+
+export interface PrayerTimesData {
+    Fajr: string;
+    Sunrise: string;
+    Dhuhr: string;
+    Asr: string;
+    Maghrib: string;
+    Isha: string;
+}
+
+export interface AsmaulHusna {
+    id: number;
+    transliteration: string;
+    en: { name: string; };
+    fr: { name: string; };
+    ar: string;
 }
 
 export interface Translations {
