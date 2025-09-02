@@ -10,6 +10,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
   const { t, language } = useContext(LanguageContext) as LanguageContextType;
   
   const isApiKeyError = message && message.includes("Please configure the API_KEY");
+  const directionClass = language === 'ar' ? 'text-right' : 'text-left';
 
   if (isApiKeyError) {
     const texts = {
@@ -51,7 +52,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
     const currentTexts = texts[language] || texts['en'];
 
     return (
-      <div className="w-full max-w-2xl bg-amber-500/10 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-lg relative text-left animate-fade-in" role="alert">
+      <div className={`w-full max-w-2xl bg-amber-500/10 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-lg relative ${directionClass} animate-fade-in`} role="alert">
         <strong className="font-bold">{t('errorTitle')} {currentTexts.title}</strong>
         <p className="mt-2 text-sm">{currentTexts.p1}</p>
         <p className="mt-2 text-sm">{currentTexts.p2}</p>
@@ -68,7 +69,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
   }
 
   return (
-    <div className="w-full max-w-2xl bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg relative" role="alert">
+    <div className={`w-full max-w-2xl bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg relative ${directionClass}`} role="alert">
       <strong className="font-bold">{t('errorTitle')} </strong>
       <span className="block sm:inline">{message}</span>
     </div>
