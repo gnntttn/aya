@@ -84,6 +84,24 @@ export interface Reflection {
     date: string;
 }
 
+export interface Tafsir {
+    literalTranslation: string;
+    context: string;
+    explanation: string;
+    lessons: string;
+}
+
+export interface RecitationFeedback {
+    isCorrect: boolean;
+    feedbackMessage: string;
+    recitedText?: string;
+    correctionDetails?: {
+        mistake: string;
+        correct: string;
+    };
+}
+
+
 export interface Translations {
   [key:string]: string;
 }

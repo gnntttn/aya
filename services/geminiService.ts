@@ -1,4 +1,4 @@
-import type { Dua, QuizQuestion, Language, Ayah, Reflection } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -70,9 +70,9 @@ export const generateQuizQuestions = async (): Promise<QuizQuestion[]> => {
  * Gets AI-powered tafsir for a specific Ayah.
  * @param {Ayah} ayah - The Ayah object.
  * @param {Language} language - The requested language for the explanation.
- * @returns {Promise<string>} The tafsir text.
+ * @returns {Promise<Tafsir>} The structured tafsir object.
  */
-export const getTafsir = async (ayah: Ayah, language: Language): Promise<string> => {
+export const getTafsir = async (ayah: Ayah, language: Language): Promise<Tafsir> => {
   const response = await fetch('/.netlify/functions/gemini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -86,7 +86,7 @@ export const getTafsir = async (ayah: Ayah, language: Language): Promise<string>
   if (!response.ok) {
     throw new Error(data.error || 'Failed to generate tafsir.');
   }
-  return data.tafsir as string;
+  return data as Tafsir;
 };
 
 /**
@@ -140,9 +140,9 @@ export const getSpiritualReflection = async (feeling: string, language: Language
  * @param {string} recitedText - The text transcribed from the user's speech.
  * @param {string} actualVerseText - The correct text of the verse.
  * @param {Language} language - The language for the feedback.
- * @returns {Promise<string>} The feedback text.
+ * @returns {Promise<RecitationFeedback>} The structured feedback object.
  */
-export const getRecitationFeedback = async (recitedText: string, actualVerseText: string, language: Language): Promise<string> => {
+export const getRecitationFeedback = async (recitedText: string, actualVerseText: string, language: Language): Promise<RecitationFeedback> => {
     const response = await fetch('/.netlify/functions/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -156,5 +156,5 @@ export const getRecitationFeedback = async (recitedText: string, actualVerseText
     if (!response.ok) {
         throw new Error(data.error || 'Failed to get recitation feedback.');
     }
-    return data.feedback as string;
+    return data as RecitationFeedback;
 };

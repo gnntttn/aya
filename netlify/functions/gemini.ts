@@ -64,7 +64,18 @@ const getQuizSchema = () => ({
 const getQuizSystemInstruction = () => `You are an expert Islamic studies educator. Generate a set of 5 unique, multiple-choice quiz questions about Islam. Topics should be diverse: Quran, Hadith, Prophets, Islamic history, and pillars of Islam, with varied difficulty. For each question, provide the question text, 4 answer options, the correct answer's index, and a brief explanation. CRITICALLY, you must provide all text (questions, options, explanations) fully translated into English, Arabic, and French. Adhere strictly to the provided JSON schema.`;
 
 // --- TAFSIR GENERATION ---
-const getTafsirSystemInstruction = (languageName: string) => `You are a knowledgeable and clear Islamic studies teacher specializing in Tafsir (Quranic exegesis). Your task is to provide a concise, easy-to-understand explanation for a specific Quranic verse, in ${languageName}. Your explanation should cover the verse's meaning, context, and key lessons. Avoid overly academic language and make it accessible to a general audience seeking spiritual insight.`;
+const getTafsirSchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        literalTranslation: { type: Type.STRING, description: `A direct, literal translation of the verse in ${languageName}.` },
+        context: { type: Type.STRING, description: `A brief explanation of the context of revelation (Asbab al-Nuzul) for this verse in ${languageName}.` },
+        explanation: { type: Type.STRING, description: `A detailed explanation and interpretation of the verse's meaning and message in ${languageName}.` },
+        lessons: { type: Type.STRING, description: `A few key lessons or practical takeaways from the verse for a believer's life, in ${languageName}.` }
+    },
+    required: ['literalTranslation', 'context', 'explanation', 'lessons']
+});
+const getTafsirSystemInstruction = (languageName: string) => `You are a knowledgeable and clear Islamic scholar specializing in Tafsir (Quranic exegesis). Your task is to provide a comprehensive, structured explanation for a specific Quranic verse in ${languageName}, adhering strictly to the provided JSON schema. Your explanation must be broken down into four parts: a literal translation, the context of revelation (Asbab al-Nuzul), a detailed explanation of the meaning, and key lessons. Make the content accessible to a general audience seeking deep spiritual insight.`;
+
 
 // --- ASMA'UL HUSNA EXPLANATION ---
 const getAsmaulHusnaSystemInstruction = (languageName: string) => `You are a deeply knowledgeable Islamic scholar with a gift for explaining spiritual concepts. Your task is to provide a profound and inspiring explanation of one of the 99 Names of Allah (Asma'ul Husna), in ${languageName}. The explanation should be rich in meaning, covering the linguistic roots and spiritual implications of the name, and how a believer can reflect on this attribute in their life. Make it accessible and moving for a general audience.`;
@@ -73,11 +84,29 @@ const getAsmaulHusnaSystemInstruction = (languageName: string) => `You are a dee
 const getReflectionSystemInstruction = (languageName: string) => `You are a wise and empathetic spiritual companion. A user will tell you how they are feeling. Your task is to respond with a short, comforting, and uplifting reflection in ${languageName}. Your response should include a relevant verse from the Quran or a Hadith that connects to their feeling. Format the response beautifully, perhaps with the verse/hadith on a new line and clearly cited. Your tone should be gentle and reassuring. Do not ask questions back.`;
 
 // --- RECITATION FEEDBACK ---
-const getRecitationSystemInstruction = (languageName: string) => `You are an expert Quran teacher AI. Your task is to compare a user's recitation (provided as transcribed text) with the original Arabic text of a Quranic verse. 
-1.  Analyze the two texts for any differences (missing words, incorrect words, extra words).
-2.  If the recitation is identical to the verse, respond with a positive and encouraging confirmation like "Masha'Allah, your recitation is correct."
-3.  If there are mistakes, provide gentle, simple, and clear feedback. For example: "Good effort. It seems you may have missed or mispronounced a word. Please check the original text and try again." Do NOT provide a word-by-word breakdown unless it's a single, obvious error. Keep the feedback concise and encouraging.
-4.  Your entire response must be in ${languageName}. Do not respond in JSON format.`;
+const getRecitationFeedbackSchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        isCorrect: { type: Type.BOOLEAN, description: "True if the user's recitation perfectly matches the original verse, otherwise false." },
+        feedbackMessage: { type: Type.STRING, description: `A general, encouraging feedback message in ${languageName}. E.g., "Masha'Allah, perfect recitation!" or "Good effort, let's look at a small correction."` },
+        recitedText: { type: Type.STRING, description: "The transcribed text of what the user recited." },
+        correctionDetails: {
+            type: Type.OBJECT,
+            properties: {
+                mistake: { type: Type.STRING, description: "The specific word(s) the user recited incorrectly." },
+                correct: { type: Type.STRING, description: "The corresponding correct word(s) from the verse." }
+            },
+            description: "Provide this object only if a mistake is found."
+        }
+    },
+    required: ['isCorrect', 'feedbackMessage']
+});
+const getRecitationSystemInstruction = (languageName: string) => `You are an expert Quran teacher AI with a precise ear. Your task is to meticulously compare a user's recitation (provided as transcribed text) with the original Arabic text of a Quranic verse and provide structured feedback in JSON format.
+1.  **Analyze:** Compare the texts for any differences (missing words, incorrect words, extra words).
+2.  **Determine Correctness:** If the recitation is identical, set 'isCorrect' to true. Otherwise, set it to false.
+3.  **Provide Feedback Message:** Write a gentle, encouraging message in ${languageName} that reflects the result.
+4.  **Detail Corrections:** If 'isCorrect' is false, you MUST identify the specific mistake. Populate 'correctionDetails' with the incorrect word(s) the user said and the correct word(s) they should have said. If there are multiple errors, focus on the first significant one. Include the full 'recitedText' from the user.
+5.  **Adhere to Schema:** Your entire response must be a single JSON object that strictly follows the provided schema.`;
 
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
@@ -134,16 +163,18 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         const { ayah, language } = payload as { ayah: Ayah; language: Language };
         const languageName = languageMap[language] || 'English';
         
-        const prompt = `Provide a tafsir (explanation) for this verse: Surah ${ayah.surah?.englishName} (${ayah.surah?.name}), Ayah ${ayah.numberInSurah}, which reads: "${ayah.text}". Please provide the explanation in ${languageName}.`;
+        const prompt = `Provide a structured tafsir for this verse: Surah ${ayah.surah?.englishName} (${ayah.surah?.name}), Ayah ${ayah.numberInSurah}, which reads: "${ayah.text}". Please provide the full explanation in ${languageName}.`;
 
         const response = await ai.models.generateContent({
             model: modelName,
             contents: prompt,
             config: {
                 systemInstruction: getTafsirSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getTafsirSchema(languageName),
             },
         });
-        result = { tafsir: response.text };
+        result = JSON.parse(response.text);
 
     } else if (type === 'asmaulhusna') {
         const { name, language } = payload as { name: string; language: Language };
@@ -177,16 +208,18 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         const { recitedText, actualVerseText, language } = payload as { recitedText: string; actualVerseText: string, language: Language };
         const languageName = languageMap[language] || 'English';
 
-        const prompt = `Original Verse: "${actualVerseText}"\nUser's Recitation (transcribed): "${recitedText}"\n\nPlease compare them and provide feedback in ${languageName}.`;
+        const prompt = `Original Verse: "${actualVerseText}"\nUser's Recitation (transcribed): "${recitedText}"\n\nPlease compare them and provide structured feedback in ${languageName} according to the schema.`;
 
         const response = await ai.models.generateContent({
             model: modelName,
             contents: prompt,
             config: {
                 systemInstruction: getRecitationSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getRecitationFeedbackSchema(languageName),
             },
         });
-        result = { feedback: response.text };
+        result = JSON.parse(response.text);
 
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };

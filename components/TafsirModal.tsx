@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, Ayah } from '../types';
+import type { LanguageContextType, Ayah, Tafsir } from '../types';
 import { getTafsir, isApiKeyAvailable } from '../services/geminiService';
 import LoadingIndicator from './common/LoadingIndicator';
 import ErrorMessage from './common/ErrorMessage';
@@ -11,9 +10,17 @@ interface TafsirModalProps {
     onClose: () => void;
 }
 
+const TafsirSection: React.FC<{title: string; content: string;}> = ({ title, content }) => (
+    <div>
+        <h4 className="font-lora font-bold text-md text-[var(--accent-primary)] mb-2">{title}</h4>
+        <p className="text-base text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">{content}</p>
+    </div>
+);
+
+
 const TafsirModal: React.FC<TafsirModalProps> = ({ ayah, onClose }) => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
-    const [tafsir, setTafsir] = useState<string>('');
+    const [tafsir, setTafsir] = useState<Tafsir | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [apiKeyAvailable, setApiKeyAvailable] = useState(false);
@@ -67,16 +74,17 @@ const TafsirModal: React.FC<TafsirModalProps> = ({ ayah, onClose }) => {
                         <LoadingIndicator message={t('tafsirGenerating')} />
                     ) : error ? (
                         <ErrorMessage message={error} />
-                    ) : (
-                        <div className="space-y-4">
-                            <p dir="rtl" className="font-amiri text-2xl bg-black/5 dark:bg-white/5 p-4 rounded-lg text-right">
+                    ) : tafsir ? (
+                        <div className="space-y-6">
+                             <p dir="rtl" className="font-amiri text-2xl bg-black/5 dark:bg-white/5 p-4 rounded-lg text-right">
                                 {ayah.text}
                             </p>
-                            <p className="text-base text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
-                                {tafsir}
-                            </p>
+                            <TafsirSection title={t('tafsirLiteralTranslation')} content={tafsir.literalTranslation} />
+                            <TafsirSection title={t('tafsirContext')} content={tafsir.context} />
+                            <TafsirSection title={t('tafsirExplanation')} content={tafsir.explanation} />
+                            <TafsirSection title={t('tafsirLessons')} content={tafsir.lessons} />
                         </div>
-                    )}
+                    ) : null}
                 </div>
 
                 <footer className="flex-shrink-0 pt-4 text-center">

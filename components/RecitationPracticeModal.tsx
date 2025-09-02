@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, Ayah } from '../types';
+import type { LanguageContextType, Ayah, RecitationFeedback } from '../types';
 import { getRecitationFeedback, isApiKeyAvailable } from '../services/geminiService';
 import LoadingIndicator from './common/LoadingIndicator';
 import ErrorMessage from './common/ErrorMessage';
@@ -18,7 +17,7 @@ const RecitationPracticeModal: React.FC<RecitationPracticeModalProps> = ({ ayah,
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
     const [permission, setPermission] = useState<MicPermission>('idle');
     const [status, setStatus] = useState<RecitationStatus>('idle');
-    const [feedback, setFeedback] = useState<string>('');
+    const [feedback, setFeedback] = useState<RecitationFeedback | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [apiKeyAvailable, setApiKeyAvailable] = useState(true);
 
@@ -44,7 +43,12 @@ const RecitationPracticeModal: React.FC<RecitationPracticeModalProps> = ({ ayah,
             recognition.interimResults = false;
             
             recognition.onstart = () => setStatus('recording');
-            recognition.onend = () => setStatus('idle');
+            recognition.onend = () => {
+                // Only switch to idle if not analyzing. This prevents the button from changing too early.
+                if (status !== 'analyzing') {
+                    setStatus('idle');
+                }
+            };
             recognition.onerror = (event: any) => {
                 setError(`Speech recognition error: ${event.error}`);
                 setStatus('idle');
@@ -82,7 +86,7 @@ const RecitationPracticeModal: React.FC<RecitationPracticeModalProps> = ({ ayah,
         if (status === 'recording') {
             recognitionRef.current?.stop();
         } else {
-            setFeedback('');
+            setFeedback(null);
             setError(null);
             recognitionRef.current?.start();
         }
@@ -105,7 +109,7 @@ const RecitationPracticeModal: React.FC<RecitationPracticeModalProps> = ({ ayah,
         if (status === 'analyzing') return <LoadingIndicator message={t('recitationAnalyzing')} />;
 
         return (
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center w-full">
                  <button 
                     onClick={handleRecordClick}
                     className="w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-4 focus:ring-offset-[var(--bg-secondary-solid)] focus:ring-[var(--accent-primary)]"
@@ -125,9 +129,18 @@ const RecitationPracticeModal: React.FC<RecitationPracticeModalProps> = ({ ayah,
 
                 {error && <div className="mt-4 w-full"><ErrorMessage message={error} /></div>}
                 {status === 'feedback' && feedback && (
-                    <div className="mt-6 p-4 w-full rounded-lg bg-black/5 dark:bg-white/5 animate-fade-in text-center">
-                        <p className="font-bold text-[var(--accent-primary)]">{t('recitationFeedbackResult')}</p>
-                        <p className="text-md mt-1 text-[var(--text-primary)]">{feedback}</p>
+                    <div className="mt-6 p-4 w-full rounded-lg bg-black/5 dark:bg-white/5 animate-fade-in text-center space-y-3">
+                        <p className={`font-bold text-lg ${feedback.isCorrect ? 'text-green-400' : 'text-amber-400'}`}>{feedback.feedbackMessage}</p>
+                        
+                        {!feedback.isCorrect && feedback.recitedText && (
+                             <div>
+                                <p className="text-sm font-semibold text-[var(--text-secondary)]">{t('recitationYourRecitation')}</p>
+                                <p dir="rtl" className="font-amiri text-lg p-2 bg-black/10 dark:bg-white/10 rounded-md mt-1">{feedback.recitedText}</p>
+                            </div>
+                        )}
+                         {!feedback.isCorrect && feedback.correctionDetails && (
+                            <p className="text-md text-red-400 font-semibold">{t('recitationCorrection', { mistake: feedback.correctionDetails.mistake, correct: feedback.correctionDetails.correct })}</p>
+                        )}
                     </div>
                 )}
             </div>
