@@ -2,15 +2,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Dua, QuizQuestion, Language } from '../types';
 
-// Safely access the API key to prevent "process is not defined" error in browser environments.
-const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : undefined;
-
-// Conditionally initialize the AI client
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-
-if (!ai) {
-    console.warn("API_KEY environment variable not set. AI features will be disabled.");
-}
+// The API key MUST be obtained exclusively from the environment variable `process.env.API_KEY`.
+// As per the project guidelines, we assume the execution environment handles this.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 
 // --- DUA GENERATION ---
@@ -46,9 +40,6 @@ const getDuaSystemInstruction = (languageName: string) => `You are a knowledgeab
 
 
 export const generateDua = async (prompt: string, language: string): Promise<Dua> => {
-  if (!ai) {
-    throw new Error("AI features are disabled. Please configure the API_KEY.");
-  }
   try {
     const languageMap: { [key: string]: string } = { en: 'English', ar: 'Arabic', fr: 'French' };
     const languageName = languageMap[language] || 'English';
@@ -76,6 +67,10 @@ export const generateDua = async (prompt: string, language: string): Promise<Dua
 
   } catch (error) {
     console.error("Error generating dua from Gemini API:", error);
+    // Check if the error is related to the API key and throw a specific message for the UI to handle.
+    if (error instanceof Error && /API_KEY/i.test(error.message)) {
+      throw new Error("AI features are disabled. Please configure the API_KEY.");
+    }
     throw error;
   }
 };
@@ -130,9 +125,6 @@ const getQuizSchema = () => ({
 const getQuizSystemInstruction = () => `You are an expert Islamic studies educator. Your task is to generate a set of 5 unique, multiple-choice quiz questions about Islam. The topics should be diverse and interesting, covering the Quran, Hadith, Prophets, Islamic history, and pillars of Islam. The questions should vary in difficulty. For each question, you must provide the question text, 4 answer options, the index of the correct answer, and a brief explanation. CRITICALLY, you must provide all text (questions, options, explanations) fully translated into English, Arabic, and French. Adhere strictly to the provided JSON schema.`;
 
 export const generateQuizQuestions = async (): Promise<QuizQuestion[]> => {
-    if (!ai) {
-      throw new Error("AI features are disabled. Please configure the API_KEY.");
-    }
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -157,6 +149,10 @@ export const generateQuizQuestions = async (): Promise<QuizQuestion[]> => {
 
     } catch (error) {
         console.error("Error generating quiz from Gemini API:", error);
+        // Check if the error is related to the API key and throw a specific message for the UI to handle.
+        if (error instanceof Error && /API_KEY/i.test(error.message)) {
+          throw new Error("AI features are disabled. Please configure the API_KEY.");
+        }
         throw error;
     }
 }
