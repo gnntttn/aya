@@ -51,9 +51,11 @@ const Quran: React.FC = () => {
                         className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
                     >
                         <div className="flex items-center">
-                            <div className="relative w-10 h-10 flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm">
-                                <svg className="absolute w-full h-full opacity-30 group-hover:opacity-60 transition-opacity" viewBox="0 0 48 48"><path fill="currentColor" d="M24 6.15L31.1 16.9L44 19L34 28.65L36.25 41.85L24 35.15L11.75 41.85L14 28.65L4 19L16.9 16.9L24 6.15Z"/></svg>
-                                <span className="z-10">{surah.number}</span>
+                            <div className="relative w-12 h-12 flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm transition-transform duration-300 group-hover:scale-105">
+                                <svg className="absolute w-full h-full opacity-40 group-hover:opacity-80 transition-opacity" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z" fill="currentColor"/>
+                                </svg>
+                                <span className="z-10 text-[var(--accent-text)]">{surah.number}</span>
                             </div>
                             <div className={`mx-3 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                                 <p className={`font-semibold text-md text-[var(--text-primary)] ${language === 'ar' ? 'font-amiri' : ''}`}>{language === 'ar' ? surah.name : surah.englishName}</p>

@@ -47,9 +47,12 @@ const VerseOfTheDay: React.FC = () => {
                 {isLoading ? (
                     <div className="h-24 flex items-center justify-center text-sm text-[var(--text-secondary)]">Loading...</div>
                 ) : verse ? (
-                    <div onClick={navigateToSurah} className="cursor-pointer group">
+                    <div onClick={navigateToSurah} className="cursor-pointer group relative pt-4">
+                         <div className="absolute top-0 right-0 text-3xl text-[var(--accent-primary)] opacity-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M9.983 3v7.391c0 2.9-2.35 5.25-5.25 5.25a5.25 5.25 0 0 1-5.25-5.25C-.517 7.391 1.833 5 4.733 5c1.423 0 2.733.575 3.733 1.525V3h1.517zM21.483 3v7.391c0 2.9-2.35 5.25-5.25 5.25a5.25 5.25 0 0 1-5.25-5.25C10.983 7.391 13.333 5 16.233 5c1.423 0 2.733.575 3.733 1.525V3h1.517z"></path></svg>
+                        </div>
                         <p dir="rtl" className="font-amiri text-2xl leading-relaxed text-right text-[var(--text-primary)]">{verse.text}</p>
-                        <p className="text-xs text-[var(--text-secondary)] mt-2 font-medium group-hover:text-[var(--accent-primary)] transition-colors">({verse.surah?.name}: {verse.numberInSurah})</p>
+                        <p className="text-xs text-[var(--text-secondary)] mt-2 font-medium group-hover:text-[var(--accent-primary)] transition-colors text-right">({verse.surah?.name}: {verse.numberInSurah})</p>
                     </div>
                 ) : (
                     <div className="h-24 flex items-center justify-center text-sm text-red-400">Could not load verse.</div>

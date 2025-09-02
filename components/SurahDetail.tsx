@@ -17,7 +17,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     
-    const [currentPlayingAyah, setCurrentPlayingAyah] = useState<number | null>(null);
+    const [currentPlayingAyahIndex, setCurrentPlayingAyahIndex] = useState<number | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -37,25 +37,54 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         };
         fetchDetail();
         return () => {
-            if (audioRef.current) audioRef.current.pause();
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
         }
     }, [surahNumber, reciter.identifier]);
-    
-    const playAyah = (ayah: Ayah) => {
-        if (audioRef.current && ayah.audio) {
-            if (currentPlayingAyah === ayah.number && isPlaying) {
-                audioRef.current.pause();
+
+    useEffect(() => {
+        const audioEl = audioRef.current;
+        if (!audioEl) return;
+
+        const handleAudioEnd = () => {
+            if (surahData && currentPlayingAyahIndex !== null && currentPlayingAyahIndex < surahData.ayahs.length - 1) {
+                playAyahByIndex(currentPlayingAyahIndex + 1);
             } else {
-                setCurrentPlayingAyah(ayah.number);
-                audioRef.current.src = ayah.audio;
-                audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+                setIsPlaying(false);
+                setCurrentPlayingAyahIndex(null);
             }
+        };
+        
+        audioEl.addEventListener('ended', handleAudioEnd);
+        return () => audioEl.removeEventListener('ended', handleAudioEnd);
+
+    }, [currentPlayingAyahIndex, surahData]);
+    
+    const playAyahByIndex = (index: number) => {
+        if (!surahData || !audioRef.current) return;
+        const ayah = surahData.ayahs[index];
+        if (ayah && ayah.audio) {
+            setCurrentPlayingAyahIndex(index);
+            audioRef.current.src = ayah.audio;
+            audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+            setIsPlaying(true);
+        }
+    };
+    
+    const handlePlayPause = () => {
+        if (isPlaying) {
+            audioRef.current?.pause();
+            setIsPlaying(false);
+        } else {
+            const indexToPlay = currentPlayingAyahIndex ?? 0;
+            playAyahByIndex(indexToPlay);
         }
     };
 
-    const handleAudioEnd = () => {
-       setCurrentPlayingAyah(null);
-    };
+    const jumpToAyah = (index: number) => {
+        playAyahByIndex(index);
+    }
 
     if (isLoading) return <div className="pt-20"><LoadingIndicator message={t('loadingSurah')} /></div>;
     if (error || !surahData) return <ErrorMessage message={error || "Could not load Surah data."} />;
@@ -69,7 +98,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     return (
         <div className="w-full animate-fade-in pb-12">
             <header className="text-center mb-6 relative">
-                <button onClick={() => setSelectedSurah(null)} className="absolute top-1/2 -translate-y-1/2 left-0 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2">
+                <button onClick={() => setSelectedSurah(null)} className="absolute top-1/2 -translate-y-1/2 left-0 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)]">{language === 'ar' ? surahData.name : surahData.englishName}</h2>
@@ -77,8 +106,21 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
             </header>
             
             <div className="glass-card p-4 sm:p-6">
-                <div className="mb-6 p-3 bg-black/5 dark:bg-white/5 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="mb-6 p-2 bg-black/5 dark:bg-white/5 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4">
                     <ReciterSelector />
+                    <button onClick={handlePlayPause} className="flex items-center gap-2 px-4 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-full text-sm shadow-md hover:bg-[var(--accent-secondary)] transition-colors transform hover:scale-105">
+                        {isPlaying ? (
+                            <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                                {t('pause')}
+                            </>
+                        ) : (
+                            <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>
+                                {t('playAll')}
+                            </>
+                        )}
+                    </button>
                 </div>
 
                 {surahData.number !== 1 && surahData.number !== 9 && (
@@ -88,12 +130,12 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                 )}
 
                 <div dir="rtl" className="font-amiri text-3xl leading-[2.5] text-right text-[var(--text-primary)] p-2" style={{ wordSpacing: '8px' }}>
-                    {surahData.ayahs.map((ayah) => (
+                    {surahData.ayahs.map((ayah, index) => (
                         <React.Fragment key={ayah.number}>
                             <span 
-                                onClick={() => playAyah(ayah)}
+                                onClick={() => jumpToAyah(index)}
                                 className={`cursor-pointer transition-colors duration-300 rounded px-1 ${
-                                    currentPlayingAyah === ayah.number ? 'bg-yellow-400/20 text-[var(--accent-primary)]' : 'hover:bg-black/5 dark:hover:bg-white/5'
+                                    currentPlayingAyahIndex === index ? 'bg-yellow-400/20 text-[var(--accent-primary)]' : 'hover:bg-black/5 dark:hover:bg-white/5'
                                 }`}
                             >
                                 {ayah.text}
@@ -129,7 +171,6 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                 ref={audioRef}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
-                onEnded={handleAudioEnd}
                 className="hidden"
             />
         </div>

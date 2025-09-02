@@ -64,6 +64,7 @@ const translations: { [key in Language]: Translations } = {
     selectReciter: "Select Reciter",
     playSurah: "Play Surah",
     pause: "Pause",
+    playAll: "Play Surah",
     // Quiz Page
     quizTitle: "Islamic Quiz",
     quizIntro: "Ready to test your knowledge? A new set of questions will be generated for you.",
@@ -83,6 +84,9 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "Light",
     themeDark: "Dark",
     themeSystem: "System",
+    settingsShareTitle: "Share the App",
+    settingsShareButton: "Share AYA",
+    settingsLinkCopied: "Link Copied!",
     // General
     checkingConfig: "Checking configuration...",
   },
@@ -131,6 +135,7 @@ const translations: { [key in Language]: Translations } = {
     selectReciter: "اختر القارئ",
     playSurah: "تشغيل السورة",
     pause: "إيقاف",
+    playAll: "تشغيل السورة",
     quizTitle: "اختبار إسلامي",
     quizIntro: "هل أنت مستعد لاختبار معرفتك؟ سيتم إنشاء مجموعة جديدة من الأسئلة لك.",
     quizStart: "ابدأ الاختبار",
@@ -148,6 +153,9 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "فاتح",
     themeDark: "داكن",
     themeSystem: "النظام",
+    settingsShareTitle: "شارك التطبيق",
+    settingsShareButton: "مشاركة آية",
+    settingsLinkCopied: "تم نسخ الرابط!",
     checkingConfig: "جاري التحقق من الإعدادات...",
   },
   fr: {
@@ -195,6 +203,7 @@ const translations: { [key in Language]: Translations } = {
     selectReciter: "Choisir le récitateur",
     playSurah: "Lire la Sourate",
     pause: "Pause",
+    playAll: "Lire la Sourate",
     quizTitle: "Quiz Islamique",
     quizIntro: "Prêt à tester vos connaissances ? Une nouvelle série de questions sera générée pour vous.",
     quizStart: "Commencer le Quiz",
@@ -212,6 +221,9 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "Clair",
     themeDark: "Sombre",
     themeSystem: "Système",
+    settingsShareTitle: "Partager l'application",
+    settingsShareButton: "Partager AYA",
+    settingsLinkCopied: "Lien copié !",
     checkingConfig: "Vérification de la configuration...",
   }
 };
