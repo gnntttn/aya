@@ -52,6 +52,7 @@ const translations: { [key in Language]: Translations } = {
     promptError: "Please describe what you would like to make dua for.",
     duaCardTransliteration: "Transliteration:",
     duaCardReference: "Reference:",
+    sampleDuasTitle: "Sample Duas",
     // Quran Page
     quranTitle: "The Holy Quran",
     quranDescription: "Browse all 114 Surahs of the Quran.",
@@ -125,6 +126,7 @@ const translations: { [key in Language]: Translations } = {
     promptError: "يرجى وصف ما تود الدعاء من أجله.",
     duaCardTransliteration: "النطق الصوتي:",
     duaCardReference: "المرجع:",
+    sampleDuasTitle: "أدعية نموذجية",
     // Quran Page
     quranTitle: "القرآن الكريم",
     quranDescription: "تصفح جميع سور القرآن الـ 114.",
@@ -198,6 +200,7 @@ const translations: { [key in Language]: Translations } = {
     promptError: "Veuillez décrire ce pour quoi vous souhaitez faire une dou'a.",
     duaCardTransliteration: "Translittération :",
     duaCardReference: "Référence :",
+    sampleDuasTitle: "Exemples de Dou'as",
     // Quran Page
     quranTitle: "Le Saint Coran",
     quranDescription: "Parcourez les 114 sourates du Coran.",

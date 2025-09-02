@@ -1,6 +1,6 @@
 
 import React, { useState, useContext } from 'react';
-import { generateQuizQuestions } from '../services/geminiService';
+import { generateQuizQuestions, isApiKeyAvailable } from '../services/geminiService';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, QuizQuestion, QuizState } from '../types';
 import ErrorMessage from './ErrorMessage';
@@ -17,6 +17,8 @@ const Quiz: React.FC = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
     
+    const apiKeyAvailable = isApiKeyAvailable();
+
     const fetchQuiz = async () => {
         setQuizState('loading');
         setError(null);
@@ -46,10 +48,18 @@ const Quiz: React.FC = () => {
                 </div>
                 <h2 className="text-3xl font-bold text-[var(--accent-primary)] mb-4">{t('quizTitle')}</h2>
                 <p className="text-md text-[var(--text-secondary)] mb-8 max-w-md">{t('quizIntro')}</p>
+                
+                {!apiKeyAvailable && (
+                    <div className="mb-4 w-full">
+                        <ErrorMessage message="AI features are disabled. Please configure the API_KEY." />
+                    </div>
+                )}
                 {error && <div className="mb-4 w-full"><ErrorMessage message={error} /></div>}
+
                 <button
                     onClick={fetchQuiz}
-                    className="w-full max-w-xs px-6 py-3 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-lg shadow-lg hover:bg-[var(--accent-secondary)] transform hover:scale-105 transition-all duration-300"
+                    disabled={!apiKeyAvailable}
+                    className="w-full max-w-xs px-6 py-3 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-lg shadow-lg hover:bg-[var(--accent-secondary)] transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {t('quizStart')}
                 </button>

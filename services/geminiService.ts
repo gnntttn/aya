@@ -7,6 +7,21 @@ import type { Dua, QuizQuestion, Language } from '../types';
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 
+/**
+ * Checks if the API key is available.
+ * In a static site without a build process, `process` is not defined,
+ * so this will correctly return false.
+ * @returns {boolean} True if the API key is likely configured.
+ */
+export const isApiKeyAvailable = (): boolean => {
+  try {
+    return !!(typeof process !== 'undefined' && process.env && process.env.API_KEY);
+  } catch (e) {
+    return false;
+  }
+};
+
+
 // --- DUA GENERATION ---
 
 const getDuaSchema = (languageName: string) => ({

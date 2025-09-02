@@ -2,10 +2,11 @@
 import React, { useState, useCallback, useContext } from 'react';
 import type { Dua, LanguageContextType } from '../types';
 import { LanguageContext } from '../types';
-import { generateDua } from '../services/geminiService';
+import { generateDua, isApiKeyAvailable } from '../services/geminiService';
 import LoadingIndicator from './LoadingIndicator';
 import DuaCard from './DuaCard';
 import ErrorMessage from './ErrorMessage';
+import { sampleDuas } from '../data/sampleDuas';
 
 const DuaGenerator: React.FC = () => {
   const { language, t } = useContext(LanguageContext) as LanguageContextType;
@@ -13,6 +14,8 @@ const DuaGenerator: React.FC = () => {
   const [dua, setDua] = useState<Dua | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const apiKeyAvailable = isApiKeyAvailable();
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +50,26 @@ const DuaGenerator: React.FC = () => {
   const handleExampleClick = (example: string) => {
     setPrompt(example);
   };
+  
+  if (!apiKeyAvailable) {
+    return (
+        <div className="w-full text-center animate-fade-in">
+             <h2 className="text-3xl font-bold text-[var(--accent-primary)] mb-3">{t('pageTitle')}</h2>
+             <p className="text-md text-[var(--text-secondary)] mb-6 max-w-xl mx-auto">
+                {t('pageDescription')}
+             </p>
+             <div className="mb-8">
+                <ErrorMessage message="AI features are disabled. Please configure the API_KEY." />
+             </div>
+             <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">{t('sampleDuasTitle')}</h3>
+             <div className="space-y-4">
+                 {(sampleDuas[language] || sampleDuas['en']).map((sample, index) => (
+                     <DuaCard key={index} dua={sample} />
+                 ))}
+             </div>
+        </div>
+    )
+  }
 
   return (
     <div className="w-full text-center animate-fade-in">
