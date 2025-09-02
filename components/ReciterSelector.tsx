@@ -1,7 +1,7 @@
 
 import React, { useContext } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, Reciter } from '../types';
+import type { LanguageContextType } from '../types';
 import { recitersData } from '../data/recitersData';
 
 const ReciterSelector: React.FC = () => {
@@ -22,10 +22,10 @@ const ReciterSelector: React.FC = () => {
                 id="reciter-select"
                 value={reciter.identifier}
                 onChange={handleReciterChange}
-                className="w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors duration-200"
+                className="w-full px-3 py-2 text-sm text-[var(--text-primary)] bg-transparent border-none rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-colors duration-200 appearance-none text-center sm:text-left"
             >
                 {recitersData.map(r => (
-                    <option key={r.identifier} value={r.identifier}>
+                    <option key={r.identifier} value={r.identifier} className="bg-[var(--bg-secondary-solid)] text-[var(--text-primary)]">
                         {r.name[language]}
                     </option>
                 ))}

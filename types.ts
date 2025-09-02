@@ -11,7 +11,7 @@ export interface Dua {
 
 export type Language = 'en' | 'ar' | 'fr';
 
-export type View = 'home' | 'dua' | 'quran' | 'quiz' | 'more';
+export type View = 'home' | 'dua' | 'quran' | 'quiz' | 'settings';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -81,7 +81,6 @@ export interface LanguageContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   surahs: Surah[];
-  animationDirection: 'left' | 'right';
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

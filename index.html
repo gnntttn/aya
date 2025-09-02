@@ -6,51 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#F9F9F7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121820" media="(prefers-color-scheme: dark)">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     
     <title>AYA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:wght@300;400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
       
       :root {
-        --bg-primary: #f8fafc;
-        --bg-secondary: #ffffff;
-        --text-primary: #1e293b;
-        --text-secondary: #475569;
-        --accent-primary: #0d9488; /* Teal 600 */
-        --accent-secondary: #0f766e; /* Teal 700 */
-        --accent-text: #ffffff;
-        --accent-glow: #14b8a660; /* Teal 500 with alpha */
-        --border-color: #e2e8f0;
-        --shadow-color: 220 38 38; /* Placeholder, will be black */
+        --bg-primary: #F9F9F7;
+        --bg-secondary-trans: rgba(255, 255, 255, 0.5);
+        --bg-secondary-solid: #ffffff;
+        --text-primary: #1A1A1A;
+        --text-secondary: #6B6B6B;
+        --accent-primary: #D4AF37;
+        --accent-secondary: #C09E31;
+        --accent-text: #1A1A1A;
+        --border-color: rgba(0, 0, 0, 0.08);
+        --shadow-color-rgb: 90, 90, 90;
       }
       
       html.dark {
-        --bg-primary: #020617; /* Slate 950 */
-        --bg-secondary: #0f172a; /* Slate 900 */
-        --text-primary: #f1f5f9; /* Slate 100 */
-        --text-secondary: #94a3b8; /* Slate 400 */
-        --accent-primary: #2dd4bf; /* Teal 400 */
-        --accent-secondary: #14b8a6; /* Teal 500 */
-        --accent-text: #0f172a;
-        --accent-glow: #5eead460; /* Teal 300 with alpha */
-        --border-color: #334155; /* Slate 700 */
-        --shadow-color: 0 0 0;
+        --bg-primary: #121820;
+        --bg-secondary-trans: rgba(26, 34, 44, 0.6);
+        --bg-secondary-solid: #1A222C;
+        --text-primary: #EAEAEA;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #D4AF37;
+        --accent-secondary: #E0B841;
+        --accent-text: #121820;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --shadow-color-rgb: 0, 0, 0;
       }
       
       body {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
         background-color: var(--bg-primary);
         color: var(--text-primary);
         transition: background-color 0.3s ease, color 0.3s ease;
-        -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        -webkit-tap-highlight-color: transparent;
       }
-      
-      /* Add subtle texture to background */
+
       body::before {
         content: "";
         position: fixed;
@@ -58,57 +57,46 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.04"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        background-image:
+            radial-gradient(circle at 10% 10%, var(--accent-primary) 1px, transparent 1px),
+            radial-gradient(circle at 90% 80%, var(--accent-primary) 1px, transparent 1px);
+        background-size: 50px 50px;
+        opacity: 0.1;
         z-index: -1;
-        opacity: 0.5;
       }
 
       #root {
         position: relative;
         overflow-x: hidden;
       }
-
-      .font-amiri {
-        font-family: 'Amiri', serif;
-      }
       
-      .view-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        will-change: transform, opacity;
-      }
-
-      @keyframes slide-in-right {
-        0% { opacity: 0; transform: translateX(30px); }
-        100% { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes slide-out-left {
-        0% { opacity: 1; transform: translateX(0); }
-        100% { opacity: 0; transform: translateX(-30px); }
-      }
-      @keyframes slide-in-left {
-        0% { opacity: 0; transform: translateX(-30px); }
-        100% { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes slide-out-right {
-        0% { opacity: 1; transform: translateX(0); }
-        100% { opacity: 0; transform: translateX(30px); }
-      }
-
-      .animate-slide-in-right { animation: slide-in-right 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-      .animate-slide-out-left { animation: slide-out-left 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-      .animate-slide-in-left { animation: slide-in-left 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-      .animate-slide-out-right { animation: slide-out-right 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+      .font-lora { font-family: 'Lora', serif; }
+      .font-amiri { font-family: 'Amiri', serif; }
+      .font-inter { font-family: 'Inter', sans-serif; }
       
+      .glass-card {
+        background-color: var(--bg-secondary-trans);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem; /* 16px */
+        box-shadow: 0 8px 32px 0 rgba(var(--shadow-color-rgb), 0.1);
+        transition: background-color 0.3s ease, border 0.3s ease;
+      }
+
+      .glass-nav {
+        background-color: var(--bg-secondary-trans);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-top: 1px solid var(--border-color);
+      }
+
       @keyframes fade-in {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .animate-fade-in {
-        animation: fade-in 0.5s ease-out forwards;
+        animation: fade-in 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
       }
 
       /* Staggered animation for list items */
@@ -117,7 +105,6 @@
         transform: translateY(15px);
         animation: fade-in 0.5s ease-out forwards;
       }
-
     </style>
   <script type="importmap">
 {

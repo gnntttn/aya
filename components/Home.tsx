@@ -1,145 +1,113 @@
 
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, Ayah, Surah } from '../types';
+import type { LanguageContextType, Ayah, View } from '../types';
 import { getAyahDetail } from '../services/quranService';
-import { dhikrData } from '../data/dhikrData';
 
-const Home: React.FC = () => {
-    const { t, language, surahs } = useContext(LanguageContext) as LanguageContextType;
-    const [greeting, setGreeting] = useState('');
-    const [streak, setStreak] = useState(1);
+const VerseOfTheDay: React.FC = () => {
+    const { t, language, surahs, setSelectedSurah, setView } = useContext(LanguageContext) as LanguageContextType;
     const [verse, setVerse] = useState<Ayah | null>(null);
-    const [isVerseLoading, setIsVerseLoading] = useState(true);
-    const [currentDhikr, setCurrentDhikr] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Set Greeting
-    useEffect(() => {
-        const hour = new Date().getHours();
-        if (hour < 12) {
-            setGreeting(t('greetingMorning'));
-        } else if (hour < 18) {
-            setGreeting(t('greetingAfternoon'));
-        } else {
-            setGreeting(t('greetingEvening'));
+    const fetchRandomVerse = useCallback(async () => {
+        if (surahs.length === 0) return;
+        setIsLoading(true);
+        try {
+            const randomSurah = surahs[Math.floor(Math.random() * surahs.length)];
+            const randomAyahNumber = Math.floor(Math.random() * randomSurah.numberOfAyahs) + 1;
+            const ayahDetail = await getAyahDetail(randomSurah.number, randomAyahNumber, language);
+            setVerse(ayahDetail);
+        } catch (err) {
+            console.error("Failed to fetch verse of the day:", err);
+            setVerse(null);
+        } finally {
+            setIsLoading(false);
         }
-    }, [t]);
-    
-    // Calculate Streak
-    useEffect(() => {
-        const today = new Date().toDateString();
-        const lastVisit = localStorage.getItem('aya-last-visit');
-        const currentStreak = parseInt(localStorage.getItem('aya-streak') || '1', 10);
-
-        if (lastVisit === today) {
-            setStreak(currentStreak);
-        } else {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            
-            if (lastVisit === yesterday.toDateString()) {
-                const newStreak = currentStreak + 1;
-                setStreak(newStreak);
-                localStorage.setItem('aya-streak', String(newStreak));
-            } else {
-                setStreak(1);
-                localStorage.setItem('aya-streak', '1');
-            }
-            localStorage.setItem('aya-last-visit', today);
-        }
-    }, []);
-
-    // Fetch Random Verse of the Day
-    useEffect(() => {
-        const fetchRandomVerse = async () => {
-            if (surahs.length === 0) return;
-            setIsVerseLoading(true);
-            try {
-                // Pick a random surah
-                const randomSurah = surahs[Math.floor(Math.random() * surahs.length)];
-                // Pick a random ayah from that surah
-                const randomAyahNumber = Math.floor(Math.random() * randomSurah.numberOfAyahs) + 1;
-                
-                const ayahDetail = await getAyahDetail(randomSurah.number, randomAyahNumber, language);
-                setVerse(ayahDetail);
-
-            } catch (err) {
-                 console.error("Failed to fetch verse of the day:", err);
-            } finally {
-                setIsVerseLoading(false);
-            }
-        }
-        fetchRandomVerse();
     }, [language, surahs]);
-    
-    const selectNewDhikr = useCallback(() => {
-        const dhikrList = dhikrData[language];
-        const randomIndex = Math.floor(Math.random() * dhikrList.length);
-        setCurrentDhikr(dhikrList[randomIndex]);
-    }, [language]);
 
     useEffect(() => {
-        selectNewDhikr();
-    }, [language, selectNewDhikr]);
-
+        fetchRandomVerse();
+    }, [fetchRandomVerse]);
+    
+    const navigateToSurah = () => {
+        if(verse && verse.surah) {
+            setSelectedSurah(verse.surah.number);
+            setView('quran');
+        }
+    }
 
     return (
-        <div className="w-full space-y-4 text-[var(--text-primary)] stagger-in">
-            {/* Top Row */}
-            <div className="grid grid-cols-2 gap-4" style={{ animationDelay: '100ms' }}>
-                {/* Streak Card */}
-                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl flex flex-col items-start justify-center shadow-lg border border-[var(--border-color)]">
-                    <span className="text-4xl font-bold text-[var(--accent-primary)]">{streak}</span>
-                    <span className="text-sm text-[var(--text-secondary)]">{t('streakTitle')}</span>
-                </div>
-                {/* Greeting Card */}
-                <div className="bg-[var(--bg-secondary)] p-4 rounded-xl flex flex-col items-end justify-center text-right shadow-lg border border-[var(--border-color)]">
-                    <h2 className="text-xl font-bold flex items-center gap-2">
-                        {greeting}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--accent-primary)]" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                        </svg>
-                    </h2>
-                    <p className="text-xs text-[var(--text-secondary)]">{t('homeSubGreeting')}</p>
-                </div>
+        <div className="w-full p-5 text-center glass-card relative overflow-hidden" style={{ animationDelay: '100ms' }}>
+            <div 
+                className="absolute inset-0 bg-no-repeat bg-cover opacity-5 dark:opacity-10" 
+                style={{backgroundImage: "url('/geometric_bg.svg')"}}>
             </div>
-
-            {/* Verse Card */}
-            <div className="bg-[var(--bg-secondary)] p-5 rounded-xl shadow-lg border border-[var(--border-color)]" style={{ animationDelay: '200ms' }}>
-                <div className="flex justify-between items-center mb-3 text-[var(--accent-primary)]">
-                    <h3 className="font-semibold">{t('verseOfTheDayTitle')}</h3>
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                       <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 16c1.255 0 2.443-.29 3.5-.804V4.804zM14.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 0114.5 16c1.255 0 2.443-.29 3.5-.804v-10A7.968 7.968 0 0014.5 4z" />
-                     </svg>
-                </div>
-                {isVerseLoading ? (
-                     <div className="text-center text-sm text-[var(--text-secondary)] py-4">Loading verse...</div>
+            <div className="relative z-10">
+                <h3 className="font-lora font-semibold text-lg text-[var(--text-primary)] mb-3">{t('verseOfTheDayTitle')}</h3>
+                {isLoading ? (
+                    <div className="h-24 flex items-center justify-center text-sm text-[var(--text-secondary)]">Loading...</div>
                 ) : verse ? (
-                    <div className="text-center font-amiri">
-                        <p dir="rtl" className="text-xl leading-relaxed text-right">{verse.text}</p>
-                        <p className="text-xs text-[var(--text-secondary)] mt-2">({verse.surah?.name}: {verse.numberInSurah})</p>
+                    <div onClick={navigateToSurah} className="cursor-pointer group">
+                        <p dir="rtl" className="font-amiri text-2xl leading-relaxed text-right text-[var(--text-primary)]">{verse.text}</p>
+                        <p className="text-xs text-[var(--text-secondary)] mt-2 font-medium group-hover:text-[var(--accent-primary)] transition-colors">({verse.surah?.name}: {verse.numberInSurah})</p>
                     </div>
                 ) : (
-                    <div className="text-center text-sm text-red-400 py-4">Could not load verse.</div>
+                    <div className="h-24 flex items-center justify-center text-sm text-red-400">Could not load verse.</div>
                 )}
             </div>
+        </div>
+    );
+};
 
-            {/* Dhikr Card */}
-            <div className="bg-[var(--bg-secondary)] p-5 rounded-xl shadow-lg border border-[var(--border-color)]" style={{ animationDelay: '300ms' }}>
-                 <div className="flex justify-between items-center mb-4 text-[var(--accent-primary)]">
-                    <button onClick={selectNewDhikr} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)]" aria-label="New Dhikr">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V4a1 1 0 011-1zm10.707 9.293a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 15H9a1 1 0 010-2h3.586l-1.293-1.293a1 1 0 011.414-1.414l3 3z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                    <h3 className="font-semibold">{t('dhikrOfTheDayTitle')}</h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                    </svg>
+const HomeNavCard: React.FC<{
+    view: View;
+    title: string;
+    description: string;
+    icon: JSX.Element;
+    delay: string;
+}> = ({ view, title, description, icon, delay }) => {
+    const { setView } = useContext(LanguageContext) as LanguageContextType;
+    return (
+        <button 
+            onClick={() => setView(view)} 
+            className="glass-card p-4 flex flex-col items-start justify-between text-left group w-full h-full"
+            style={{ animationDelay: delay }}
+        >
+            <div>
+                <div className="mb-2 text-[var(--accent-primary)] group-hover:scale-110 transition-transform duration-300">
+                    {icon}
                 </div>
-                <p className={`text-center text-2xl font-bold font-amiri ${language === 'ar' ? 'tracking-normal' : 'tracking-wide'}`}>
-                    {currentDhikr}
-                </p>
+                <h4 className="font-lora font-bold text-md text-[var(--text-primary)]">{title}</h4>
+            </div>
+            <p className="text-xs text-[var(--text-secondary)]">{description}</p>
+        </button>
+    );
+};
+
+const Home: React.FC = () => {
+    const { t } = useContext(LanguageContext) as LanguageContextType;
+    
+    const cardIcons = {
+        dua: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.375 3.375 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
+        quran: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+        quiz: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+        settings: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+    }
+
+    return (
+        <div className="w-full space-y-6 animate-fade-in stagger-in">
+            <header style={{ animationDelay: '0ms' }}>
+                <h1 className="font-lora text-3xl font-bold text-[var(--text-primary)]">{t('greetingMorning')}</h1>
+                <p className="text-[var(--text-secondary)] mt-1">{t('homeSubGreeting')}</p>
+            </header>
+
+            <VerseOfTheDay />
+            
+            <div className="grid grid-cols-2 grid-rows-2 gap-4 h-48" style={{ animationDelay: '200ms' }}>
+                <HomeNavCard view="dua" title={t('homeCardDua')} description={t('homeCardDuaDesc')} icon={cardIcons.dua} delay="250ms" />
+                <HomeNavCard view="quran" title={t('homeCardQuran')} description={t('homeCardQuranDesc')} icon={cardIcons.quran} delay="300ms" />
+                <HomeNavCard view="quiz" title={t('homeCardQuiz')} description={t('homeCardQuizDesc')} icon={cardIcons.quiz} delay="350ms" />
+                <HomeNavCard view="settings" title={t('homeCardSettings')} description={t('homeCardSettingsDesc')} icon={cardIcons.settings} delay="400ms" />
             </div>
         </div>
     );
