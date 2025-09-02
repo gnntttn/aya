@@ -83,6 +83,8 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "Light",
     themeDark: "Dark",
     themeSystem: "System",
+    // General
+    checkingConfig: "Checking configuration...",
   },
   ar: {
     chooseLanguage: "اختر لغتك",
@@ -146,6 +148,7 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "فاتح",
     themeDark: "داكن",
     themeSystem: "النظام",
+    checkingConfig: "جاري التحقق من الإعدادات...",
   },
   fr: {
     chooseLanguage: "Choisissez la langue",
@@ -209,6 +212,7 @@ const translations: { [key in Language]: Translations } = {
     themeLight: "Clair",
     themeDark: "Sombre",
     themeSystem: "Système",
+    checkingConfig: "Vérification de la configuration...",
   }
 };
 

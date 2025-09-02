@@ -1,23 +1,32 @@
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { generateQuizQuestions, isApiKeyAvailable } from '../services/geminiService';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, QuizQuestion, QuizState } from '../types';
 import ErrorMessage from './common/ErrorMessage';
 import LoadingIndicator from './common/LoadingIndicator';
 
+type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
+
 const Quiz: React.FC = () => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
     const [quizState, setQuizState] = useState<QuizState>('idle');
     const [questions, setQuestions] = useState<QuizQuestion[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('checking');
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
     
-    const apiKeyAvailable = isApiKeyAvailable();
+    useEffect(() => {
+        const checkKey = async () => {
+            const available = await isApiKeyAvailable();
+            setApiKeyStatus(available ? 'available' : 'unavailable');
+        };
+        checkKey();
+    }, []);
 
     const fetchQuiz = async () => {
         setQuizState('loading');
@@ -45,20 +54,24 @@ const Quiz: React.FC = () => {
             <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-4">{t('quizTitle')}</h2>
             <p className="text-md text-[var(--text-secondary)] mb-8 max-w-md">{t('quizIntro')}</p>
             
-            {!apiKeyAvailable && (
+            {apiKeyStatus === 'checking' && <div className="mb-4"><LoadingIndicator message={t('checkingConfig')} /></div>}
+
+            {apiKeyStatus === 'unavailable' && (
                 <div className="mb-4 w-full">
-                    <ErrorMessage message="AI features are disabled. Please configure the API_KEY." />
+                    <ErrorMessage message="Please configure the API_KEY." />
                 </div>
             )}
+            
             {error && <div className="mb-4 w-full"><ErrorMessage message={error} /></div>}
 
-            <button
-                onClick={fetchQuiz}
-                disabled={!apiKeyAvailable}
-                className="w-full max-w-xs px-6 py-3 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-lg shadow-lg hover:bg-[var(--accent-secondary)] transform hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-                {t('quizStart')}
-            </button>
+            {apiKeyStatus === 'available' && (
+                <button
+                    onClick={fetchQuiz}
+                    className="w-full max-w-xs px-6 py-3 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-lg shadow-lg hover:bg-[var(--accent-secondary)] transform hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                    {t('quizStart')}
+                </button>
+            )}
         </div>
     );
 
@@ -79,7 +92,7 @@ const Quiz: React.FC = () => {
     if (quizState === 'idle') return <IdleState />;
     if (quizState === 'loading') return <LoadingIndicator message={t('quizGenerating')} />;
     if (quizState === 'results') return <ResultsState />;
-    if (quizState !== 'active' || questions.length === 0) return null;
+    if (quizState !== 'active' || questions.length === 0) return <IdleState />; // Fallback to idle if something is wrong
 
     const currentQuestion = questions[currentQuestionIndex];
 

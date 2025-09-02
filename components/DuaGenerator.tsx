@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import type { Dua, LanguageContextType } from '../types';
 import { LanguageContext } from '../types';
 import { generateDua, isApiKeyAvailable } from '../services/geminiService';
@@ -8,14 +8,23 @@ import DuaCard from './DuaCard';
 import ErrorMessage from './common/ErrorMessage';
 import { sampleDuas } from '../data/sampleDuas';
 
+type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
+
 const DuaGenerator: React.FC = () => {
   const { language, t } = useContext(LanguageContext) as LanguageContextType;
   const [prompt, setPrompt] = useState<string>('');
   const [dua, setDua] = useState<Dua | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const apiKeyAvailable = isApiKeyAvailable();
+  const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('checking');
+
+  useEffect(() => {
+    const checkKey = async () => {
+        const available = await isApiKeyAvailable();
+        setApiKeyStatus(available ? 'available' : 'unavailable');
+    };
+    checkKey();
+  }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +49,7 @@ const DuaGenerator: React.FC = () => {
   const FallbackContent = () => (
     <div className="w-full space-y-6">
         <div className="mb-4">
-            <ErrorMessage message="AI features are disabled. Please configure the API_KEY." />
+            <ErrorMessage message="Please configure the API_KEY." />
         </div>
         <h3 className="font-lora text-xl font-semibold text-[var(--text-primary)] text-center">{t('sampleDuasTitle')}</h3>
         <div className="space-y-4">
@@ -54,12 +63,23 @@ const DuaGenerator: React.FC = () => {
   return (
     <div className="w-full text-center animate-fade-in flex flex-col items-center">
       <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-2">{t('pageTitleDua')}</h2>
-      <p className="text-md text-[var(--text-secondary)] mb-8 max-w-xl">
-        {t('pageDescriptionDua')}
-      </p>
+      
+      {apiKeyStatus === 'checking' && <LoadingIndicator message={t('checkingConfig')} />}
 
-      {!apiKeyAvailable ? <FallbackContent /> : (
+      {apiKeyStatus === 'unavailable' && (
+         <>
+            <p className="text-md text-[var(--text-secondary)] mb-8 max-w-xl">
+              {t('pageDescriptionDua')}
+            </p>
+            <FallbackContent />
+        </>
+      )}
+
+      {apiKeyStatus === 'available' && (
           <>
+            <p className="text-md text-[var(--text-secondary)] mb-8 max-w-xl">
+              {t('pageDescriptionDua')}
+            </p>
             <form onSubmit={handleSubmit} className="w-full mb-6 glass-card p-4">
                 <textarea
                 value={prompt}
