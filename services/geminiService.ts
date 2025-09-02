@@ -1,5 +1,4 @@
-
-import type { Dua, QuizQuestion, Language, Ayah } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah, Reflection } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -111,4 +110,51 @@ export const getAsmaulHusnaExplanation = async (name: string, language: Language
     throw new Error(data.error || 'Failed to generate explanation.');
   }
   return data.explanation as string;
+};
+
+/**
+ * Gets a spiritual reflection based on the user's feeling.
+ * @param {string} feeling - The user's described feeling.
+ * @param {Language} language - The requested language for the reflection.
+ * @returns {Promise<string>} The reflection text.
+ */
+export const getSpiritualReflection = async (feeling: string, language: Language): Promise<string> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'reflection',
+      payload: { feeling, language }
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate reflection.');
+  }
+  return data.reflection as string;
+};
+
+/**
+ * Gets AI feedback on a user's recitation of a Quranic verse.
+ * @param {string} recitedText - The text transcribed from the user's speech.
+ * @param {string} actualVerseText - The correct text of the verse.
+ * @param {Language} language - The language for the feedback.
+ * @returns {Promise<string>} The feedback text.
+ */
+export const getRecitationFeedback = async (recitedText: string, actualVerseText: string, language: Language): Promise<string> => {
+    const response = await fetch('/.netlify/functions/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'recitation',
+            payload: { recitedText, actualVerseText, language }
+        })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to get recitation feedback.');
+    }
+    return data.feedback as string;
 };

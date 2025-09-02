@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Dua, QuizQuestion, Language, Ayah } from "../../types";
 
@@ -69,6 +68,16 @@ const getTafsirSystemInstruction = (languageName: string) => `You are a knowledg
 
 // --- ASMA'UL HUSNA EXPLANATION ---
 const getAsmaulHusnaSystemInstruction = (languageName: string) => `You are a deeply knowledgeable Islamic scholar with a gift for explaining spiritual concepts. Your task is to provide a profound and inspiring explanation of one of the 99 Names of Allah (Asma'ul Husna), in ${languageName}. The explanation should be rich in meaning, covering the linguistic roots and spiritual implications of the name, and how a believer can reflect on this attribute in their life. Make it accessible and moving for a general audience.`;
+
+// --- SPIRITUAL REFLECTION ---
+const getReflectionSystemInstruction = (languageName: string) => `You are a wise and empathetic spiritual companion. A user will tell you how they are feeling. Your task is to respond with a short, comforting, and uplifting reflection in ${languageName}. Your response should include a relevant verse from the Quran or a Hadith that connects to their feeling. Format the response beautifully, perhaps with the verse/hadith on a new line and clearly cited. Your tone should be gentle and reassuring. Do not ask questions back.`;
+
+// --- RECITATION FEEDBACK ---
+const getRecitationSystemInstruction = (languageName: string) => `You are an expert Quran teacher AI. Your task is to compare a user's recitation (provided as transcribed text) with the original Arabic text of a Quranic verse. 
+1.  Analyze the two texts for any differences (missing words, incorrect words, extra words).
+2.  If the recitation is identical to the verse, respond with a positive and encouraging confirmation like "Masha'Allah, your recitation is correct."
+3.  If there are mistakes, provide gentle, simple, and clear feedback. For example: "Good effort. It seems you may have missed or mispronounced a word. Please check the original text and try again." Do NOT provide a word-by-word breakdown unless it's a single, obvious error. Keep the feedback concise and encouraging.
+4.  Your entire response must be in ${languageName}. Do not respond in JSON format.`;
 
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
@@ -150,6 +159,34 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
             },
         });
         result = { explanation: response.text };
+
+    } else if (type === 'reflection') {
+        const { feeling, language } = payload as { feeling: string; language: Language };
+        const languageName = languageMap[language] || 'English';
+        
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `The user is feeling: "${feeling}".`,
+            config: {
+                systemInstruction: getReflectionSystemInstruction(languageName),
+            },
+        });
+        result = { reflection: response.text };
+
+    } else if (type === 'recitation') {
+        const { recitedText, actualVerseText, language } = payload as { recitedText: string; actualVerseText: string, language: Language };
+        const languageName = languageMap[language] || 'English';
+
+        const prompt = `Original Verse: "${actualVerseText}"\nUser's Recitation (transcribed): "${recitedText}"\n\nPlease compare them and provide feedback in ${languageName}.`;
+
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: {
+                systemInstruction: getRecitationSystemInstruction(languageName),
+            },
+        });
+        result = { feedback: response.text };
 
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };

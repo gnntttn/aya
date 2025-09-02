@@ -1,4 +1,3 @@
-
 import { createContext } from 'react';
 
 export interface Dua {
@@ -77,6 +76,12 @@ export interface AsmaulHusna {
     en: { name: string; };
     fr: { name: string; };
     ar: string;
+}
+
+export interface Reflection {
+    feeling: string;
+    response: string;
+    date: string;
 }
 
 export interface Translations {
