@@ -8,6 +8,7 @@ import LoadingIndicator from './LoadingIndicator';
 import ReciterSelector from './ReciterSelector';
 import TafsirModal from './TafsirModal';
 import RecitationPracticeModal from './RecitationPracticeModal';
+import MemorizationModal from './MemorizationModal';
 
 interface SurahDetailProps {
   surahNumber: number;
@@ -23,7 +24,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation', ayah: Ayah, anchor: HTMLElement} | null>(null);
+    const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation' | 'memorization', ayah: Ayah, anchor: HTMLElement} | null>(null);
     
     const isBookmarked = bookmarks.includes(surahNumber);
 
@@ -110,6 +111,10 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const handlePracticeClick = (event: React.MouseEvent<HTMLButtonElement>, ayah: Ayah) => {
         setActiveModal({ type: 'recitation', ayah: getAyahWithContext(ayah), anchor: event.currentTarget });
     };
+
+    const handleMemorizeClick = (event: React.MouseEvent<HTMLButtonElement>, ayah: Ayah) => {
+        setActiveModal({ type: 'memorization', ayah: getAyahWithContext(ayah), anchor: event.currentTarget });
+    };
     
     const handleBookmarkToggle = () => {
         if (isBookmarked) {
@@ -144,6 +149,13 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
             )}
             {activeModal?.type === 'recitation' && (
                 <RecitationPracticeModal
+                    ayah={activeModal.ayah}
+                    onClose={closeModal}
+                    anchorEl={activeModal.anchor}
+                />
+            )}
+            {activeModal?.type === 'memorization' && (
+                <MemorizationModal
                     ayah={activeModal.ayah}
                     onClose={closeModal}
                     anchorEl={activeModal.anchor}
@@ -241,6 +253,11 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                                 <button onClick={(e) => handlePracticeClick(e, ayah)} className="relative inline-flex items-center justify-center w-10 h-10 text-[var(--text-secondary)] align-middle hover:text-[var(--accent-primary)] transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5" title={t('recitationPracticeTooltip')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                                 </button>
+                                
+                                <button onClick={(e) => handleMemorizeClick(e, ayah)} className="relative inline-flex items-center justify-center w-10 h-10 text-[var(--text-secondary)] align-middle hover:text-[var(--accent-primary)] transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5" title={t('memorizationHelperTooltip')}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" opacity="0.4" transform="translate(0, -4)"/><path d="M4 8.5C4 5.46243 6.46243 3 9.5 3C12.5376 3 15 5.46243 15 8.5V11H12.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                </button>
+
                             </div>
                         </div>
                     ))}

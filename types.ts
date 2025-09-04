@@ -124,12 +124,62 @@ export interface ProphetStory {
     lessons: string[];
 }
 
+export interface SahabiStory {
+    sahabiName: string;
+    story: string;
+    lessons: string[];
+}
+
 export interface FiqhAnswer {
     question: string;
     answer: string;
     disclaimer: string;
 }
 
+export interface InheritanceInput {
+    totalEstate: number;
+    hasSpouse: boolean;
+    sons: number;
+    daughters: number;
+    hasFather: boolean;
+    hasMother: boolean;
+}
+
+export interface InheritanceResult {
+    heir: string;
+    share: string;
+    amount: number;
+}
+
+export interface HajjGuideStep {
+  title: string;
+  description: string;
+  dua?: string;
+}
+
+export interface TravelInfo {
+    mosques: string[];
+    halalRestaurants: string[];
+    generalTips: string;
+}
+
+export interface DreamInterpretation {
+    interpretation: string;
+    disclaimer: string;
+}
+
+export interface HadithSearchResult {
+    hadithText: string;
+    reference: string;
+    explanation: string;
+}
+
+export interface SpiritualGoal {
+    id: string;
+    text: string;
+    completed: boolean;
+    lastCompleted: string | null;
+}
 
 export interface Translations {
   [key:string]: string;
@@ -156,6 +206,10 @@ export interface LanguageContextType {
   savedDuas: Dua[];
   addSavedDua: (dua: Dua) => void;
   removeSavedDua: (duaId: string) => void;
+  goals: SpiritualGoal[];
+  addGoal: (text: string) => void;
+  updateGoal: (goalId: string, completed: boolean) => void;
+  removeGoal: (goalId: string) => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

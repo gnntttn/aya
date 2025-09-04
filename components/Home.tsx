@@ -5,6 +5,7 @@ import type { LanguageContextType, Ayah, View, Hadith } from '../types';
 import { getAyahDetail } from '../services/quranService';
 import { getHadithOfTheDay } from '../services/geminiService';
 import SpiritualReflection from './SpiritualReflection';
+import IslamicCalendar from './IslamicCalendar';
 
 const VerseOfTheDay: React.FC = () => {
     const { t, language, surahs, setSelectedSurah, setView } = useContext(LanguageContext) as LanguageContextType;
@@ -149,6 +150,8 @@ const Home: React.FC = () => {
                 <h1 className="font-lora text-3xl font-bold text-[var(--text-primary)]">{t('greetingMorning')}</h1>
                 <p className="text-[var(--text-secondary)] mt-1">{t('homeSubGreeting')}</p>
             </header>
+            
+            <IslamicCalendar />
 
             <SpiritualReflection />
 

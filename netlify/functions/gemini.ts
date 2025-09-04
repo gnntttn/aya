@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Dua, QuizQuestion, Language, Ayah, Hadith, ProphetStory, FiqhAnswer } from "../../types";
+import type { Dua, QuizQuestion, Language, Ayah, Hadith, ProphetStory, FiqhAnswer, InheritanceInput, SahabiStory, TravelInfo, DreamInterpretation, HadithSearchResult, InheritanceResult } from "../../types";
 
 // Define TypeScript interfaces for the Lambda event and response
 interface HandlerEvent {
@@ -134,6 +134,18 @@ const getProphetStorySchema = (languageName: string) => ({
 });
 const getProphetStorySystemInstruction = (languageName: string) => `You are a master storyteller specializing in the lives of the prophets of Islam. Your task is to generate a summary of a prophet's story in ${languageName}, based on the user's request. The story should be accurate according to Islamic sources, written in a clear and captivating manner, and highlight the main events and trials of their life. Conclude with a list of key lessons. Adhere strictly to the provided JSON schema.`;
 
+// --- SAHABA STORY ---
+const getSahabiStorySchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        sahabiName: { type: Type.STRING, description: `The name of the Sahabi in ${languageName}.` },
+        story: { type: Type.STRING, description: `A concise, engaging, and well-structured story of the Sahabi in ${languageName}, focusing on a key event or their character.` },
+        lessons: { type: Type.ARRAY, items: { type: Type.STRING }, description: `A list of 3-5 key lessons or virtues from the Sahabi's life, in ${languageName}.` }
+    },
+    required: ['sahabiName', 'story', 'lessons']
+});
+const getSahabiStorySystemInstruction = (languageName: string) => `You are a master storyteller specializing in the lives of the Sahaba (Companions of the Prophet Muhammad PBUH). Your task is to generate a summary of a Sahabi's story in ${languageName}. The story should be accurate, captivating, and highlight their faith, character, and contributions to Islam. Conclude with a list of key lessons and virtues. Adhere strictly to the provided JSON schema.`;
+
 // --- FIQH Q&A ---
 const getFiqhQASchema = (languageName: string) => ({
     type: Type.OBJECT,
@@ -151,6 +163,71 @@ The disclaimer for ${languageName} is:
 - French: "Avertissement : Cette IA est à titre informatif uniquement et n'est pas un savant qualifié. Consultez toujours un savant local pour des décisions religieuses formelles (fatwa)."
 Adhere strictly to the provided JSON schema. The 'disclaimer' field in the JSON must contain this exact text. The 'answer' field should start with the substance of the answer itself.`;
 
+// --- INHERITANCE CALCULATOR ---
+const getInheritanceSchema = (languageName: string) => ({
+    type: Type.ARRAY,
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            heir: { type: Type.STRING, description: `The name of the heir in ${languageName} (e.g., 'Wife', 'Son', 'Daughter').` },
+            share: { type: Type.STRING, description: `The fractional share of the heir (e.g., '1/8', '2/3', 'Asabah').` },
+            amount: { type: Type.NUMBER, description: "The calculated monetary amount for the heir." }
+        },
+        required: ['heir', 'share', 'amount']
+    }
+});
+const getInheritanceSystemInstruction = (languageName: string) => `You are an expert system in Islamic inheritance law (Ilm al-Fara'id) according to Sunni jurisprudence. Your task is to calculate the precise distribution of an estate based on the provided heirs and total value.
+**Rules to Follow:**
+1.  **Quranic Heirs (Aṣḥāb al-Furūḍ):** Apply the fixed shares specified in the Quran first (e.g., wife gets 1/8 if there are children, mother gets 1/6 if there are children, etc.).
+2.  **Residuary Heirs ('Asabah):** Distribute the remainder of the estate to the 'Asabah (e.g., sons, father). A son inherits twice the share of a daughter.
+3.  **Blocking Rules (Hajb):** Apply the rules of exclusion. For example, the presence of a son excludes brothers and sisters. The presence of a father excludes the grandfather.
+4.  **Special Cases:** Correctly handle cases like 'Radd' (return) and 'Awal' (increase) if they arise.
+5.  **Output:** Provide the result as a JSON array where each object represents an heir, their fractional share, and the calculated monetary amount, all in ${languageName}. If an heir is blocked, do not include them in the final list.`;
+
+// --- HALAL TRAVEL ---
+const getHalalTravelSchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        mosques: { type: Type.ARRAY, items: { type: Type.STRING }, description: `A list of 3-5 well-known mosques or prayer places in the specified city, in ${languageName}.` },
+        halalRestaurants: { type: Type.ARRAY, items: { type: Type.STRING }, description: `A list of 3-5 popular halal restaurants or food types in the city, in ${languageName}.` },
+        generalTips: { type: Type.STRING, description: `A short paragraph with general tips for a Muslim traveler in that city (e.g., cultural norms, ease of finding halal food), in ${languageName}.` }
+    },
+    required: ['mosques', 'halalRestaurants', 'generalTips']
+});
+const getHalalTravelSystemInstruction = (languageName: string) => `You are a helpful Halal travel guide. Based on the user's specified city, provide a concise list of well-known mosques, popular halal restaurants, and some general tips for a Muslim traveler. Provide the response in ${languageName} and adhere strictly to the provided JSON schema.`;
+
+// --- DREAM INTERPRETATION ---
+const getDreamInterpretationSchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        interpretation: { type: Type.STRING, description: `A possible interpretation of the dream based on common symbols in Islamic dream interpretation literature (like Ibn Sirin), provided in ${languageName}. The interpretation should be thoughtful and avoid making definitive claims.` },
+        disclaimer: { type: Type.STRING, description: `The mandatory disclaimer in ${languageName}.` }
+    },
+    required: ['interpretation', 'disclaimer']
+});
+const getDreamInterpretationSystemInstruction = (languageName: string) => `You are an AI assistant knowledgeable in the symbolic interpretations of dreams found in classical Islamic literature. A user will describe a dream. Your task is to provide a potential, symbolic interpretation based on this knowledge.
+**CRITICAL RULES:**
+1.  **NEVER** present the interpretation as a fact or a prophecy. Use cautious language (e.g., "This could symbolize...", "It might suggest...", "Often, this represents...").
+2.  Your response MUST begin with a mandatory disclaimer. The disclaimer for ${languageName} is:
+    - English: "Disclaimer: Dream interpretations are symbolic and not definitive truth. Only Allah knows the unseen. This is for reflection only."
+    - Arabic: "إخلاء مسؤولية: تفسير الأحلام رمزي وليس حقيقة مطلقة. الغيب لا يعلمه إلا الله. هذا للتأمل فقط."
+    - French: "Avertissement : Les interprétations de rêves sont symboliques et non une vérité définitive. Seul Allah connaît l'invisible. Ceci est pour la réflexion seulement."
+3.  Adhere strictly to the JSON schema. The 'disclaimer' field must contain the exact text above.`;
+
+// --- HADITH SEARCH ---
+const getHadithSearchSchema = (languageName: string) => ({
+    type: Type.ARRAY,
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            hadithText: { type: Type.STRING, description: `The text of the Hadith, translated into ${languageName}.` },
+            reference: { type: Type.STRING, description: `The source of the Hadith (e.g., Sahih al-Bukhari 52), in ${languageName}.` },
+            explanation: { type: Type.STRING, description: `A concise explanation of the Hadith, in ${languageName}.` }
+        },
+        required: ['hadithText', 'reference', 'explanation']
+    }
+});
+const getHadithSearchSystemInstruction = (languageName: string) => `You are an expert Islamic scholar AI with access to a vast collection of authentic Hadith. The user will provide a topic. Your task is to find 3-5 relevant, authentic Hadith related to that topic. For each Hadith, provide its text, reference, and a brief explanation in ${languageName}. Adhere strictly to the provided JSON schema. If no relevant Hadith are found, return an empty array.`;
 
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
@@ -175,11 +252,11 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
 
     let result;
     const languageMap: { [key in Language]: string } = { en: 'English', ar: 'Arabic', fr: 'French' };
+    const languageName = languageMap[payload.language] || 'English';
+
 
     if (type === 'dua') {
       const { prompt, language } = payload;
-      const languageName = languageMap[language] || 'English';
-
       const response = await ai.models.generateContent({
         model: modelName,
         contents: `User's need: "${prompt}". Generate a dua in ${languageName}.`,
@@ -204,9 +281,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
       result = JSON.parse(response.text);
 
     } else if (type === 'tafsir') {
-        const { ayah, language } = payload as { ayah: Ayah; language: Language };
-        const languageName = languageMap[language] || 'English';
-        
+        const { ayah } = payload as { ayah: Ayah };
         const prompt = `Provide a structured tafsir for this verse: Surah ${ayah.surah?.englishName} (${ayah.surah?.name}), Ayah ${ayah.numberInSurah}, which reads: "${ayah.text}". Please provide the full explanation in ${languageName}.`;
 
         const response = await ai.models.generateContent({
@@ -221,9 +296,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         result = JSON.parse(response.text);
 
     } else if (type === 'asmaulhusna') {
-        const { name, language } = payload as { name: string; language: Language };
-        const languageName = languageMap[language] || 'English';
-
+        const { name } = payload as { name: string };
         const prompt = `Provide an explanation for the name of Allah: "${name}". The explanation should be in ${languageName}.`;
 
         const response = await ai.models.generateContent({
@@ -236,9 +309,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         result = { explanation: response.text };
 
     } else if (type === 'reflection') {
-        const { feeling, language } = payload as { feeling: string; language: Language };
-        const languageName = languageMap[language] || 'English';
-        
+        const { feeling } = payload as { feeling: string };
         const response = await ai.models.generateContent({
             model: modelName,
             contents: `The user is feeling: "${feeling}".`,
@@ -249,9 +320,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         result = { reflection: response.text };
 
     } else if (type === 'recitation') {
-        const { recitedText, actualVerseText, language } = payload as { recitedText: string; actualVerseText: string, language: Language };
-        const languageName = languageMap[language] || 'English';
-
+        const { recitedText, actualVerseText } = payload as { recitedText: string; actualVerseText: string };
         const prompt = `Original Verse: "${actualVerseText}"\nUser's Recitation (transcribed): "${recitedText}"\n\nPlease compare them and provide structured feedback in ${languageName} according to the schema.`;
 
         const response = await ai.models.generateContent({
@@ -266,9 +335,6 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         result = JSON.parse(response.text);
 
     } else if (type === 'hadith') {
-        const { language } = payload as { language: Language };
-        const languageName = languageMap[language] || 'English';
-
         const response = await ai.models.generateContent({
             model: modelName,
             contents: `Please provide a Hadith of the Day in ${languageName}.`,
@@ -280,9 +346,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         });
         result = JSON.parse(response.text);
     } else if (type === 'prophetStory') {
-        const { prophetName, language } = payload as { prophetName: string; language: Language };
-        const languageName = languageMap[language] || 'English';
-
+        const { prophetName } = payload as { prophetName: string };
         const response = await ai.models.generateContent({
             model: modelName,
             contents: `Generate a story about the prophet ${prophetName} in ${languageName}.`,
@@ -294,9 +358,7 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
         });
         result = JSON.parse(response.text);
     } else if (type === 'fiqhQA') {
-        const { question, language } = payload as { question: string; language: Language };
-        const languageName = languageMap[language] || 'English';
-
+        const { question } = payload as { question: string };
         const response = await ai.models.generateContent({
             model: modelName,
             contents: `The user asks: "${question}". Please answer in ${languageName}.`,
@@ -307,6 +369,77 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
             },
         });
         result = JSON.parse(response.text);
+    } else if (type === 'sahabiStory') {
+        const { sahabiName } = payload as { sahabiName: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Generate a story about the Sahabi ${sahabiName} in ${languageName}.`,
+            config: {
+                systemInstruction: getSahabiStorySystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getSahabiStorySchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'inheritance') {
+        const { input } = payload as { input: InheritanceInput };
+        const prompt = `Calculate the inheritance for an estate of ${input.totalEstate} with the following heirs: Spouse present: ${input.hasSpouse}, Sons: ${input.sons}, Daughters: ${input.daughters}, Father present: ${input.hasFather}, Mother present: ${input.hasMother}. Provide the results in ${languageName}.`;
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: {
+                systemInstruction: getInheritanceSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getInheritanceSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'halalTravel') {
+        const { city } = payload as { city: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Provide halal travel information for ${city} in ${languageName}.`,
+            config: {
+                systemInstruction: getHalalTravelSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getHalalTravelSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'dream') {
+        const { dream } = payload as { dream: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `The user's dream is: "${dream}". Provide a symbolic interpretation in ${languageName}.`,
+            config: {
+                systemInstruction: getDreamInterpretationSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getDreamInterpretationSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'hadithSearch') {
+        const { topic } = payload as { topic: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Find Hadith about "${topic}" and present them in ${languageName}.`,
+            config: {
+                systemInstruction: getHadithSearchSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getHadithSearchSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'hajjUmrahQA') {
+        const { question } = payload as { question: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `The user has a question about Hajj/Umrah: "${question}". Please answer it concisely in ${languageName}.`,
+            config: {
+                systemInstruction: `You are a knowledgeable guide for Hajj and Umrah. Answer the user's question clearly and concisely in ${languageName}.`
+            },
+        });
+        result = { answer: response.text };
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };
     }

@@ -1,6 +1,6 @@
 
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua } from './types';
+import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua, SpiritualGoal } from './types';
 import { LanguageContext } from './types';
 import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
@@ -110,6 +110,12 @@ const translations: { [key in Language]: Translations } = {
     recitationFeedbackResult: "AI Feedback:",
     recitationYourRecitation: "I heard you recite:",
     recitationCorrection: "It seems you recited '{mistake}' instead of '{correct}'. Try again!",
+    // Memorization Helper
+    memorizationHelperTitle: "Memorization Helper",
+    memorizationHelperTooltip: "Memorize this Ayah",
+    memorizationHelperIntro: "Focus on the verse, then try to recall it from memory.",
+    memorizationShow: "Show",
+    memorizationHide: "Hide",
     // Quiz Page
     quizTitle: "Islamic Quiz",
     quizIntro: "Ready to test your knowledge? A new set of questions will be generated for you.",
@@ -148,6 +154,14 @@ const translations: { [key in Language]: Translations } = {
     moreProphetStories: "Stories of the Prophets",
     moreZakatCalculator: "Zakat Calculator",
     moreFiqhQA: "Islamic Q&A",
+    moreSahabaStories: "Lives of the Sahaba",
+    moreInheritance: "Inheritance Calculator",
+    moreHajjGuide: "Hajj & Umrah Guide",
+    moreHalalTravel: "Halal Travel Assistant",
+    moreDreamInterpreter: "Dream Interpreter",
+    moreSalawatCounter: "Salawat Counter",
+    moreHadithSearch: "Hadith Search",
+    moreSpiritualGoals: "Spiritual Goals",
     // Prayer Times
     prayerTimesTitle: "Prayer Times",
     prayerTimesDescription: "Allow location access to see prayer times for your area.",
@@ -197,12 +211,73 @@ const translations: { [key in Language]: Translations } = {
     prophetStoriesDescription: "Learn from the lives of the Prophets.",
     prophetStoriesLoading: "Generating story...",
     prophetStoriesLessons: "Key Lessons",
+    // Sahaba Stories
+    sahabaStoriesTitle: "Lives of the Sahaba",
+    sahabaStoriesDescription: "Learn from the companions of the Prophet (PBUH).",
+    sahabaStoriesLoading: "Generating story...",
+    sahabaStoriesLessons: "Key Lessons & Virtues",
     // Fiqh Q&A
     fiqhQATitle: "Islamic Q&A",
     fiqhQADescription: "Ask questions about Islamic topics. Note: This is not a fatwa service.",
     fiqhQAPlaceholder: "E.g., What are the nullifiers of ablution?",
     fiqhQASubmit: "Get Answer",
     fiqhQADisclaimer: "Disclaimer: This AI is for informational purposes only and is not a qualified scholar. Always consult a local scholar for formal religious rulings (fatwa).",
+    // Inheritance Calculator
+    inheritanceTitle: "Inheritance Calculator",
+    inheritanceDescription: "Calculate inheritance shares according to Islamic law.",
+    inheritanceTotalEstate: "Total Estate Value",
+    inheritanceHeirs: "Select the Heirs",
+    inheritanceSpouse: "Spouse (Husband/Wife)",
+    inheritanceSons: "Number of Sons",
+    inheritanceDaughters: "Number of Daughters",
+    inheritanceFather: "Father",
+    inheritanceMother: "Mother",
+    inheritanceCalculate: "Calculate Shares",
+    inheritanceResultTitle: "Inheritance Distribution",
+    inheritanceWarning: "This is an educational tool. Consult a qualified scholar for actual inheritance cases.",
+    inheritanceHeir: "Heir",
+    inheritanceShare: "Share",
+    inheritanceAmount: "Amount",
+    // Hajj & Umrah Guide
+    hajjGuideTitle: "Hajj & Umrah Guide",
+    hajjGuideDescription: "A step-by-step guide to performing the holy pilgrimages.",
+    hajjGuideHajj: "Hajj",
+    hajjGuideUmrah: "Umrah",
+    hajjGuideAsk: "Ask a question about Hajj/Umrah",
+    // Halal Travel Assistant
+    travelTitle: "Halal Travel Assistant",
+    travelDescription: "Find halal-friendly information for any city.",
+    travelPlaceholder: "Enter a city, e.g., London",
+    travelSubmit: "Search",
+    travelLoading: "Finding halal spots...",
+    travelMosques: "Mosques & Prayer Places",
+    travelRestaurants: "Halal Restaurants",
+    travelTips: "General Tips",
+    // Dream Interpreter
+    dreamTitle: "Dream Interpreter",
+    dreamDescription: "Get a possible interpretation of your dream based on Islamic sources.",
+    dreamPlaceholder: "I dreamed of a white horse...",
+    dreamSubmit: "Interpret Dream",
+    dreamLoading: "Interpreting...",
+    dreamDisclaimer: "Disclaimer: Dream interpretations are symbolic and not definitive truth. Only Allah knows the unseen. This is for reflection only.",
+    // Salawat Counter
+    salawatTitle: "Salawat Counter",
+    salawatDescription: "Send blessings upon the Prophet Muhammad (PBUH).",
+    salawatText: "Allahumma salli 'ala Muhammad wa 'ala aali Muhammad",
+    // Hadith Search
+    hadithSearchTitle: "Hadith Search",
+    hadithSearchDescription: "Search for authentic Hadith by topic.",
+    hadithSearchPlaceholder: "e.g., charity, prayer, fasting",
+    hadithSearchSubmit: "Search",
+    hadithSearchLoading: "Searching for Hadith...",
+    hadithSearchNoResults: "No Hadith found for that topic.",
+    // Spiritual Goals
+    goalsTitle: "My Spiritual Goals",
+    goalsDescription: "Set and track your daily spiritual habits.",
+    goalsAddPlaceholder: "e.g., Read Surah Al-Mulk",
+    goalsAddButton: "Add Goal",
+    goalsCompleted: "Completed for today!",
+    goalsEmpty: "You haven't set any goals yet. Add one to begin!",
     // Install App
     installAppTitle: "Install AYA App",
     installAppDescriptionIOS: "To install the app on your iPhone, follow these steps in Safari:",
@@ -305,6 +380,11 @@ const translations: { [key in Language]: Translations } = {
     recitationFeedbackResult: "تقييم الذكاء الاصطناعي:",
     recitationYourRecitation: "سمعتك تقرأ:",
     recitationCorrection: "يبدو أنك قرأت '{mistake}' بدلاً من '{correct}'. حاول مرة أخرى!",
+    memorizationHelperTitle: "مساعد التحفيظ",
+    memorizationHelperTooltip: "تحفيظ هذه الآية",
+    memorizationHelperIntro: "ركز على الآية، ثم حاول تذكرها من ذاكرتك.",
+    memorizationShow: "إظهار",
+    memorizationHide: "إخفاء",
     quizTitle: "اختبار إسلامي",
     quizIntro: "هل أنت مستعد لاختبار معرفتك؟ سيتم إنشاء مجموعة جديدة من الأسئلة لك.",
     quizStart: "ابدأ الاختبار",
@@ -339,6 +419,14 @@ const translations: { [key in Language]: Translations } = {
     moreProphetStories: "قصص الأنبياء",
     moreZakatCalculator: "حاسبة الزكاة",
     moreFiqhQA: "أسئلة وأجوبة إسلامية",
+    moreSahabaStories: "سير الصحابة",
+    moreInheritance: "حاسبة الميراث",
+    moreHajjGuide: "دليل الحج والعمرة",
+    moreHalalTravel: "مساعد السفر الحلال",
+    moreDreamInterpreter: "تفسير الأحلام",
+    moreSalawatCounter: "عداد الصلوات",
+    moreHadithSearch: "باحث الأحاديث",
+    moreSpiritualGoals: "أهدافي الروحانية",
     prayerTimesTitle: "مواقيت الصلاة",
     prayerTimesDescription: "اسمح بالوصول للموقع لعرض مواقيت الصلاة لمنطقتك.",
     prayerAllowLocation: "السماح بالموقع",
@@ -382,11 +470,64 @@ const translations: { [key in Language]: Translations } = {
     prophetStoriesDescription: "تعلم من سير الأنبياء.",
     prophetStoriesLoading: "جاري إنشاء القصة...",
     prophetStoriesLessons: "الدروس المستفادة",
+    sahabaStoriesTitle: "سير الصحابة",
+    sahabaStoriesDescription: "تعلم من صحابة النبي (ص).",
+    sahabaStoriesLoading: "جاري إنشاء القصة...",
+    sahabaStoriesLessons: "الدروس والفضائل",
     fiqhQATitle: "أسئلة وأجوبة إسلامية",
     fiqhQADescription: "اطرح أسئلة حول مواضيع إسلامية. ملاحظة: هذه ليست خدمة فتاوى.",
     fiqhQAPlaceholder: "مثال: ما هي نواقض الوضوء؟",
     fiqhQASubmit: "احصل على إجابة",
     fiqhQADisclaimer: "إخلاء مسؤولية: هذا الذكاء الاصطناعي هو لأغراض معلوماتية فقط وليس عالمًا مؤهلاً. استشر دائمًا عالمًا محليًا للحصول على أحكام دينية رسمية (فتوى).",
+    inheritanceTitle: "حاسبة الميراث",
+    inheritanceDescription: "احسب أنصبة الميراث وفقًا للشريعة الإسلامية.",
+    inheritanceTotalEstate: "قيمة التركة الإجمالية",
+    inheritanceHeirs: "حدد الورثة",
+    inheritanceSpouse: "الزوج / الزوجة",
+    inheritanceSons: "عدد الأبناء",
+    inheritanceDaughters: "عدد البنات",
+    inheritanceFather: "الأب",
+    inheritanceMother: "الأم",
+    inheritanceCalculate: "احسب الأنصبة",
+    inheritanceResultTitle: "توزيع الميراث",
+    inheritanceWarning: "هذه أداة تعليمية. استشر عالمًا مؤهلاً لقضايا الميراث الفعلية.",
+    inheritanceHeir: "الوارث",
+    inheritanceShare: "النصيب",
+    inheritanceAmount: "المبلغ",
+    hajjGuideTitle: "دليل الحج والعمرة",
+    hajjGuideDescription: "دليل تفصيلي خطوة بخطوة لأداء المناسك المقدسة.",
+    hajjGuideHajj: "الحج",
+    hajjGuideUmrah: "العمرة",
+    hajjGuideAsk: "اسأل سؤالاً عن الحج/العمرة",
+    travelTitle: "مساعد السفر الحلال",
+    travelDescription: "ابحث عن معلومات مناسبة للمسلمين في أي مدينة.",
+    travelPlaceholder: "أدخل اسم مدينة، مثلاً: لندن",
+    travelSubmit: "بحث",
+    travelLoading: "نبحث عن أماكن حلال...",
+    travelMosques: "المساجد وأماكن الصلاة",
+    travelRestaurants: "مطاعم حلال",
+    travelTips: "نصائح عامة",
+    dreamTitle: "مفسر الأحلام",
+    dreamDescription: "احصل على تفسير محتمل لرؤياك بناءً على المصادر الإسلامية.",
+    dreamPlaceholder: "رأيت في المنام حصانًا أبيض...",
+    dreamSubmit: "فسّر الحلم",
+    dreamLoading: "جاري التفسير...",
+    dreamDisclaimer: "إخلاء مسؤولية: تفسير الأحلام رمزي وليس حقيقة مطلقة. الغيب لا يعلمه إلا الله. هذا للتأمل فقط.",
+    salawatTitle: "عداد الصلوات",
+    salawatDescription: "أكثر من الصلاة على النبي محمد (ص).",
+    salawatText: "اللهم صل على محمد وعلى آل محمد",
+    hadithSearchTitle: "باحث الأحاديث",
+    hadithSearchDescription: "ابحث عن أحاديث صحيحة حسب الموضوع.",
+    hadithSearchPlaceholder: "مثال: الصدقة، الصلاة، الصيام",
+    hadithSearchSubmit: "بحث",
+    hadithSearchLoading: "جاري البحث عن أحاديث...",
+    hadithSearchNoResults: "لم يتم العثور على أحاديث لهذا الموضوع.",
+    goalsTitle: "أهدافي الروحانية",
+    goalsDescription: "حدد وتتبع عاداتك الروحانية اليومية.",
+    goalsAddPlaceholder: "مثال: قراءة سورة الملك",
+    goalsAddButton: "إضافة هدف",
+    goalsCompleted: "أُنجز لليوم!",
+    goalsEmpty: "لم تقم بتحديد أي أهداف بعد. أضف هدفًا للبدء!",
     installAppTitle: "تثبيت تطبيق آية",
     installAppDescriptionIOS: "لتثبيت التطبيق على جهازك الآيفون، اتبع هذه الخطوات في متصفح سفاري:",
     installAppDescriptionAndroid: "لتثبيت التطبيق على جهازك الأندرويد، اتبع هذه الخطوات في متصفح كروم:",
@@ -487,6 +628,11 @@ const translations: { [key in Language]: Translations } = {
     recitationFeedbackResult: "Commentaire de l'IA :",
     recitationYourRecitation: "Je vous ai entendu réciter :",
     recitationCorrection: "Il semble que vous ayez récité '{mistake}' au lieu de '{correct}'. Réessayez !",
+    memorizationHelperTitle: "Aide à la mémorisation",
+    memorizationHelperTooltip: "Mémoriser ce verset",
+    memorizationHelperIntro: "Concentrez-vous sur le verset, puis essayez de le rappeler de mémoire.",
+    memorizationShow: "Afficher",
+    memorizationHide: "Masquer",
     quizTitle: "Quiz Islamique",
     quizIntro: "Prêt à tester vos connaissances ? Une nouvelle série de questions sera générée pour vous.",
     quizStart: "Commencer le Quiz",
@@ -521,6 +667,14 @@ const translations: { [key in Language]: Translations } = {
     moreProphetStories: "Histoires des Prophètes",
     moreZakatCalculator: "Calculateur de Zakat",
     moreFiqhQA: "Q&A Islamique",
+    moreSahabaStories: "Vies des Compagnons",
+    moreInheritance: "Calculateur d'Héritage",
+    moreHajjGuide: "Guide Hajj & Omra",
+    moreHalalTravel: "Assistant de Voyage Halal",
+    moreDreamInterpreter: "Interprète de Rêves",
+    moreSalawatCounter: "Compteur de Salawat",
+    moreHadithSearch: "Recherche de Hadith",
+    moreSpiritualGoals: "Objectifs Spirituels",
     prayerTimesTitle: "Horaires de Prière",
     prayerTimesDescription: "Autorisez l'accès à la localisation pour voir les horaires de prière de votre région.",
     prayerAllowLocation: "Autoriser la localisation",
@@ -564,11 +718,64 @@ const translations: { [key in Language]: Translations } = {
     prophetStoriesDescription: "Apprenez de la vie des Prophètes.",
     prophetStoriesLoading: "Génération de l'histoire...",
     prophetStoriesLessons: "Leçons Clés",
+    sahabaStoriesTitle: "Vies des Compagnons",
+    sahabaStoriesDescription: "Apprenez des compagnons du Prophète (PSL).",
+    sahabaStoriesLoading: "Génération de l'histoire...",
+    sahabaStoriesLessons: "Leçons Clés & Vertus",
     fiqhQATitle: "Q&A Islamique",
     fiqhQADescription: "Posez des questions sur des sujets islamiques. Note : Ceci n'est pas un service de fatwa.",
     fiqhQAPlaceholder: "Ex: Quels sont les actes qui annulent les ablutions ?",
     fiqhQASubmit: "Obtenir une réponse",
     fiqhQADisclaimer: "Avertissement : Cette IA est à titre informatif uniquement et n'est pas un savant qualifié. Consultez toujours un savant local pour des décisions religieuses formelles (fatwa).",
+    inheritanceTitle: "Calculateur d'Héritage",
+    inheritanceDescription: "Calculez les parts d'héritage selon la loi islamique.",
+    inheritanceTotalEstate: "Valeur Totale de la Succession",
+    inheritanceHeirs: "Sélectionnez les héritiers",
+    inheritanceSpouse: "Conjoint(e)",
+    inheritanceSons: "Nombre de Fils",
+    inheritanceDaughters: "Nombre de Filles",
+    inheritanceFather: "Père",
+    inheritanceMother: "Mère",
+    inheritanceCalculate: "Calculer les Parts",
+    inheritanceResultTitle: "Distribution de l'Héritage",
+    inheritanceWarning: "Ceci est un outil éducatif. Consultez un savant qualifié pour les cas réels d'héritage.",
+    inheritanceHeir: "Héritier",
+    inheritanceShare: "Part",
+    inheritanceAmount: "Montant",
+    hajjGuideTitle: "Guide Hajj & Omra",
+    hajjGuideDescription: "Un guide étape par étape pour accomplir les pèlerinages sacrés.",
+    hajjGuideHajj: "Hajj",
+    hajjGuideUmrah: "Omra",
+    hajjGuideAsk: "Posez une question sur le Hajj/Omra",
+    travelTitle: "Assistant de Voyage Halal",
+    travelDescription: "Trouvez des informations halal pour n'importe quelle ville.",
+    travelPlaceholder: "Entrez une ville, ex: Paris",
+    travelSubmit: "Rechercher",
+    travelLoading: "Recherche d'endroits halal...",
+    travelMosques: "Mosquées et Lieux de Prière",
+    travelRestaurants: "Restaurants Halal",
+    travelTips: "Conseils Généraux",
+    dreamTitle: "Interprète de Rêves",
+    dreamDescription: "Obtenez une interprétation possible de votre rêve basée sur des sources islamiques.",
+    dreamPlaceholder: "J'ai rêvé d'un cheval blanc...",
+    dreamSubmit: "Interpréter le Rêve",
+    dreamLoading: "Interprétation...",
+    dreamDisclaimer: "Avertissement : Les interprétations de rêves sont symboliques et non une vérité définitive. Seul Allah connaît l'invisible. Ceci est pour la réflexion seulement.",
+    salawatTitle: "Compteur de Salawat",
+    salawatDescription: "Envoyez des bénédictions sur le Prophète Muhammad (PSL).",
+    salawatText: "Allahumma salli 'ala Muhammad wa 'ala aali Muhammad",
+    hadithSearchTitle: "Recherche de Hadith",
+    hadithSearchDescription: "Recherchez des hadiths authentiques par sujet.",
+    hadithSearchPlaceholder: "ex: charité, prière, jeûne",
+    hadithSearchSubmit: "Rechercher",
+    hadithSearchLoading: "Recherche de hadiths...",
+    hadithSearchNoResults: "Aucun hadith trouvé pour ce sujet.",
+    goalsTitle: "Mes Objectifs Spirituels",
+    goalsDescription: "Définissez et suivez vos habitudes spirituelles quotidiennes.",
+    goalsAddPlaceholder: "ex: Lire la sourate Al-Mulk",
+    goalsAddButton: "Ajouter un objectif",
+    goalsCompleted: "Terminé pour aujourd'hui !",
+    goalsEmpty: "Vous n'avez défini aucun objectif. Ajoutez-en un pour commencer !",
     installAppTitle: "Installer l'app AYA",
     installAppDescriptionIOS: "Pour installer l'application sur votre iPhone, suivez ces étapes dans Safari :",
     installAppDescriptionAndroid: "Pour installer l'application sur votre appareil Android, suivez ces étapes dans Chrome :",
@@ -608,6 +815,16 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     const storedDuas = localStorage.getItem('aya-saved-duas');
     return storedDuas ? JSON.parse(storedDuas) : [];
   });
+  const [goals, setGoals] = useState<SpiritualGoal[]>(() => {
+    const storedGoals = localStorage.getItem('aya-goals');
+    const parsedGoals = storedGoals ? JSON.parse(storedGoals) : [];
+    // Reset daily completion status
+    const today = new Date().toDateString();
+    return parsedGoals.map((g: SpiritualGoal) => ({
+      ...g,
+      completed: g.lastCompleted === today,
+    }));
+  });
 
 
   useEffect(() => {
@@ -630,6 +847,9 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     localStorage.setItem('aya-saved-duas', JSON.stringify(savedDuas));
   }, [savedDuas]);
 
+  useEffect(() => {
+    localStorage.setItem('aya-goals', JSON.stringify(goals.map(({ id, text, lastCompleted }) => ({ id, text, lastCompleted }))));
+  }, [goals]);
 
   const addBookmark = (surahNumber: number) => {
     if (!bookmarks.includes(surahNumber)) {
@@ -649,6 +869,28 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const removeSavedDua = (duaId: string) => {
       setSavedDuas(prev => prev.filter(d => d.id !== duaId));
+  };
+
+  const addGoal = (text: string) => {
+    const newGoal: SpiritualGoal = {
+      id: new Date().toISOString(),
+      text,
+      completed: false,
+      lastCompleted: null,
+    };
+    setGoals(prev => [...prev, newGoal]);
+  };
+
+  const updateGoal = (goalId: string, completed: boolean) => {
+    setGoals(prev => prev.map(g => g.id === goalId ? {
+      ...g,
+      completed,
+      lastCompleted: completed ? new Date().toDateString() : g.lastCompleted
+    } : g));
+  };
+
+  const removeGoal = (goalId: string) => {
+    setGoals(prev => prev.filter(g => g.id !== goalId));
   };
 
 
@@ -728,6 +970,10 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     savedDuas,
     addSavedDua,
     removeSavedDua,
+    goals,
+    addGoal,
+    updateGoal,
+    removeGoal,
   };
 
   return (

@@ -1,5 +1,5 @@
 
-import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith, ProphetStory, FiqhAnswer } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith, ProphetStory, FiqhAnswer, SahabiStory, InheritanceInput, InheritanceResult, TravelInfo, DreamInterpretation, HadithSearchResult } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -228,4 +228,142 @@ export const getFiqhAnswer = async (question: string, language: Language): Promi
     throw new Error(data.error || 'Failed to generate Fiqh answer.');
   }
   return data as FiqhAnswer;
+};
+
+/**
+ * Gets an AI-powered story of a Sahabi.
+ * @param {string} sahabiName - The name of the companion.
+ * @param {Language} language - The requested language for the story.
+ * @returns {Promise<SahabiStory>} The structured Sahabi story object.
+ */
+export const getSahabiStory = async (sahabiName: string, language: Language): Promise<SahabiStory> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'sahabiStory',
+      payload: { sahabiName, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate Sahabi Story.');
+  }
+  return data as SahabiStory;
+};
+
+/**
+ * Calculates Islamic inheritance.
+ * @param {InheritanceInput} input - The details of the estate and heirs.
+ * @param {Language} language - The requested language for the results.
+ * @returns {Promise<InheritanceResult[]>} The distribution of the inheritance.
+ */
+export const calculateInheritance = async (input: InheritanceInput, language: Language): Promise<InheritanceResult[]> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'inheritance',
+      payload: { input, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to calculate inheritance.');
+  }
+  return data as InheritanceResult[];
+};
+
+/**
+ * Gets Halal travel information for a city.
+ * @param {string} city - The name of the city.
+ * @param {Language} language - The requested language for the information.
+ * @returns {Promise<TravelInfo>} Halal travel info.
+ */
+export const getHalalTravelInfo = async (city: string, language: Language): Promise<TravelInfo> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'halalTravel',
+      payload: { city, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to get travel info.');
+  }
+  return data as TravelInfo;
+};
+
+/**
+ * Gets an Islamic interpretation of a dream.
+ * @param {string} dream - The description of the dream.
+ * @param {Language} language - The requested language for the interpretation.
+ * @returns {Promise<DreamInterpretation>} The dream interpretation.
+ */
+export const getDreamInterpretation = async (dream: string, language: Language): Promise<DreamInterpretation> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'dream',
+      payload: { dream, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to interpret dream.');
+  }
+  return data as DreamInterpretation;
+};
+
+/**
+ * Searches for Hadith based on a topic.
+ * @param {string} topic - The topic to search for.
+ * @param {Language} language - The requested language for the results.
+ * @returns {Promise<HadithSearchResult[]>} A list of relevant Hadith.
+ */
+export const searchHadith = async (topic: string, language: Language): Promise<HadithSearchResult[]> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'hadithSearch',
+      payload: { topic, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to search Hadith.');
+  }
+  return data as HadithSearchResult[];
+};
+
+/**
+ * Gets an AI answer to a specific Hajj/Umrah question.
+ * @param {string} question - The user's question.
+ * @param {Language} language - The language for the answer.
+ * @returns {Promise<string>} The answer text.
+ */
+export const getHajjUmrahQa = async (question: string, language: Language): Promise<string> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'hajjUmrahQA',
+      payload: { question, language }
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to get answer.');
+  }
+  return data.answer as string;
 };
