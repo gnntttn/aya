@@ -4,8 +4,8 @@ import { LanguageContext } from '../types';
 import type { LanguageContextType, SahabiStory } from '../types';
 import { getSahabiStory } from '../services/geminiService';
 import { sahabaData } from '../data/sahabaData';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 const SahabaStories: React.FC = () => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
