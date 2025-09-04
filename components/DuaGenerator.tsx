@@ -11,7 +11,7 @@ import { sampleDuas } from '../data/sampleDuas';
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
 
 const DuaGenerator: React.FC = () => {
-  const { language, t } = useContext(LanguageContext) as LanguageContextType;
+  const { language, t, savedDuas, addSavedDua, removeSavedDua } = useContext(LanguageContext) as LanguageContextType;
   const [prompt, setPrompt] = useState<string>('');
   const [dua, setDua] = useState<Dua | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -37,7 +37,8 @@ const DuaGenerator: React.FC = () => {
     setDua(null);
     try {
       const generatedDua = await generateDua(prompt, language);
-      setDua(generatedDua);
+      const duaWithId = { ...generatedDua, id: new Date().toISOString() };
+      setDua(duaWithId);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('errorMessage');
       setError(message);
@@ -101,7 +102,27 @@ const DuaGenerator: React.FC = () => {
             <div className="w-full max-w-2xl mt-4">
                 {isLoading && <LoadingIndicator message={t('loadingMessage')} />}
                 {error && <ErrorMessage message={error} />}
-                {dua && !isLoading && <DuaCard dua={dua} />}
+                {dua && !isLoading && (
+                  <DuaCard 
+                    dua={dua} 
+                    onSave={addSavedDua}
+                    onRemove={removeSavedDua}
+                    isSaved={savedDuas.some(d => d.id === dua.id)}
+                  />
+                )}
+            </div>
+            
+            <div className="w-full max-w-2xl mt-12">
+              <h3 className="font-lora text-2xl font-bold text-[var(--text-primary)] mb-6 text-center border-t border-[var(--border-color)] pt-8">{t('myDuasTitle')}</h3>
+              {savedDuas.length > 0 ? (
+                <div className="space-y-4">
+                  {savedDuas.map(d => (
+                    <DuaCard key={d.id} dua={d} onRemove={removeSavedDua} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-[var(--text-secondary)]">{t('myDuasEmpty')}</p>
+              )}
             </div>
          </>
       )}

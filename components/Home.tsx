@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, Ayah, View } from '../types';
+import type { LanguageContextType, Ayah, View, Hadith } from '../types';
 import { getAyahDetail } from '../services/quranService';
+import { getHadithOfTheDay } from '../services/geminiService';
 import SpiritualReflection from './SpiritualReflection';
 
 const VerseOfTheDay: React.FC = () => {
@@ -62,6 +64,52 @@ const VerseOfTheDay: React.FC = () => {
     );
 };
 
+const HadithOfTheDay: React.FC = () => {
+    const { t, language } = useContext(LanguageContext) as LanguageContextType;
+    const [hadith, setHadith] = useState<Hadith | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchHadith = async () => {
+            setIsLoading(true);
+            try {
+                const hadithData = await getHadithOfTheDay(language);
+                setHadith(hadithData);
+            } catch (err) {
+                console.error("Failed to fetch Hadith of the day:", err);
+                setHadith(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchHadith();
+    }, [language]);
+
+    return (
+        <div className="w-full p-5 text-left glass-card" style={{ animationDelay: '150ms' }}>
+            <h3 className="font-lora font-semibold text-lg text-center text-[var(--text-primary)] mb-3">{t('hadithOfTheDayTitle')}</h3>
+            {isLoading ? (
+                <div className="h-32 flex items-center justify-center text-sm text-[var(--text-secondary)]">Loading...</div>
+            ) : hadith ? (
+                <div className="space-y-3">
+                    <p className={`text-lg text-[var(--text-primary)] leading-relaxed ${language === 'ar' ? 'text-right' : 'text-left'}`}>"{hadith.hadithText}"</p>
+                    <div className="text-xs text-[var(--text-secondary)] font-medium">
+                        <p>{t('hadithNarrator')}: {hadith.narrator}</p>
+                        <p>{t('hadithReference')}: {hadith.reference}</p>
+                    </div>
+                     <div className="pt-2 mt-2 border-t border-[var(--border-color)]">
+                        <h4 className="font-semibold text-xs text-[var(--accent-primary)] uppercase tracking-wider">{t('hadithExplanation')}</h4>
+                        <p className="text-sm text-[var(--text-secondary)]">{hadith.briefExplanation}</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="h-32 flex items-center justify-center text-sm text-red-400">Could not load Hadith.</div>
+            )}
+        </div>
+    );
+};
+
+
 const HomeNavCard: React.FC<{
     view: View;
     title: string;
@@ -105,6 +153,8 @@ const Home: React.FC = () => {
             <SpiritualReflection />
 
             <VerseOfTheDay />
+            
+            <HadithOfTheDay />
             
             <div className="grid grid-cols-2 gap-4 h-24" style={{ animationDelay: '200ms' }}>
                 <HomeNavCard view="dua" title={t('homeCardDua')} description={t('homeCardDuaDesc')} icon={cardIcons.dua} delay="250ms" />

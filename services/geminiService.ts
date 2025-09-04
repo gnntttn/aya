@@ -1,4 +1,5 @@
-import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback } from '../types';
+
+import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -157,4 +158,26 @@ export const getRecitationFeedback = async (recitedText: string, actualVerseText
         throw new Error(data.error || 'Failed to get recitation feedback.');
     }
     return data as RecitationFeedback;
+};
+
+/**
+ * Gets an AI-powered Hadith of the Day.
+ * @param {Language} language - The requested language for the Hadith.
+ * @returns {Promise<Hadith>} The structured Hadith object.
+ */
+export const getHadithOfTheDay = async (language: Language): Promise<Hadith> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'hadith',
+      payload: { language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate Hadith.');
+  }
+  return data as Hadith;
 };

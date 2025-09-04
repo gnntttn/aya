@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, SurahDetailData, Ayah } from '../types';
@@ -13,7 +14,7 @@ interface SurahDetailProps {
 }
 
 const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
-    const { t, language, setSelectedSurah, surahs, reciter } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark } = useContext(LanguageContext) as LanguageContextType;
     const [surahData, setSurahData] = useState<SurahDetailData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -23,6 +24,8 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation', ayah: Ayah, anchor: HTMLElement} | null>(null);
+    
+    const isBookmarked = bookmarks.includes(surahNumber);
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -107,6 +110,14 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const handlePracticeClick = (event: React.MouseEvent<HTMLButtonElement>, ayah: Ayah) => {
         setActiveModal({ type: 'recitation', ayah: getAyahWithContext(ayah), anchor: event.currentTarget });
     };
+    
+    const handleBookmarkToggle = () => {
+        if (isBookmarked) {
+            removeBookmark(surahNumber);
+        } else {
+            addBookmark(surahNumber);
+        }
+    }
 
     const closeModal = () => {
         setActiveModal(null);
@@ -138,12 +149,25 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                     anchorEl={activeModal.anchor}
                 />
             )}
-            <header className="text-center mb-6 relative">
+            <header className="text-center mb-6 relative flex items-center justify-center">
                 <button onClick={() => setSelectedSurah(null)} className="absolute top-1/2 -translate-y-1/2 left-0 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)]">{language === 'ar' ? surahData.name : surahData.englishName}</h2>
-                <p className="text-[var(--text-secondary)]">{language === 'ar' ? surahData.englishNameTranslation : surahData.name}</p>
+                <div className="text-center">
+                    <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)]">{language === 'ar' ? surahData.name : surahData.englishName}</h2>
+                    <p className="text-[var(--text-secondary)]">{language === 'ar' ? surahData.englishNameTranslation : surahData.name}</p>
+                </div>
+                <button onClick={handleBookmarkToggle} className="absolute top-1/2 -translate-y-1/2 right-0 text-amber-400 hover:text-amber-300 transition-colors p-2 rounded-full" title={isBookmarked ? t('unbookmarkSurah') : t('bookmarkSurah')}>
+                    {isBookmarked ? (
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                    )}
+                </button>
             </header>
             
             <div className="glass-card p-4 sm:p-6">

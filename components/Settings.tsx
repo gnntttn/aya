@@ -1,6 +1,8 @@
+
 import React, { useContext, useState } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
+import InstallGuideModal from './InstallGuideModal';
 
 const SegmentedControl: React.FC<{
     options: { value: string; label: string }[];
@@ -33,6 +35,7 @@ const SegmentedControl: React.FC<{
 const Settings: React.FC = () => {
     const { t, language, setLanguage, theme, setTheme } = useContext(LanguageContext) as LanguageContextType;
     const [linkCopied, setLinkCopied] = useState(false);
+    const [showInstallModal, setShowInstallModal] = useState(false);
     
     const languageOptions = [
         { value: 'en', label: 'English' },
@@ -69,6 +72,7 @@ const Settings: React.FC = () => {
 
     return (
         <div className="w-full animate-fade-in">
+            {showInstallModal && <InstallGuideModal onClose={() => setShowInstallModal(false)} />}
             <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('settingsTitle')}</h2>
 
             <div className="glass-card divide-y divide-[var(--border-color)] p-2">
@@ -112,6 +116,22 @@ const Settings: React.FC = () => {
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 text-[var(--text-primary)] font-semibold rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-sm"
                     >
                         <span>{linkCopied ? t('settingsLinkCopied') : t('settingsShareButton')}</span>
+                    </button>
+                </div>
+
+                {/* Install App Row */}
+                <div className="flex items-center justify-between gap-4 py-3 px-2">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-500/10 text-green-400 shrink-0">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                        </div>
+                         <span className="font-semibold text-base text-[var(--text-primary)]">{t('settingsInstallApp')}</span>
+                    </div>
+                     <button
+                        onClick={() => setShowInstallModal(true)}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 text-[var(--text-primary)] font-semibold rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-sm"
+                    >
+                        <span>{t('settingsInstallButton')}</span>
                     </button>
                 </div>
 

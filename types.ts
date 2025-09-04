@@ -1,6 +1,8 @@
+
 import { createContext } from 'react';
 
 export interface Dua {
+  id?: string;
   title: string;
   duaText: string;
   duaArabic: string;
@@ -101,6 +103,13 @@ export interface RecitationFeedback {
     };
 }
 
+export interface Hadith {
+    hadithText: string;
+    narrator: string;
+    reference: string;
+    briefExplanation: string;
+}
+
 
 export interface Translations {
   [key:string]: string;
@@ -121,6 +130,12 @@ export interface LanguageContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   surahs: Surah[];
+  bookmarks: number[];
+  addBookmark: (surahNumber: number) => void;
+  removeBookmark: (surahNumber: number) => void;
+  savedDuas: Dua[];
+  addSavedDua: (dua: Dua) => void;
+  removeSavedDua: (duaId: string) => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Dua, QuizQuestion, Language, Ayah } from "../../types";
+import type { Dua, QuizQuestion, Language, Ayah, Hadith } from "../../types";
 
 // Define TypeScript interfaces for the Lambda event and response
 interface HandlerEvent {
@@ -107,6 +108,21 @@ const getRecitationSystemInstruction = (languageName: string) => `You are an exp
 3.  **Provide Feedback Message:** Write a gentle, encouraging message in ${languageName} that reflects the result.
 4.  **Detail Corrections:** If 'isCorrect' is false, you MUST identify the specific mistake. Populate 'correctionDetails' with the incorrect word(s) the user said and the correct word(s) they should have said. If there are multiple errors, focus on the first significant one. Include the full 'recitedText' from the user.
 5.  **Adhere to Schema:** Your entire response must be a single JSON object that strictly follows the provided schema.`;
+
+// --- HADITH OF THE DAY ---
+const getHadithSchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        hadithText: { type: Type.STRING, description: `The text of the Hadith, translated into ${languageName}.` },
+        narrator: { type: Type.STRING, description: `The primary narrator(s) of the Hadith, in ${languageName}.` },
+        // FIX: Replaced a problematic backtick with a single quote to prevent a parsing error.
+        reference: { type: Type.STRING, description: `The source of the Hadith (e.g., Sahih al-Bukhari 52, Jami' at-Tirmidhi 197), in ${languageName}.` },
+        briefExplanation: { type: Type.STRING, description: `A concise, easy-to-understand explanation of the Hadith's meaning and lesson, in ${languageName}.` },
+    },
+    required: ['hadithText', 'narrator', 'reference', 'briefExplanation']
+});
+const getHadithSystemInstruction = (languageName: string) => `You are an expert Islamic scholar specializing in Hadith. Your task is to select one authentic, impactful, and relatively short Hadith (from Sahih al-Bukhari, Sahih Muslim, Jami' at-Tirmidhi, etc.). Provide the Hadith and its details in ${languageName}, adhering strictly to the provided JSON schema. The explanation should be clear and accessible for a general audience.`;
+
 
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
@@ -217,6 +233,21 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
                 systemInstruction: getRecitationSystemInstruction(languageName),
                 responseMimeType: "application/json",
                 responseSchema: getRecitationFeedbackSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+
+    } else if (type === 'hadith') {
+        const { language } = payload as { language: Language };
+        const languageName = languageMap[language] || 'English';
+
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Please provide a Hadith of the Day in ${languageName}.`,
+            config: {
+                systemInstruction: getHadithSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getHadithSchema(languageName),
             },
         });
         result = JSON.parse(response.text);

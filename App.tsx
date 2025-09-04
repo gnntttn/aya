@@ -1,5 +1,6 @@
+
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah } from './types';
+import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua } from './types';
 import { LanguageContext } from './types';
 import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
@@ -33,6 +34,10 @@ const translations: { [key in Language]: Translations } = {
     greetingEvening: "As-salamu alaykum",
     homeSubGreeting: "What would you like to do today?",
     verseOfTheDayTitle: "Verse of the Day",
+    hadithOfTheDayTitle: "Hadith of the Day",
+    hadithReference: "Reference",
+    hadithNarrator: "Narrated by",
+    hadithExplanation: "Brief Explanation",
     homeCardDua: "AI Assistant",
     homeCardDuaDesc: "Generate personal duas",
     homeCardQuran: "Surah Index",
@@ -61,6 +66,11 @@ const translations: { [key in Language]: Translations } = {
     duaCardTransliteration: "Transliteration",
     duaCardReference: "Reference",
     sampleDuasTitle: "Sample Duas",
+    myDuasTitle: "My Saved Duas",
+    myDuasEmpty: "You haven't saved any duas yet.",
+    duaSave: "Save Dua",
+    duaUnsave: "Unsave Dua",
+    duaSaved: "Saved",
     // Quran Page
     quranTitle: "The Holy Quran",
     quranDescription: "Browse all 114 Surahs.",
@@ -74,6 +84,8 @@ const translations: { [key in Language]: Translations } = {
     playAyah: "Play Ayah",
     pause: "Pause",
     playAll: "Play Surah",
+    bookmarkSurah: "Bookmark Surah",
+    unbookmarkSurah: "Remove Bookmark",
     tafsirGenerating: "Generating explanation...",
     tafsirTitle: "Explanation of Ayah {number}",
     getTafsir: "Explain with AI",
@@ -120,6 +132,8 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "Share the App",
     settingsShareButton: "Share AYA",
     settingsLinkCopied: "Link Copied!",
+    settingsInstallApp: "Install App",
+    settingsInstallButton: "Install",
     // Tasbih Page
     tasbihTitle: "Tasbih Counter",
     tasbihTarget: "Target: {count}",
@@ -129,6 +143,7 @@ const translations: { [key in Language]: Translations } = {
     moreTitle: "More Features",
     morePrayerTimes: "Prayer Times",
     moreAsmaulHusna: "Names of Allah",
+    moreQibla: "Qibla Compass",
     // Prayer Times
     prayerTimesTitle: "Prayer Times",
     prayerTimesDescription: "Allow location access to see prayer times for your area.",
@@ -146,6 +161,27 @@ const translations: { [key in Language]: Translations } = {
     asmaulHusnaTitle: "The 99 Names of Allah",
     asmaulHusnaDescription: "Explore the beautiful names and attributes of Allah.",
     asmaulHusnaLoading: "Generating explanation...",
+    // Qibla Compass
+    qiblaTitle: "Qibla Compass",
+    qiblaDescription: "Find the direction of the Kaaba from your current location.",
+    qiblaFind: "Find Qibla",
+    qiblaCalibrating: "Calibrating compass...",
+    qiblaAllowMotion: "Please allow motion sensor access to use the compass.",
+    qiblaAllowLocation: "Please allow location access to find the Qibla direction.",
+    qiblaMotionDenied: "Motion sensor access was denied. Please enable it in your browser settings.",
+    qiblaNorth: "N",
+    qiblaSouth: "S",
+    qiblaEast: "E",
+    qiblaWest: "W",
+    // Install App
+    installAppTitle: "Install AYA App",
+    installAppDescriptionIOS: "To install the app on your iPhone, follow these steps in Safari:",
+    installAppDescriptionAndroid: "To install the app on your Android device, follow these steps in Chrome:",
+    installAppIOSStep1: "Tap the 'Share' button",
+    installAppIOSStep2: "Scroll down and tap 'Add to Home Screen'",
+    installAppIOSStep3: "Tap 'Add' in the top corner",
+    installAppAndroidStep1: "Tap the 'More' (three dots) button",
+    installAppAndroidStep2: "Tap 'Install app'",
     // General
     checkingConfig: "Checking configuration...",
     back: "Back",
@@ -168,6 +204,10 @@ const translations: { [key in Language]: Translations } = {
     greetingEvening: "السلام عليكم",
     homeSubGreeting: "ماذا تود أن تفعل اليوم؟",
     verseOfTheDayTitle: "آية اليوم",
+    hadithOfTheDayTitle: "حديث اليوم",
+    hadithReference: "المصدر",
+    hadithNarrator: "الراوي",
+    hadithExplanation: "شرح مختصر",
     homeCardDua: "المساعد الذكي",
     homeCardDuaDesc: "لإنشاء أدعية شخصية",
     homeCardQuran: "فهرس السور",
@@ -194,6 +234,11 @@ const translations: { [key in Language]: Translations } = {
     duaCardTransliteration: "النطق الصوتي",
     duaCardReference: "المرجع",
     sampleDuasTitle: "أدعية نموذجية",
+    myDuasTitle: "أدعيتي المحفوظة",
+    myDuasEmpty: "لم تقم بحفظ أي دعاء بعد.",
+    duaSave: "حفظ الدعاء",
+    duaUnsave: "إلغاء حفظ الدعاء",
+    duaSaved: "تم الحفظ",
     quranTitle: "القرآن الكريم",
     quranDescription: "تصفح جميع سور القرآن الـ 114.",
     searchPlaceholder: "ابحث بالاسم أو الرقم...",
@@ -206,6 +251,8 @@ const translations: { [key in Language]: Translations } = {
     playAyah: "تشغيل الآية",
     pause: "إيقاف",
     playAll: "تشغيل السورة",
+    bookmarkSurah: "حفظ السورة",
+    unbookmarkSurah: "إزالة الحفظ",
     tafsirGenerating: "جاري إنشاء التفسير...",
     tafsirTitle: "تفسير الآية رقم {number}",
     getTafsir: "تفسير بالذكاء الاصطناعي",
@@ -248,6 +295,8 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "شارك التطبيق",
     settingsShareButton: "مشاركة آية",
     settingsLinkCopied: "تم نسخ الرابط!",
+    settingsInstallApp: "تثبيت التطبيق",
+    settingsInstallButton: "تثبيت",
     tasbihTitle: "المسبحة الإلكترونية",
     tasbihTarget: "الهدف: {count}",
     tasbihReset: "إعادة تعيين",
@@ -255,6 +304,7 @@ const translations: { [key in Language]: Translations } = {
     moreTitle: "ميزات إضافية",
     morePrayerTimes: "مواقيت الصلاة",
     moreAsmaulHusna: "أسماء الله الحسنى",
+    moreQibla: "بوصلة القبلة",
     prayerTimesTitle: "مواقيت الصلاة",
     prayerTimesDescription: "اسمح بالوصول للموقع لعرض مواقيت الصلاة لمنطقتك.",
     prayerAllowLocation: "السماح بالموقع",
@@ -270,6 +320,25 @@ const translations: { [key in Language]: Translations } = {
     asmaulHusnaTitle: "أسماء الله الحسنى",
     asmaulHusnaDescription: "اكتشف أسماء الله وصفاته الحسنى.",
     asmaulHusnaLoading: "جاري إنشاء الشرح...",
+    qiblaTitle: "بوصلة القبلة",
+    qiblaDescription: "اعثر على اتجاه الكعبة من موقعك الحالي.",
+    qiblaFind: "تحديد القبلة",
+    qiblaCalibrating: "جاري معايرة البوصلة...",
+    qiblaAllowMotion: "يرجى السماح بالوصول إلى مستشعر الحركة لاستخدام البوصلة.",
+    qiblaAllowLocation: "يرجى السماح بالوصول إلى الموقع لتحديد اتجاه القبلة.",
+    qiblaMotionDenied: "تم رفض الوصول إلى مستشعر الحركة. يرجى تفعيله في إعدادات المتصفح.",
+    qiblaNorth: "ش",
+    qiblaSouth: "ج",
+    qiblaEast: "ق",
+    qiblaWest: "غ",
+    installAppTitle: "تثبيت تطبيق آية",
+    installAppDescriptionIOS: "لتثبيت التطبيق على جهازك الآيفون، اتبع هذه الخطوات في متصفح سفاري:",
+    installAppDescriptionAndroid: "لتثبيت التطبيق على جهازك الأندرويد، اتبع هذه الخطوات في متصفح كروم:",
+    installAppIOSStep1: "اضغط على أيقونة 'المشاركة'",
+    installAppIOSStep2: "مرر للأسفل واختر 'إضافة إلى الشاشة الرئيسية'",
+    installAppIOSStep3: "اضغط على 'إضافة' في الزاوية العلوية",
+    installAppAndroidStep1: "اضغط على زر 'المزيد' (ثلاث نقاط)",
+    installAppAndroidStep2: "اضغط على 'تثبيت التطبيق'",
     checkingConfig: "جاري التحقق من الإعدادات...",
     back: "رجوع",
     close: "إغلاق",
@@ -291,6 +360,10 @@ const translations: { [key in Language]: Translations } = {
     greetingEvening: "As-salamu alaykum",
     homeSubGreeting: "Que souhaitez-vous faire aujourd'hui ?",
     verseOfTheDayTitle: "Verset du Jour",
+    hadithOfTheDayTitle: "Hadith du Jour",
+    hadithReference: "Référence",
+    hadithNarrator: "Rapporté par",
+    hadithExplanation: "Brève Explication",
     homeCardDua: "Assistant IA",
     homeCardDuaDesc: "Générez des dou'as personnelles",
     homeCardQuran: "Index des Sourates",
@@ -317,6 +390,11 @@ const translations: { [key in Language]: Translations } = {
     duaCardTransliteration: "Translittération",
     duaCardReference: "Référence",
     sampleDuasTitle: "Exemples de Dou'as",
+    myDuasTitle: "Mes Dou'as Sauvegardées",
+    myDuasEmpty: "Vous n'avez pas encore sauvegardé de dou'as.",
+    duaSave: "Sauvegarder la Dou'a",
+    duaUnsave: "Retirer la Dou'a",
+    duaSaved: "Enregistré",
     quranTitle: "Le Saint Coran",
     quranDescription: "Parcourez les 114 sourates.",
     searchPlaceholder: "Rechercher par nom ou numéro...",
@@ -329,6 +407,8 @@ const translations: { [key in Language]: Translations } = {
     playAyah: "Lire le Verset",
     pause: "Pause",
     playAll: "Lire la Sourate",
+    bookmarkSurah: "Mettre en favori",
+    unbookmarkSurah: "Retirer des favoris",
     tafsirGenerating: "Génération de l'explication...",
     tafsirTitle: "Explication du Verset {number}",
     getTafsir: "Expliquer avec l'IA",
@@ -371,6 +451,8 @@ const translations: { [key in Language]: Translations } = {
     settingsShareTitle: "Partager l'application",
     settingsShareButton: "Partager AYA",
     settingsLinkCopied: "Lien copié !",
+    settingsInstallApp: "Installer l'App",
+    settingsInstallButton: "Installer",
     tasbihTitle: "Compteur Tasbih",
     tasbihTarget: "Objectif : {count}",
     tasbihReset: "Réinitialiser",
@@ -378,6 +460,7 @@ const translations: { [key in Language]: Translations } = {
     moreTitle: "Plus de fonctionnalités",
     morePrayerTimes: "Horaires de Prière",
     moreAsmaulHusna: "Noms d'Allah",
+    moreQibla: "Boussole Qibla",
     prayerTimesTitle: "Horaires de Prière",
     prayerTimesDescription: "Autorisez l'accès à la localisation pour voir les horaires de prière de votre région.",
     prayerAllowLocation: "Autoriser la localisation",
@@ -393,6 +476,25 @@ const translations: { [key in Language]: Translations } = {
     asmaulHusnaTitle: "Les 99 Noms d'Allah",
     asmaulHusnaDescription: "Explorez les beaux noms et attributs d'Allah.",
     asmaulHusnaLoading: "Génération de l'explication...",
+    qiblaTitle: "Boussole Qibla",
+    qiblaDescription: "Trouvez la direction de la Kaaba depuis votre position actuelle.",
+    qiblaFind: "Trouver la Qibla",
+    qiblaCalibrating: "Calibrage de la boussole...",
+    qiblaAllowMotion: "Veuillez autoriser l'accès au capteur de mouvement pour utiliser la boussole.",
+    qiblaAllowLocation: "Veuillez autoriser l'accès à la localisation pour trouver la direction de la Qibla.",
+    qiblaMotionDenied: "L'accès au capteur de mouvement a été refusé. Veuillez l'activer dans les paramètres de votre navigateur.",
+    qiblaNorth: "N",
+    qiblaSouth: "S",
+    qiblaEast: "E",
+    qiblaWest: "O",
+    installAppTitle: "Installer l'app AYA",
+    installAppDescriptionIOS: "Pour installer l'application sur votre iPhone, suivez ces étapes dans Safari :",
+    installAppDescriptionAndroid: "Pour installer l'application sur votre appareil Android, suivez ces étapes dans Chrome :",
+    installAppIOSStep1: "Appuyez sur le bouton 'Partager'",
+    installAppIOSStep2: "Faites défiler et appuyez sur 'Sur l'écran d'accueil'",
+    installAppIOSStep3: "Appuyez sur 'Ajouter' dans le coin supérieur",
+    installAppAndroidStep1: "Appuyez sur le bouton 'Plus' (trois points)",
+    installAppAndroidStep2: "Appuyez sur 'Installer l'application'",
     checkingConfig: "Vérification de la configuration...",
     back: "Retour",
     close: "Fermer",
@@ -416,6 +518,15 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
   const [view, setView] = useState<View>('home');
   const [selectedSurah, setSelectedSurah] = useState<number | null>(null);
   const [surahs, setSurahs] = useState<Surah[]>([]);
+  const [bookmarks, setBookmarks] = useState<number[]>(() => {
+    const savedBookmarks = localStorage.getItem('aya-bookmarks');
+    return savedBookmarks ? JSON.parse(savedBookmarks) : [];
+  });
+  const [savedDuas, setSavedDuas] = useState<Dua[]>(() => {
+    const storedDuas = localStorage.getItem('aya-saved-duas');
+    return storedDuas ? JSON.parse(storedDuas) : [];
+  });
+
 
   useEffect(() => {
     const fetchSurahs = async () => {
@@ -428,6 +539,36 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     };
     fetchSurahs();
   }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('aya-bookmarks', JSON.stringify(bookmarks));
+  }, [bookmarks]);
+  
+  useEffect(() => {
+    localStorage.setItem('aya-saved-duas', JSON.stringify(savedDuas));
+  }, [savedDuas]);
+
+
+  const addBookmark = (surahNumber: number) => {
+    if (!bookmarks.includes(surahNumber)) {
+        setBookmarks([...bookmarks, surahNumber]);
+    }
+  };
+
+  const removeBookmark = (surahNumber: number) => {
+    setBookmarks(bookmarks.filter(b => b !== surahNumber));
+  };
+
+  const addSavedDua = (dua: Dua) => {
+    if (dua.id && !savedDuas.some(d => d.id === dua.id)) {
+      setSavedDuas(prev => [dua, ...prev]);
+    }
+  };
+
+  const removeSavedDua = (duaId: string) => {
+      setSavedDuas(prev => prev.filter(d => d.id !== duaId));
+  };
+
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -499,6 +640,12 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     theme,
     setTheme,
     surahs,
+    bookmarks,
+    addBookmark,
+    removeBookmark,
+    savedDuas,
+    addSavedDua,
+    removeSavedDua,
   };
 
   return (
