@@ -242,21 +242,31 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
   }
 
   try {
+    const { type, payload } = JSON.parse(event.body || "{}");
+
+    // Handle diagnostic check separately, as it doesn't require an API key to be valid.
+    if (type === 'diag') {
+        return {
+            statusCode: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            body: JSON.stringify({ hasApiKey: !!process.env.API_KEY }),
+        };
+    }
+
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: "Please configure the API_KEY." }) };
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const { type, payload } = JSON.parse(event.body || "{}");
-
+    
     let result;
     const languageMap: { [key in Language]: string } = { en: 'English', ar: 'Arabic', fr: 'French' };
-    const languageName = languageMap[payload.language] || 'English';
+    const languageName = payload.language ? (languageMap[payload.language] || 'English') : 'English';
 
 
     if (type === 'dua') {
-      const { prompt, language } = payload;
+      const { prompt } = payload;
       const response = await ai.models.generateContent({
         model: modelName,
         contents: `User's need: "${prompt}". Generate a dua in ${languageName}.`,

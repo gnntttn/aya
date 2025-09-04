@@ -20,7 +20,6 @@ const TafsirSection: React.FC<{title: string; content: string;}> = ({ title, con
 );
 
 
-// FIX: Destructured the 'anchorEl' prop to make it available within the component.
 const TafsirModal: React.FC<TafsirModalProps> = ({ ayah, onClose, anchorEl }) => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
     const [tafsir, setTafsir] = useState<Tafsir | null>(null);
