@@ -3,8 +3,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import { generateQuizQuestions, isApiKeyAvailable } from '../services/geminiService';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, QuizQuestion, QuizState } from '../types';
-import ErrorMessage from './common/ErrorMessage';
-import LoadingIndicator from './common/LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
 
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
 

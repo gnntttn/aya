@@ -2,8 +2,8 @@
 import React, { useState, useMemo, useContext } from 'react';
 import type { LanguageContextType } from '../types';
 import { LanguageContext } from '../types';
-import ErrorMessage from './common/ErrorMessage';
-import LoadingIndicator from './common/LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
 
 const Quran: React.FC = () => {
     const { t, language, setSelectedSurah, surahs, bookmarks } = useContext(LanguageContext) as LanguageContextType;

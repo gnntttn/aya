@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, Ayah, Tafsir } from '../types';
 import { getTafsir, isApiKeyAvailable } from '../services/geminiService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 interface TafsirModalProps {
     ayah: Ayah;

@@ -110,6 +110,26 @@ export interface Hadith {
     briefExplanation: string;
 }
 
+export interface Dhikr {
+    arabic: string;
+    transliteration: string;
+    translation: string;
+    count: number;
+    virtue: string;
+}
+
+export interface ProphetStory {
+    prophetName: string;
+    story: string;
+    lessons: string[];
+}
+
+export interface FiqhAnswer {
+    question: string;
+    answer: string;
+    disclaimer: string;
+}
+
 
 export interface Translations {
   [key:string]: string;

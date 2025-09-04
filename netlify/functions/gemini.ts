@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Dua, QuizQuestion, Language, Ayah, Hadith } from "../../types";
+import type { Dua, QuizQuestion, Language, Ayah, Hadith, ProphetStory, FiqhAnswer } from "../../types";
 
 // Define TypeScript interfaces for the Lambda event and response
 interface HandlerEvent {
@@ -115,13 +115,41 @@ const getHadithSchema = (languageName: string) => ({
     properties: {
         hadithText: { type: Type.STRING, description: `The text of the Hadith, translated into ${languageName}.` },
         narrator: { type: Type.STRING, description: `The primary narrator(s) of the Hadith, in ${languageName}.` },
-        // FIX: Replaced a problematic backtick with a single quote to prevent a parsing error.
         reference: { type: Type.STRING, description: `The source of the Hadith (e.g., Sahih al-Bukhari 52, Jami' at-Tirmidhi 197), in ${languageName}.` },
         briefExplanation: { type: Type.STRING, description: `A concise, easy-to-understand explanation of the Hadith's meaning and lesson, in ${languageName}.` },
     },
     required: ['hadithText', 'narrator', 'reference', 'briefExplanation']
 });
 const getHadithSystemInstruction = (languageName: string) => `You are an expert Islamic scholar specializing in Hadith. Your task is to select one authentic, impactful, and relatively short Hadith (from Sahih al-Bukhari, Sahih Muslim, Jami' at-Tirmidhi, etc.). Provide the Hadith and its details in ${languageName}, adhering strictly to the provided JSON schema. The explanation should be clear and accessible for a general audience.`;
+
+// --- PROPHET STORY ---
+const getProphetStorySchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        prophetName: { type: Type.STRING, description: `The name of the prophet in ${languageName}.` },
+        story: { type: Type.STRING, description: `A concise, engaging, and well-structured story of the prophet in ${languageName}, suitable for a general audience.` },
+        lessons: { type: Type.ARRAY, items: { type: Type.STRING }, description: `A list of 3-5 key lessons or morals from the prophet's story, in ${languageName}.` }
+    },
+    required: ['prophetName', 'story', 'lessons']
+});
+const getProphetStorySystemInstruction = (languageName: string) => `You are a master storyteller specializing in the lives of the prophets of Islam. Your task is to generate a summary of a prophet's story in ${languageName}, based on the user's request. The story should be accurate according to Islamic sources, written in a clear and captivating manner, and highlight the main events and trials of their life. Conclude with a list of key lessons. Adhere strictly to the provided JSON schema.`;
+
+// --- FIQH Q&A ---
+const getFiqhQASchema = (languageName: string) => ({
+    type: Type.OBJECT,
+    properties: {
+        question: { type: Type.STRING, description: "The user's original question." },
+        answer: { type: Type.STRING, description: `A clear, concise, and helpful answer to the user's question in ${languageName}, based on mainstream Islamic scholarship.` },
+        disclaimer: { type: Type.STRING, description: `The mandatory disclaimer, exactly as provided in the system instruction, translated into ${languageName}.` }
+    },
+    required: ['question', 'answer', 'disclaimer']
+});
+const getFiqhQASystemInstruction = (languageName: string) => `You are a helpful Islamic studies assistant. Your task is to answer user questions on various Islamic topics (Fiqh, Aqeedah, Seerah, etc.) in ${languageName}. Your answers should be accurate, neutral, and based on mainstream Sunni sources. CRITICALLY, you must include a disclaimer at the beginning of your response.
+The disclaimer for ${languageName} is:
+- English: "Disclaimer: This AI is for informational purposes only and is not a qualified scholar. Always consult a local scholar for formal religious rulings (fatwa)."
+- Arabic: "إخلاء مسؤولية: هذا الذكاء الاصطناعي هو لأغراض معلوماتية فقط وليس عالمًا مؤهلاً. استشر دائمًا عالمًا محليًا للحصول على أحكام دينية رسمية (فتوى)."
+- French: "Avertissement : Cette IA est à titre informatif uniquement et n'est pas un savant qualifié. Consultez toujours un savant local pour des décisions religieuses formelles (fatwa)."
+Adhere strictly to the provided JSON schema. The 'disclaimer' field in the JSON must contain this exact text. The 'answer' field should start with the substance of the answer itself.`;
 
 
 
@@ -251,7 +279,34 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
             },
         });
         result = JSON.parse(response.text);
+    } else if (type === 'prophetStory') {
+        const { prophetName, language } = payload as { prophetName: string; language: Language };
+        const languageName = languageMap[language] || 'English';
 
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Generate a story about the prophet ${prophetName} in ${languageName}.`,
+            config: {
+                systemInstruction: getProphetStorySystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getProphetStorySchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'fiqhQA') {
+        const { question, language } = payload as { question: string; language: Language };
+        const languageName = languageMap[language] || 'English';
+
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `The user asks: "${question}". Please answer in ${languageName}.`,
+            config: {
+                systemInstruction: getFiqhQASystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getFiqhQASchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };
     }

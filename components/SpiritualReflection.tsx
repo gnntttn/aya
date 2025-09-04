@@ -1,9 +1,10 @@
+
 import React, { useState, useContext, useEffect } from 'react';
 import type { LanguageContextType, Reflection } from '../types';
 import { LanguageContext } from '../types';
 import { getSpiritualReflection, isApiKeyAvailable } from '../services/geminiService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
 

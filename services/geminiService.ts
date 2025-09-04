@@ -1,5 +1,5 @@
 
-import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith, ProphetStory, FiqhAnswer } from '../types';
 
 /**
  * Checks if the API key is available by querying a secure serverless function.
@@ -180,4 +180,52 @@ export const getHadithOfTheDay = async (language: Language): Promise<Hadith> => 
     throw new Error(data.error || 'Failed to generate Hadith.');
   }
   return data as Hadith;
+};
+
+
+/**
+ * Gets an AI-powered story of a prophet.
+ * @param {string} prophetName - The name of the prophet.
+ * @param {Language} language - The requested language for the story.
+ * @returns {Promise<ProphetStory>} The structured prophet story object.
+ */
+export const getProphetStory = async (prophetName: string, language: Language): Promise<ProphetStory> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'prophetStory',
+      payload: { prophetName, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate Prophet Story.');
+  }
+  return data as ProphetStory;
+};
+
+
+/**
+ * Gets an AI-powered answer to a Fiqh question.
+ * @param {string} question - The user's question.
+ * @param {Language} language - The requested language for the answer.
+ * @returns {Promise<FiqhAnswer>} The structured answer object.
+ */
+export const getFiqhAnswer = async (question: string, language: Language): Promise<FiqhAnswer> => {
+  const response = await fetch('/.netlify/functions/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'fiqhQA',
+      payload: { question, language }
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to generate Fiqh answer.');
+  }
+  return data as FiqhAnswer;
 };

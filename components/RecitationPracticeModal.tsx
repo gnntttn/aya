@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, Ayah, RecitationFeedback } from '../types';
 import { getRecitationFeedback, isApiKeyAvailable } from '../services/geminiService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 interface RecitationPracticeModalProps {
     ayah: Ayah;

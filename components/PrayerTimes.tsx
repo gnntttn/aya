@@ -3,8 +3,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, PrayerTimesData } from '../types';
 import { getPrayerTimes } from '../services/prayerTimeService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 

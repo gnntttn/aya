@@ -5,7 +5,7 @@ import { LanguageContext } from '../types';
 import { generateDua, isApiKeyAvailable } from '../services/geminiService';
 import LoadingIndicator from './common/LoadingIndicator';
 import DuaCard from './DuaCard';
-import ErrorMessage from './common/ErrorMessage';
+import ErrorMessage from './ErrorMessage';
 import { sampleDuas } from '../data/sampleDuas';
 
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';

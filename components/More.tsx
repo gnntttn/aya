@@ -7,8 +7,12 @@ import Quiz from './Quiz';
 import PrayerTimes from './PrayerTimes';
 import AsmaulHusna from './AsmaulHusna';
 import Qibla from './Qibla';
+import Adhkar from './Adhkar';
+import ProphetStories from './ProphetStories';
+import ZakatCalculator from './ZakatCalculator';
+import FiqhQA from './FiqhQA';
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'prayer' | 'asma' | 'qibla';
+type SubView = 'menu' | 'settings' | 'quiz' | 'prayer' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh';
 
 const More: React.FC = () => {
     const { t } = useContext(LanguageContext) as LanguageContextType;
@@ -20,52 +24,69 @@ const More: React.FC = () => {
             title: t('navQuiz'), 
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             color: 'bg-blue-500/10 text-blue-400',
-            soon: false,
+        },
+        {
+            id: 'fiqh' as SubView,
+            title: t('moreFiqhQA'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
+            color: 'bg-teal-500/10 text-teal-400',
+        },
+         {
+            id: 'prophets' as SubView,
+            title: t('moreProphetStories'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+            color: 'bg-indigo-500/10 text-indigo-400',
+        },
+        {
+            id: 'adhkar' as SubView,
+            title: t('moreAdhkar'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            color: 'bg-rose-500/10 text-rose-400',
+        },
+        {
+            id: 'zakat' as SubView,
+            title: t('moreZakatCalculator'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 14h.01M9 11h.01M12 11h.01M15 11h.01M12 21a9 9 0 110-18 9 9 0 010 18z" /></svg>,
+            color: 'bg-green-500/10 text-green-400',
         },
         {
             id: 'qibla' as SubView,
             title: t('moreQibla'),
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 2L6 22l6-4 6 4V2zM12 2v6" /></svg>,
-            color: 'bg-green-500/10 text-green-400',
-            soon: false,
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.737 9.045l1.414-1.414a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-1.414 1.414M6.323 12.456l-2.828 2.828a2 2 0 000 2.828l1.414 1.414a2 2 0 002.828 0L10.586 17" /></svg>,
+            color: 'bg-cyan-500/10 text-cyan-400',
         },
         {
             id: 'prayer' as SubView,
             title: t('morePrayerTimes'),
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             color: 'bg-purple-500/10 text-purple-400',
-            soon: false,
         },
         {
             id: 'asma' as SubView,
             title: t('moreAsmaulHusna'),
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
             color: 'bg-pink-500/10 text-pink-400',
-            soon: false,
         },
         { 
             id: 'settings' as SubView, 
             title: t('navSettings'), 
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
             color: 'bg-amber-500/10 text-amber-400',
-            soon: false,
         },
     ];
     
     const renderSubView = () => {
         switch (subView) {
-            case 'settings':
-                return <Settings />;
-            case 'quiz':
-                return <Quiz />;
-            case 'prayer':
-                return <PrayerTimes />;
-            case 'asma':
-                return <AsmaulHusna />;
-            case 'qibla':
-                return <Qibla />;
-            default:
-                return null;
+            case 'settings': return <Settings />;
+            case 'quiz': return <Quiz />;
+            case 'prayer': return <PrayerTimes />;
+            case 'asma': return <AsmaulHusna />;
+            case 'qibla': return <Qibla />;
+            case 'adhkar': return <Adhkar />;
+            case 'prophets': return <ProphetStories />;
+            case 'zakat': return <ZakatCalculator />;
+            case 'fiqh': return <FiqhQA />;
+            default: return null;
         }
     }
 
@@ -88,12 +109,8 @@ const More: React.FC = () => {
                 {menuItems.map(item => (
                     <button
                         key={item.id}
-                        onClick={() => {
-                            if (item.soon) return;
-                            setSubView(item.id);
-                        }}
-                        disabled={item.soon}
-                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => setSubView(item.id)}
+                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
                     >
                         <div className="flex items-center gap-4">
                             <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
@@ -101,11 +118,7 @@ const More: React.FC = () => {
                             </div>
                             <span className="font-semibold text-base text-[var(--text-primary)]">{item.title}</span>
                         </div>
-                        {item.soon ? (
-                            <span className="text-xs font-semibold bg-black/10 dark:bg-white/10 text-[var(--text-secondary)] px-2 py-1 rounded-full">{t('comingSoon')}</span>
-                        ) : (
-                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
-                        )}
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
                     </button>
                 ))}
             </div>
