@@ -3,8 +3,8 @@ import React, { useState, useContext } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, DreamInterpretation } from '../types';
 import { getDreamInterpretation } from '../services/geminiService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 const DreamInterpreter: React.FC = () => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;

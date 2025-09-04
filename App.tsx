@@ -1,15 +1,14 @@
-
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua, SpiritualGoal } from './types';
 import { LanguageContext } from './types';
 import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
-import DuaGenerator from './components/DuaGenerator';
+import Assistant from './components/Assistant';
 import Quran from './components/Quran';
-import Tasbih from './components/Tasbih';
 import More from './components/More';
 import SurahDetail from './components/SurahDetail';
 import Onboarding from './components/Onboarding';
+import PrayerTimes from './components/PrayerTimes';
 import { recitersData } from './data/recitersData';
 import { getSurahList } from './services/quranService';
 
@@ -23,8 +22,8 @@ const translations: { [key in Language]: Translations } = {
     // Nav
     navHome: "Home",
     navQuran: "Quran",
-    navDua: "Assistant",
-    navTasbih: "Tasbih",
+    navAssistant: "Assistant",
+    navPrayer: "Prayer",
     navMore: "More",
     navQuiz: "Quiz",
     navSettings: "Settings",
@@ -62,6 +61,7 @@ const translations: { [key in Language]: Translations } = {
     loadingMessage: "Crafting your dua...",
     errorTitle: "Error",
     errorMessage: "Sorry, an error occurred. Please try again.",
+    modelOverloadedError: "The AI model is currently overloaded. Please try again in a few moments.",
     promptError: "Please describe what you would like to make dua for.",
     duaCardTransliteration: "Transliteration",
     duaCardReference: "Reference",
@@ -148,6 +148,7 @@ const translations: { [key in Language]: Translations } = {
     // More Page
     moreTitle: "More Features",
     morePrayerTimes: "Prayer Times",
+    moreTasbih: "Tasbih Counter",
     moreAsmaulHusna: "Names of Allah",
     moreQibla: "Qibla Compass",
     moreAdhkar: "Morning & Evening Adhkar",
@@ -299,8 +300,8 @@ const translations: { [key in Language]: Translations } = {
     continueButton: "ابدأ الرحلة",
     navHome: "الرئيسية",
     navQuran: "القرآن",
-    navDua: "المساعد",
-    navTasbih: "المسبحة",
+    navAssistant: "المساعد",
+    navPrayer: "الصلاة",
     navMore: "المزيد",
     navQuiz: "اختبار",
     navSettings: "الإعدادات",
@@ -335,6 +336,7 @@ const translations: { [key in Language]: Translations } = {
     loadingMessage: "نصوغ دعاءك...",
     errorTitle: "خطأ",
     errorMessage: "عذرًا، حدث خطأ. يرجى المحاولة مرة أخرى.",
+    modelOverloadedError: "نموذج الذكاء الاصطناعي مُحمل حاليًا. يرجى المحاولة مرة أخرى بعد لحظات.",
     promptError: "يرجى وصف ما تود الدعاء من أجله.",
     duaCardTransliteration: "النطق الصوتي",
     duaCardReference: "المرجع",
@@ -413,6 +415,7 @@ const translations: { [key in Language]: Translations } = {
     tasbihCycleComplete: "اكتملت الدورة!",
     moreTitle: "ميزات إضافية",
     morePrayerTimes: "مواقيت الصلاة",
+    moreTasbih: "المسبحة الإلكترونية",
     moreAsmaulHusna: "أسماء الله الحسنى",
     moreQibla: "بوصلة القبلة",
     moreAdhkar: "أذكار الصباح والمساء",
@@ -547,8 +550,8 @@ const translations: { [key in Language]: Translations } = {
     continueButton: "Commencer le voyage",
     navHome: "Accueil",
     navQuran: "Coran",
-    navDua: "Assistant",
-    navTasbih: "Tasbih",
+    navAssistant: "Assistant",
+    navPrayer: "Prière",
     navMore: "Plus",
     navQuiz: "Quiz",
     navSettings: "Paramètres",
@@ -583,6 +586,7 @@ const translations: { [key in Language]: Translations } = {
     loadingMessage: "Préparation de votre dou'a...",
     errorTitle: "Erreur",
     errorMessage: "Désolé, une erreur est survenue. Veuillez réessayer.",
+    modelOverloadedError: "Le modèle d'IA est actuellement surchargé. Veuillez réessayer dans quelques instants.",
     promptError: "Veuillez décrire pourquoi vous souhaitez faire une dou'a.",
     duaCardTransliteration: "Translittération",
     duaCardReference: "Référence",
@@ -661,6 +665,7 @@ const translations: { [key in Language]: Translations } = {
     tasbihCycleComplete: "Cycle terminé !",
     moreTitle: "Plus de fonctionnalités",
     morePrayerTimes: "Horaires de Prière",
+    moreTasbih: "Compteur Tasbih",
     moreAsmaulHusna: "Noms d'Allah",
     moreQibla: "Boussole Qibla",
     moreAdhkar: "Adhkar du Matin & Soir",
@@ -996,9 +1001,9 @@ const AppContent: React.FC = () => {
     }
     switch (view) {
         case 'home': return <Home key="home" />;
-        case 'dua': return <DuaGenerator key="dua" />;
+        case 'assistant': return <Assistant key="assistant" />;
         case 'quran': return <Quran key="quran" />;
-        case 'tasbih': return <Tasbih key="tasbih" />;
+        case 'prayer': return <PrayerTimes key="prayer" />;
         case 'more': return <More key="more" />;
         default: return <Home key="home" />;
     }

@@ -65,10 +65,36 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
     );
   }
 
+  let displayMessage = message;
+  try {
+    // Attempt to parse the message as JSON.
+    const errorObj = JSON.parse(message);
+    let nestedMessage = '';
+    // Handle structures like {"error":{"message":"..."}}
+    if (errorObj && errorObj.error && typeof errorObj.error.message === 'string') {
+        nestedMessage = errorObj.error.message;
+    } 
+    // Handle simpler structures like {"message":"..."}
+    else if (errorObj && typeof errorObj.message === 'string') {
+        nestedMessage = errorObj.message;
+    }
+
+    if (nestedMessage) {
+        displayMessage = nestedMessage;
+        // Check for specific, common API errors to provide a better translation.
+        if (nestedMessage.toLowerCase().includes('model is overloaded')) {
+            displayMessage = t('modelOverloadedError');
+        }
+    }
+  } catch (e) {
+    // It's not a JSON string, so we'll just use the original message.
+  }
+
+
   return (
     <div className={`w-full max-w-2xl bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded-lg relative ${directionClass}`} role="alert">
       <strong className="font-bold">{t('errorTitle')}: </strong>
-      <span className="block sm:inline">{message}</span>
+      <span className="block sm:inline">{displayMessage}</span>
     </div>
   );
 };

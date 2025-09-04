@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 type Status = 'idle' | 'requesting' | 'calibrating' | 'ready' | 'error';
 

@@ -4,8 +4,8 @@ import { LanguageContext } from '../types';
 import type { LanguageContextType, HajjGuideStep } from '../types';
 import { hajjUmrahData } from '../data/hajjUmrahData';
 import { getHajjUmrahQa } from '../services/geminiService';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 const GuideStep: React.FC<{ step: HajjGuideStep; index: number }> = ({ step, index }) => {
     return (

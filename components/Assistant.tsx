@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useContext, useEffect } from 'react';
 import type { Dua, LanguageContextType } from '../types';
 import { LanguageContext } from '../types';
@@ -10,7 +9,7 @@ import { sampleDuas } from '../data/sampleDuas';
 
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
 
-const DuaGenerator: React.FC = () => {
+const Assistant: React.FC = () => {
   const { language, t, savedDuas, addSavedDua, removeSavedDua } = useContext(LanguageContext) as LanguageContextType;
   const [prompt, setPrompt] = useState<string>('');
   const [dua, setDua] = useState<Dua | null>(null);
@@ -130,4 +129,4 @@ const DuaGenerator: React.FC = () => {
   );
 };
 
-export default DuaGenerator;
+export default Assistant;

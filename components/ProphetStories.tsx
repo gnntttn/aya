@@ -4,8 +4,8 @@ import { LanguageContext } from '../types';
 import type { LanguageContextType, ProphetStory } from '../types';
 import { getProphetStory } from '../services/geminiService';
 import { prophetsData } from '../data/prophetsData';
-import LoadingIndicator from './common/LoadingIndicator';
-import ErrorMessage from './common/ErrorMessage';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 
 const ProphetStories: React.FC = () => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;

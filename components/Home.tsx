@@ -160,7 +160,8 @@ const Home: React.FC = () => {
             <HadithOfTheDay />
             
             <div className="grid grid-cols-2 gap-4 h-24" style={{ animationDelay: '200ms' }}>
-                <HomeNavCard view="dua" title={t('homeCardDua')} description={t('homeCardDuaDesc')} icon={cardIcons.dua} delay="250ms" />
+                {/* FIX: Changed view from 'dua' to 'assistant' to match the 'View' type definition. The 'dua' card navigates to the Assistant feature. */}
+                <HomeNavCard view="assistant" title={t('homeCardDua')} description={t('homeCardDuaDesc')} icon={cardIcons.dua} delay="250ms" />
                 <HomeNavCard view="quran" title={t('homeCardQuran')} description={t('homeCardQuranDesc')} icon={cardIcons.quran} delay="300ms" />
             </div>
         </div>

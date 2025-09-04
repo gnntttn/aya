@@ -1,4 +1,3 @@
-
 import { createContext } from 'react';
 
 export interface Dua {
@@ -12,7 +11,7 @@ export interface Dua {
 
 export type Language = 'en' | 'ar' | 'fr';
 
-export type View = 'home' | 'dua' | 'quran' | 'tasbih' | 'more';
+export type View = 'home' | 'prayer' | 'quran' | 'assistant' | 'more';
 
 export type Theme = 'light' | 'dark' | 'system';
 

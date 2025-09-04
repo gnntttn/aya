@@ -1,10 +1,8 @@
-
 import React, { useState, useContext } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
 import Settings from './Settings';
 import Quiz from './Quiz';
-import PrayerTimes from './PrayerTimes';
 import AsmaulHusna from './AsmaulHusna';
 import Qibla from './Qibla';
 import Adhkar from './Adhkar';
@@ -19,9 +17,10 @@ import DreamInterpreter from './DreamInterpreter';
 import SalawatCounter from './SalawatCounter';
 import HadithSearch from './HadithSearch';
 import SpiritualGoals from './SpiritualGoals';
+import Tasbih from './Tasbih';
 
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'prayer' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals';
+type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals';
 
 const More: React.FC = () => {
     const { t } = useContext(LanguageContext) as LanguageContextType;
@@ -71,6 +70,12 @@ const More: React.FC = () => {
             color: 'bg-rose-500/10 text-rose-400',
         },
         {
+            id: 'tasbih' as SubView,
+            title: t('moreTasbih'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+            color: 'bg-yellow-500/10 text-yellow-400',
+        },
+        {
             id: 'salawat' as SubView,
             title: t('moreSalawatCounter'),
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
@@ -93,12 +98,6 @@ const More: React.FC = () => {
             title: t('moreQibla'),
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.737 9.045l1.414-1.414a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-1.414 1.414M6.323 12.456l-2.828 2.828a2 2 0 000 2.828l1.414 1.414a2 2 0 002.828 0L10.586 17" /></svg>,
             color: 'bg-cyan-500/10 text-cyan-400',
-        },
-        {
-            id: 'prayer' as SubView,
-            title: t('morePrayerTimes'),
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-            color: 'bg-purple-500/10 text-purple-400',
         },
         {
             id: 'asma' as SubView,
@@ -136,7 +135,7 @@ const More: React.FC = () => {
         switch (subView) {
             case 'settings': return <Settings />;
             case 'quiz': return <Quiz />;
-            case 'prayer': return <PrayerTimes />;
+            case 'tasbih': return <Tasbih />;
             case 'asma': return <AsmaulHusna />;
             case 'qibla': return <Qibla />;
             case 'adhkar': return <Adhkar />;
