@@ -132,6 +132,7 @@ const translations: { [key in Language]: Translations } = {
     // Settings Page
     settingsTitle: "Settings",
     themeTitle: "Appearance",
+    settingsReciter: "Preferred Reciter",
     themeLight: "Light",
     themeDark: "Dark",
     themeSystem: "System",
@@ -401,6 +402,7 @@ const translations: { [key in Language]: Translations } = {
     quizIncorrect: "غير صحيح.",
     settingsTitle: "الإعدادات",
     themeTitle: "المظهر",
+    settingsReciter: "القارئ المفضل",
     themeLight: "فاتح",
     themeDark: "داكن",
     themeSystem: "النظام",
@@ -651,6 +653,7 @@ const translations: { [key in Language]: Translations } = {
     quizIncorrect: "Incorrect.",
     settingsTitle: "Paramètres",
     themeTitle: "Apparence",
+    settingsReciter: "Récitateur Préféré",
     themeLight: "Clair",
     themeDark: "Sombre",
     themeSystem: "Système",

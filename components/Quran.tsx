@@ -53,7 +53,7 @@ const Quran: React.FC = () => {
                         <div className="flex items-center">
                             <div className="relative w-12 h-12 flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm transition-transform duration-300 group-hover:scale-105">
                                 <svg className="absolute w-full h-full opacity-40 group-hover:opacity-80 transition-opacity" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z" fill="currentColor"/>
+                                    <path d="M86.6 50L75 67.5L50 75L25 67.5L13.4 50L25 32.5L50 25L75 32.5L86.6 50Z M75 50L68.75 62.5L50 68.75L31.25 62.5L25 50L31.25 37.5L50 31.25L68.75 37.5L75 50Z" fill="currentColor"/>
                                 </svg>
                                 <span className="z-10 text-[var(--accent-text)]">{surah.number}</span>
                             </div>

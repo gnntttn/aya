@@ -1,7 +1,7 @@
-
 import React, { useContext, useState } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
+import { recitersData } from '../data/recitersData';
 import InstallGuideModal from './InstallGuideModal';
 
 const SegmentedControl: React.FC<{
@@ -33,7 +33,7 @@ const SegmentedControl: React.FC<{
 
 
 const Settings: React.FC = () => {
-    const { t, language, setLanguage, theme, setTheme } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setLanguage, theme, setTheme, reciter, setReciter } = useContext(LanguageContext) as LanguageContextType;
     const [linkCopied, setLinkCopied] = useState(false);
     const [showInstallModal, setShowInstallModal] = useState(false);
     
@@ -100,6 +100,37 @@ const Settings: React.FC = () => {
                     </div>
                     <div className="w-auto sm:w-56 shrink-0">
                         <SegmentedControl id="theme-selector" options={themeOptions} selectedValue={theme} onChange={setTheme} />
+                    </div>
+                </div>
+
+                {/* Reciter Setting Row */}
+                <div className="flex items-center justify-between gap-4 py-3 px-2">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-500/10 text-purple-400 shrink-0">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                        </div>
+                        <label id="reciter-label" className="font-semibold text-base text-[var(--text-primary)]">{t('settingsReciter')}</label>
+                    </div>
+                    <div className="w-auto sm:w-56 shrink-0 select-with-chevron">
+                        <select
+                            id="reciter-select-settings"
+                            value={reciter.identifier}
+                            onChange={(e) => {
+                                const selectedIdentifier = e.target.value;
+                                const selectedReciter = recitersData.find(r => r.identifier === selectedIdentifier);
+                                if (selectedReciter) {
+                                    setReciter(selectedReciter);
+                                }
+                            }}
+                            className="w-full px-4 py-2 text-sm text-[var(--text-primary)] bg-black/5 dark:bg-white/5 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-secondary-solid)] focus:ring-[var(--accent-primary)] transition-colors duration-200"
+                        >
+                            {recitersData.map(r => (
+                                <option key={r.identifier} value={r.identifier} className="bg-[var(--bg-secondary-solid)] text-[var(--text-primary)]">
+                                    {r.name[language]}
+                                </option>
+                            ))}
+                        </select>
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                     </div>
                 </div>
                 
