@@ -50,33 +50,38 @@ const LiveBroadcast: React.FC = () => {
 
     // Initialize and manage audio player lifecycle
     useEffect(() => {
-        audioRef.current = new Audio();
+        if (!audioRef.current) {
+          audioRef.current = new Audio();
+        }
         const audioElement = audioRef.current;
 
-        // When playback ends naturally, update the UI state
         const onEnded = () => setPlayingStationId(null);
         audioElement.addEventListener('ended', onEnded);
-
-        // Cleanup on unmount
+        
         return () => {
             audioElement.pause();
+            audioElement.src = '';
             audioElement.removeEventListener('ended', onEnded);
         };
     }, []);
 
     const handleRadioPlay = (station: RadioStation) => {
-        if (!audioRef.current) return;
-        
-        if (playingStationId === station.id) {
-            audioRef.current.pause();
+        const audioElement = audioRef.current;
+        if (!audioElement) return;
+
+        const isCurrentlyPlayingThisStation = playingStationId === station.id;
+
+        if (isCurrentlyPlayingThisStation) {
+            audioElement.pause();
             setPlayingStationId(null);
         } else {
-            audioRef.current.src = station.url;
-            audioRef.current.play().catch(e => {
-                console.error("Audio play failed:", e);
+            audioElement.src = station.url;
+            audioElement.play().then(() => {
+                setPlayingStationId(station.id);
+            }).catch(e => {
+                console.error("Audio play failed for URL:", station.url, e);
                 setPlayingStationId(null);
             });
-            setPlayingStationId(station.id);
         }
     };
     
@@ -141,14 +146,16 @@ const LiveBroadcast: React.FC = () => {
                                 aria-pressed={isPlaying}
                                 title={station.name}
                                 style={{ animationDelay: `${index * 50}ms` }}
-                                className="w-full bg-slate-100 dark:bg-slate-800 p-3 flex items-center justify-between transition-all duration-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 animate-fade-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)]"
+                                className="w-full bg-[#242c3b] p-3 flex items-center justify-between transition-all duration-300 rounded-2xl hover:bg-[#3b465a] animate-fade-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)]"
                             >
-                                <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-900/50 flex items-center justify-center flex-shrink-0">
-                                    <div className={`w-4 h-4 rounded-full bg-slate-500 dark:bg-slate-200 ${isPlaying ? 'animate-pulse' : ''}`} />
+                                <div className="w-12 h-12 rounded-full bg-black/20 flex items-center justify-center flex-shrink-0">
+                                    <div className={`w-10 h-10 rounded-full bg-black/20 flex items-center justify-center transition-all duration-300`}>
+                                        <div className={`w-4 h-4 rounded-full bg-slate-300 ${isPlaying ? 'animate-pulse' : ''}`} />
+                                    </div>
                                 </div>
             
-                                <div className="min-w-0 text-right">
-                                    <h3 className="font-amiri font-semibold text-xl text-[var(--text-primary)] truncate">{station.name}</h3>
+                                <div className="min-w-0 text-right mr-4" dir="rtl">
+                                    <h3 className="font-amiri font-semibold text-xl text-slate-100 truncate">{station.name}</h3>
                                     <div className="flex items-center justify-end gap-2 mt-1">
                                         <span className="text-xs text-red-500 font-bold tracking-wider">LIVE</span>
                                         <span className="relative flex h-2 w-2">
