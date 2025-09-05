@@ -139,36 +139,28 @@ const LiveBroadcast: React.FC = () => {
                     {radioStatus === 'success' && filteredRadioStations.map((station, index) => {
                         const isPlaying = playingStationId === station.id;
                         return (
-                             <div
+                             <button
                                 key={station.id}
+                                onClick={() => handleRadioPlay(station)}
+                                aria-pressed={isPlaying}
+                                title={station.name}
                                 style={{ animationDelay: `${index * 50}ms` }}
-                                className="w-full text-right glass-card p-4 flex items-center justify-between gap-4 transition-all duration-300 hover:border-[var(--accent-primary)] animate-fade-in"
+                                className="w-full glass-card p-4 flex items-center gap-4 transition-all duration-300 hover:border-[var(--accent-primary)] animate-fade-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)]"
                             >
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-lg text-[var(--text-primary)] truncate">{station.name}</h3>
-                                    <div className="flex items-center justify-start gap-2 mt-1">
-                                         <span className="relative flex h-2 w-2">
-                                            {isPlaying && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                                        </span>
-                                        <span className="text-xs text-red-500 font-semibold">LIVE</span>
+                                {/* Icon on the left (in LTR) */}
+                                <div className="w-12 h-12 rounded-full bg-black/20 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+                                    <div className={`w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-200 ${isPlaying ? 'animate-pulse' : ''}`} />
+                                </div>
+            
+                                {/* Text content taking remaining space, aligned to the right */}
+                                <div className="flex-1 min-w-0 text-right">
+                                    <h3 className="font-amiri font-semibold text-xl text-[var(--text-primary)] truncate">{station.name}</h3>
+                                    <div className="flex items-center justify-end gap-2 mt-1">
+                                        <span className="text-xs text-red-500 font-bold tracking-wider">LIVE</span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleRadioPlay(station)}
-                                    className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                                        isPlaying
-                                            ? 'bg-[var(--accent-primary)]/20 ring-2 ring-[var(--accent-primary)] text-[var(--accent-primary)]'
-                                            : 'bg-black/5 dark:bg-white/10 text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/20'
-                                    }`}
-                                >
-                                    {isPlaying ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
-                                    )}
-                                </button>
-                            </div>
+                            </button>
                         )
                     })}
                 </div>
