@@ -4,7 +4,7 @@ export const tvChannels: TvChannel[] = [
     {
         id: 'للشيخ مشاري',
         name: 'للشيخ مشاري راشد العفاسي',
-        embedUrl: 'https://www.youtube.com/watch?v=lCeoYw3Y9zM'
+        embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
     },
     {
         id: 'قناة القرآن الكريم Makkah Live',
