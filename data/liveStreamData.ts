@@ -2,18 +2,18 @@ import type { TvChannel } from '../types';
 
 export const tvChannels: TvChannel[] = [
     {
-        id: 'makkah-live',
-        name: 'Makkah Live - Al Quran Al Kareem',
-        embedUrl: 'https://www.youtube.com/embed/r9-cGA-i2c0?autoplay=1'
+        id: 'للشيخ مشاري',
+        name: 'القرآن الكريم كاملاً تلاوة عطرة للشيخ مشاري راشد العفاسي',
+        embedUrl: 'https://www.youtube.com/live/lCeoYw3Y9zM?si=tTOY68ggOh7K9DSd'
     },
     {
-        id: 'madinah-live',
-        name: 'Madinah Live - Al Sunnah Al Nabawiyah',
-        embedUrl: 'https://www.youtube.com/embed/14-3Q46G_B4?autoplay=1'
+        id: 'sunnatv-live',
+        name: 'Sunnatv Live',
+        embedUrl: 'https://www.elahmad.com/tv/watchtv.php?id=sunna_tv'
     },
     {
         id: 'saudi-quran',
         name: 'Saudi Quran TV',
-        embedUrl: 'https://www.youtube.com/embed/KsvW1FqBq34?autoplay=1'
+        embedUrl: 'https://www.elahmad.com/tv/radiant.php?id=saudi_1'
     }
 ];
