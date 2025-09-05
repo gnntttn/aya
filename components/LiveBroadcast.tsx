@@ -48,39 +48,35 @@ const LiveBroadcast: React.FC = () => {
         fetchStations();
     }, []);
 
+    // Initialize and manage audio player lifecycle
     useEffect(() => {
         audioRef.current = new Audio();
-        
-        const handleAudioStateChange = () => {
-            if (audioRef.current?.paused && playingStationId) {
-                setPlayingStationId(null);
-            }
-        };
+        const audioElement = audioRef.current;
 
-        audioRef.current.addEventListener('pause', handleAudioStateChange);
-        audioRef.current.addEventListener('ended', handleAudioStateChange);
+        // When playback ends naturally, update the UI state
+        const onEnded = () => setPlayingStationId(null);
+        audioElement.addEventListener('ended', onEnded);
 
+        // Cleanup on unmount
         return () => {
-            audioRef.current?.pause();
-            audioRef.current?.removeEventListener('pause', handleAudioStateChange);
-            audioRef.current?.removeEventListener('ended', handleAudioStateChange);
-            audioRef.current = null;
+            audioElement.pause();
+            audioElement.removeEventListener('ended', onEnded);
         };
-    }, [playingStationId]);
+    }, []);
 
     const handleRadioPlay = (station: RadioStation) => {
+        if (!audioRef.current) return;
+        
         if (playingStationId === station.id) {
-            audioRef.current?.pause();
+            audioRef.current.pause();
             setPlayingStationId(null);
         } else {
-            if (audioRef.current) {
-                audioRef.current.src = station.url;
-                audioRef.current.play().catch(e => {
-                  console.error("Audio play failed:", e);
-                  setPlayingStationId(null);
-                });
-                setPlayingStationId(station.id);
-            }
+            audioRef.current.src = station.url;
+            audioRef.current.play().catch(e => {
+                console.error("Audio play failed:", e);
+                setPlayingStationId(null);
+            });
+            setPlayingStationId(station.id);
         }
     };
     
@@ -145,19 +141,20 @@ const LiveBroadcast: React.FC = () => {
                                 aria-pressed={isPlaying}
                                 title={station.name}
                                 style={{ animationDelay: `${index * 50}ms` }}
-                                className="w-full glass-card p-4 flex items-center gap-4 transition-all duration-300 hover:border-[var(--accent-primary)] animate-fade-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)]"
+                                className="w-full bg-slate-100 dark:bg-slate-800 p-3 flex items-center justify-between transition-all duration-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 animate-fade-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)]"
                             >
-                                {/* Icon on the left (in LTR) */}
-                                <div className="w-12 h-12 rounded-full bg-black/20 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
-                                    <div className={`w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-200 ${isPlaying ? 'animate-pulse' : ''}`} />
+                                <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-900/50 flex items-center justify-center flex-shrink-0">
+                                    <div className={`w-4 h-4 rounded-full bg-slate-500 dark:bg-slate-200 ${isPlaying ? 'animate-pulse' : ''}`} />
                                 </div>
             
-                                {/* Text content taking remaining space, aligned to the right */}
-                                <div className="flex-1 min-w-0 text-right">
+                                <div className="min-w-0 text-right">
                                     <h3 className="font-amiri font-semibold text-xl text-[var(--text-primary)] truncate">{station.name}</h3>
                                     <div className="flex items-center justify-end gap-2 mt-1">
                                         <span className="text-xs text-red-500 font-bold tracking-wider">LIVE</span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        <span className="relative flex h-2 w-2">
+                                            {isPlaying && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        </span>
                                     </div>
                                 </div>
                             </button>
