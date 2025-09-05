@@ -28,7 +28,7 @@ export const tvChannels: TvChannel[] = [
         embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
     },
     {
-        id: 'FFFF,
+        id: 'FFFF',
         name: 'Surat Al-Baqarah TV',
         embedUrl: 'https://www.youtube.com/embed/DITrYukjsGI?si=9e06L_9qmMAAeFw-'
     }
