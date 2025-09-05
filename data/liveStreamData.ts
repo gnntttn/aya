@@ -12,13 +12,14 @@ export const tvChannels: TvChannel[] = [
         embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
     },
     {
-        id: 'سورة البقرة الشيخ عبد الباسط عبد الصمد',
+        id: 'Surat Al-Baqarah',
         name: 'Surat Al-Baqarah TV',
         embedUrl: 'https://www.youtube.com/embed/DITrYukjsGI?si=9e06L_9qmMAAeFw-'
-    }
-     {
-        id: ' قناة السنة النبوية',
+    },
+    { id: ' قناة السنة النبوية',
         name: 'Madinah Live TV',
         embedUrl: 'https://www.youtube.com/embed/fHzFJXKcq04?si=3UsLo562f4v9Lern'
     }
 ];
+
+
