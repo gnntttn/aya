@@ -22,6 +22,13 @@ export interface Reciter {
   name: { [key in Language]: string };
 }
 
+export interface Radio {
+  id: number;
+  name: string;
+  url: string;
+}
+
+// FIX: Add missing RadioStation and TvChannel types used in LiveBroadcast and liveStreamData.
 export interface RadioStation {
   id: string;
   name: string;
@@ -33,6 +40,7 @@ export interface TvChannel {
   name: string;
   embedUrl: string;
 }
+
 
 // For Quran API
 export interface Surah {

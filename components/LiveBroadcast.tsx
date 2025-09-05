@@ -97,16 +97,6 @@ const LiveBroadcast: React.FC = () => {
         c.name.toLowerCase().includes(searchTerm.toLowerCase())
     ), [searchTerm]);
 
-    const LiveIcon = () => (
-        <div className="relative w-8 h-8 flex items-center justify-center">
-            <svg className="absolute w-full h-full text-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                <path d="M12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="animate-ping-wave" style={{animationDelay: '0s'}}/>
-                <path d="M12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="animate-ping-wave" style={{animationDelay: '0.8s'}}/>
-            </svg>
-        </div>
-    );
-    
     return (
         <div className="w-full animate-fade-in" dir="rtl">
             <div className="text-center mb-8">
@@ -146,24 +136,39 @@ const LiveBroadcast: React.FC = () => {
                 <div className="space-y-3">
                     {radioStatus === 'loading' && <LoadingIndicator message={t('liveLoadingStations')} />}
                     {radioStatus === 'error' && <ErrorMessage message={t('liveErrorStations')} />}
-                    {radioStatus === 'success' && filteredRadioStations.map(station => {
+                    {radioStatus === 'success' && filteredRadioStations.map((station, index) => {
                         const isPlaying = playingStationId === station.id;
                         return (
-                             <div key={station.id} className={`w-full text-right glass-card p-3 flex items-center justify-between transition-all duration-300 ${isPlaying ? 'border-[var(--accent-primary)]' : ''}`}>
-                                <div className="flex items-center gap-3">
-                                    <button onClick={() => handleRadioPlay(station)} className={`w-12 h-12 flex items-center justify-center rounded-full text-[var(--accent-text)] transition-colors ${isPlaying ? 'bg-[var(--accent-primary)]' : 'bg-[var(--bg-secondary-solid)] hover:bg-[var(--border-color)]'}`}>
-                                        {isPlaying ? (
-                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                        ) : (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
-                                        )}
-                                    </button>
-                                     <p className="font-semibold text-md text-[var(--text-primary)]">{station.name}</p>
+                             <div
+                                key={station.id}
+                                style={{ animationDelay: `${index * 50}ms` }}
+                                className="w-full text-right glass-card p-4 flex items-center justify-between gap-4 transition-all duration-300 hover:border-[var(--accent-primary)] animate-fade-in"
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-lg text-[var(--text-primary)] truncate">{station.name}</h3>
+                                    <div className="flex items-center justify-end gap-2 mt-1">
+                                        <span className="text-xs text-red-500 font-semibold">LIVE</span>
+                                        <span className="relative flex h-2 w-2">
+                                            {isPlaying && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className={`text-[var(--accent-primary)] ${isPlaying ? 'opacity-100' : 'opacity-0'}`}>
-                                    <LiveIcon />
-                                </div>
-                             </div>
+                                <button
+                                    onClick={() => handleRadioPlay(station)}
+                                    className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                                        isPlaying
+                                            ? 'bg-[var(--accent-primary)]/20 ring-2 ring-[var(--accent-primary)] text-[var(--accent-primary)]'
+                                            : 'bg-black/5 dark:bg-white/10 text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/20'
+                                    }`}
+                                >
+                                    {isPlaying ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
+                                    )}
+                                </button>
+                            </div>
                         )
                     })}
                 </div>
