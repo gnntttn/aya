@@ -7,7 +7,7 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#F9F9F7" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#121820" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)">
     <link rel="manifest" href="/public/manifest.json">
     <link rel="apple-touch-icon" href="/public/icons/icon-192x192.png">
     
@@ -30,15 +30,15 @@
       }
       
       html.dark {
-        --bg-primary: #121820;
-        --bg-secondary-trans: rgba(26, 34, 44, 0.7);
-        --bg-secondary-solid: #1A222C;
-        --text-primary: #EAEAEA;
-        --text-secondary: #A0AEC0;
-        --accent-primary: #D4AF37;
-        --accent-secondary: #E0B841;
-        --accent-text: #121820;
-        --border-color: rgba(255, 255, 255, 0.12);
+        --bg-primary: #0F172A;
+        --bg-secondary-trans: rgba(30, 41, 59, 0.7);
+        --bg-secondary-solid: #1E293B;
+        --text-primary: #E2E8F0;
+        --text-secondary: #94A3B8;
+        --accent-primary: #2DD4BF;
+        --accent-secondary: #14B8A6;
+        --accent-text: #0F172A;
+        --border-color: rgba(148, 163, 184, 0.2);
         --shadow-color-rgb: 0, 0, 0;
       }
       
@@ -105,6 +105,21 @@
         transform: translateY(15px);
         animation: fade-in 0.5s ease-out forwards;
       }
+
+      @keyframes ping-wave {
+        0%, 100% {
+          stroke-opacity: 0.8;
+          transform: scale(0.6);
+        }
+        80% {
+          stroke-opacity: 0;
+          transform: scale(1);
+        }
+      }
+      .animate-ping-wave {
+        transform-origin: center;
+        animation: ping-wave 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
       
       /* Quran Page Styles */
       .quran-page-container {
@@ -157,7 +172,7 @@
         justify-content: center;
         width: 2.2rem;
         height: 2.2rem;
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23D4AF37' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%232DD4BF' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

@@ -18,9 +18,10 @@ import SalawatCounter from './SalawatCounter';
 import HadithSearch from './HadithSearch';
 import SpiritualGoals from './SpiritualGoals';
 import Tasbih from './Tasbih';
+import LiveBroadcast from './LiveBroadcast';
 
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals';
+type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'live';
 
 const More: React.FC = () => {
     const { t } = useContext(LanguageContext) as LanguageContextType;
@@ -32,6 +33,12 @@ const More: React.FC = () => {
             title: t('moreSpiritualGoals'), 
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>,
             color: 'bg-green-500/10 text-green-400',
+        },
+        { 
+            id: 'live' as SubView, 
+            title: t('moreLiveBroadcast'), 
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+            color: 'bg-cyan-500/10 text-cyan-400',
         },
         { 
             id: 'quiz' as SubView, 
@@ -150,6 +157,7 @@ const More: React.FC = () => {
             case 'salawat': return <SalawatCounter />;
             case 'hadith': return <HadithSearch />;
             case 'goals': return <SpiritualGoals />;
+            case 'live': return <LiveBroadcast />;
             default: return null;
         }
     }

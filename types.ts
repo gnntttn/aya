@@ -22,6 +22,18 @@ export interface Reciter {
   name: { [key in Language]: string };
 }
 
+export interface RadioStation {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface TvChannel {
+  id: string;
+  name: string;
+  embedUrl: string;
+}
+
 // For Quran API
 export interface Surah {
   number: number;
