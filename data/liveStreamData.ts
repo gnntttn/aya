@@ -3,8 +3,8 @@ import type { TvChannel } from '../types';
 export const tvChannels: TvChannel[] = [
     {
         id: 'للشيخ مشاري',
-        name: 'القرآن الكريم كاملاً تلاوة عطرة للشيخ مشاري راشد العفاسي',
-        embedUrl: 'https://www.youtube.com/live/lCeoYw3Y9zM?si=tTOY68ggOh7K9DSd'
+        name: 'للشيخ مشاري راشد العفاسي',
+        embedUrl: 'https://www.youtube.com/watch?v=lCeoYw3Y9zM'
     },
     {
         id: 'sunnatv-live',
