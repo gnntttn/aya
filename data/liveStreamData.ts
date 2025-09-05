@@ -7,9 +7,9 @@ export const tvChannels: TvChannel[] = [
         embedUrl: 'https://www.youtube.com/watch?v=lCeoYw3Y9zM'
     },
     {
-        id: 'sunnatv-live',
-        name: 'Sunnatv Live',
-        embedUrl: 'https://www.elahmad.com/tv/watchtv.php?id=sunna_tv'
+        id: 'قناة القرآن الكريم Makkah Live',
+        name: 'Makkah Live',
+        embedUrl: 'https://www.youtube.com/watch?v=AdAmNe2OQbI'
     },
     {
         id: 'saudi-quran',
