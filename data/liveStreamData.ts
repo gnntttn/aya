@@ -4,16 +4,32 @@ export const tvChannels: TvChannel[] = [
     {
         id: 'للشيخ مشاري',
         name: 'للشيخ مشاري راشد العفاسي',
-        embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
+        embedUrl: 'https://www.youtube.com/embed/lCeoYw3Y9zM?si=QnR86Z34e3cqgchb'
     },
     {
         id: 'قناة القرآن الكريم Makkah Live',
-        name: 'Makkah Live',
-        embedUrl: 'https://www.youtube.com/watch?v=AdAmNe2OQbI'
+        name: 'قناة القرآن الكريم',
+        embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
     },
     {
-        id: 'saudi-quran',
-        name: 'Saudi Quran TV',
-        embedUrl: 'https://www.elahmad.com/tv/radiant.php?id=saudi_1'
+        id: 'Surat Al-Baqarah',
+        name: 'Surat Al-Baqarah TV',
+        embedUrl: 'https://www.youtube.com/embed/DITrYukjsGI?si=9e06L_9qmMAAeFw-'
+    }
+];
+{
+        id: 'FFFF',
+        name: 'للشيخ مشاري راشد العفاسي',
+        embedUrl: 'https://www.youtube.com/embed/lCeoYw3Y9zM?si=QnR86Z34e3cqgchb'
+    },
+    {
+        id: 'FFF',
+        name: 'قناة القرآن الكريم',
+        embedUrl: 'https://www.youtube.com/embed/AdAmNe2OQbI?si=ZvDrBsH_pa4I3vLn'
+    },
+    {
+        id: 'FFFF,
+        name: 'Surat Al-Baqarah TV',
+        embedUrl: 'https://www.youtube.com/embed/DITrYukjsGI?si=9e06L_9qmMAAeFw-'
     }
 ];
