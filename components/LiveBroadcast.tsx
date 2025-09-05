@@ -24,7 +24,8 @@ const LiveBroadcast: React.FC = () => {
             try {
                 const response = await fetch('/.netlify/functions/radios');
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Network response was not ok');
                 }
                 const data = await response.json();
                 if (data && data.radios) {
@@ -65,7 +66,7 @@ const LiveBroadcast: React.FC = () => {
             audioRef.current?.removeEventListener('ended', handleAudioStateChange);
             audioRef.current = null;
         };
-    }, []);
+    }, [playingStationId]);
 
     const handleRadioPlay = (station: RadioStation) => {
         if (playingStationId === station.id) {
@@ -76,7 +77,6 @@ const LiveBroadcast: React.FC = () => {
                 audioRef.current.src = station.url;
                 audioRef.current.play().catch(e => {
                   console.error("Audio play failed:", e);
-                  // If play fails, reset the state
                   setPlayingStationId(null);
                 });
                 setPlayingStationId(station.id);
@@ -98,7 +98,7 @@ const LiveBroadcast: React.FC = () => {
     ), [searchTerm]);
 
     return (
-        <div className="w-full animate-fade-in" dir="rtl">
+        <div className="w-full animate-fade-in">
             <div className="text-center mb-8">
                 <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-2">{t('liveTitle')}</h2>
                 <p className="text-md text-[var(--text-secondary)] max-w-xl mx-auto">{t('liveDescription')}</p>
@@ -106,17 +106,17 @@ const LiveBroadcast: React.FC = () => {
 
             <div className="sticky top-4 z-10 mb-6 space-y-4">
                  <div className="bg-[var(--bg-secondary-solid)] rounded-full p-1 flex items-center shadow-md">
-                    <button onClick={() => setActiveTab('tv')} className={`w-full py-2.5 text-sm font-semibold rounded-full transition-all duration-300 relative focus:outline-none ${activeTab === 'tv' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:bg-white/5'}`}>
-                        <span className="flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            {t('liveTv')}
-                        </span>
-                    </button>
-                    <button onClick={() => setActiveTab('radio')} className={`w-full py-2.5 text-sm font-semibold rounded-full transition-all duration-300 relative focus:outline-none ${activeTab === 'radio' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:bg-white/5'}`}>
+                     <button onClick={() => setActiveTab('radio')} className={`w-full py-2.5 text-sm font-semibold rounded-full transition-all duration-300 relative focus:outline-none ${activeTab === 'radio' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5'}`}>
                          <span className="flex items-center justify-center gap-2">
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18.375V6.75M8.25 12.75l-2.625 2.625M17.625 10.125l-2.625-2.625M12 21.75c5.625 0 10.125-4.5 10.125-10.125S17.625 1.5 12 1.5 1.875 6 1.875 11.625 6.375 21.75 12 21.75z" /></svg>
                              {t('liveRadio')}
                          </span>
+                    </button>
+                    <button onClick={() => setActiveTab('tv')} className={`w-full py-2.5 text-sm font-semibold rounded-full transition-all duration-300 relative focus:outline-none ${activeTab === 'tv' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5'}`}>
+                        <span className="flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            {t('liveTv')}
+                        </span>
                     </button>
                 </div>
                 <div className="relative">
@@ -146,12 +146,12 @@ const LiveBroadcast: React.FC = () => {
                             >
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-semibold text-lg text-[var(--text-primary)] truncate">{station.name}</h3>
-                                    <div className="flex items-center justify-end gap-2 mt-1">
-                                        <span className="text-xs text-red-500 font-semibold">LIVE</span>
-                                        <span className="relative flex h-2 w-2">
+                                    <div className="flex items-center justify-start gap-2 mt-1">
+                                         <span className="relative flex h-2 w-2">
                                             {isPlaying && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
                                             <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                         </span>
+                                        <span className="text-xs text-red-500 font-semibold">LIVE</span>
                                     </div>
                                 </div>
                                 <button
@@ -193,7 +193,7 @@ const LiveBroadcast: React.FC = () => {
                         </div>
                     )}
                      {filteredTvChannels.map(channel => (
-                         <button key={channel.id} onClick={() => handleTvSelect(channel)} className={`w-full text-right glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 ${selectedChannel?.id === channel.id ? 'border-[var(--accent-primary)]' : ''}`}>
+                         <button key={channel.id} onClick={() => handleTvSelect(channel)} className={`w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 ${selectedChannel?.id === channel.id ? 'border-[var(--accent-primary)]' : ''}`}>
                              <p className="font-semibold text-md text-[var(--text-primary)]">{channel.name}</p>
                              <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-3 py-1 rounded-full">{t('liveWatchNow')}</span>
                          </button>

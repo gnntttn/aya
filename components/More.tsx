@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
 import Settings from './Settings';
@@ -18,14 +18,20 @@ import SalawatCounter from './SalawatCounter';
 import HadithSearch from './HadithSearch';
 import SpiritualGoals from './SpiritualGoals';
 import Tasbih from './Tasbih';
-import { RadiosPage } from './RadiosPage';
+import LiveBroadcast from './LiveBroadcast';
 
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'radios';
+type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'live';
 
 const More: React.FC = () => {
-    const { t } = useContext(LanguageContext) as LanguageContextType;
-    const [subView, setSubView] = useState<SubView>('menu');
+    const { t, initialMoreView, setInitialMoreView } = useContext(LanguageContext) as LanguageContextType;
+    const [subView, setSubView] = useState<SubView>(initialMoreView as SubView);
+
+    useEffect(() => {
+        if (initialMoreView !== 'menu') {
+            setInitialMoreView('menu');
+        }
+    }, []);
 
     const menuItems = [
         { 
@@ -34,11 +40,11 @@ const More: React.FC = () => {
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>,
             color: 'bg-green-500/10 text-green-400',
         },
-        { 
-            id: 'radios' as SubView, 
-            title: t('moreRadios'), 
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.375V6.75M8.25 12.75l-2.625 2.625M17.625 10.125l-2.625-2.625M12 21.75c5.625 0 10.125-4.5 10.125-10.125S17.625 1.5 12 1.5 1.875 6 1.875 11.625 6.375 21.75 12 21.75z" /></svg>,
-            color: 'bg-cyan-500/10 text-cyan-400',
+        {
+            id: 'live' as SubView,
+            title: t('moreLiveBroadcast'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.375V6.75M8.25 12.75l-2.625 2.625M17.625 10.125l-2.625-2.625M12 21.75c5.625 0 10.125-4.5 10.125-10.125S17.625 1.5 12 1.5 1.875 6 1.875 11.625 6.375 21.75 12 21.75z" /></svg>,
+            color: 'bg-red-500/10 text-red-400',
         },
         { 
             id: 'quiz' as SubView, 
@@ -157,7 +163,7 @@ const More: React.FC = () => {
             case 'salawat': return <SalawatCounter />;
             case 'hadith': return <HadithSearch />;
             case 'goals': return <SpiritualGoals />;
-            case 'radios': return <RadiosPage />;
+            case 'live': return <LiveBroadcast />;
             default: return null;
         }
     }

@@ -22,26 +22,6 @@ export interface Reciter {
   name: { [key in Language]: string };
 }
 
-export interface Radio {
-  id: number;
-  name: string;
-  url: string;
-}
-
-// FIX: Add missing RadioStation and TvChannel types used in LiveBroadcast and liveStreamData.
-export interface RadioStation {
-  id: string;
-  name: string;
-  url: string;
-}
-
-export interface TvChannel {
-  id: string;
-  name: string;
-  embedUrl: string;
-}
-
-
 // For Quran API
 export interface Surah {
   number: number;
@@ -176,6 +156,18 @@ export interface HajjGuideStep {
   dua?: string;
 }
 
+export interface RadioStation {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface TvChannel {
+  id: string;
+  name: string;
+  embedUrl: string;
+}
+
 export interface TravelInfo {
     mosques: string[];
     halalRestaurants: string[];
@@ -229,6 +221,8 @@ export interface LanguageContextType {
   addGoal: (text: string) => void;
   updateGoal: (goalId: string, completed: boolean) => void;
   removeGoal: (goalId: string) => void;
+  initialMoreView: string;
+  setInitialMoreView: (view: string) => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

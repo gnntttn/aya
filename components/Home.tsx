@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, Ayah, View, Hadith } from '../types';
@@ -112,17 +111,27 @@ const HadithOfTheDay: React.FC = () => {
 
 
 const HomeNavCard: React.FC<{
-    view: View;
+    view?: View;
+    onClick?: () => void;
     title: string;
     description: string;
     icon: JSX.Element;
     delay: string;
-}> = ({ view, title, description, icon, delay }) => {
+}> = ({ view, onClick, title, description, icon, delay }) => {
     const { setView } = useContext(LanguageContext) as LanguageContextType;
+    
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        } else if (view) {
+            setView(view);
+        }
+    };
+
     return (
         <button 
-            onClick={() => setView(view)} 
-            className="glass-card p-4 flex flex-col items-start justify-between text-left group w-full h-full"
+            onClick={handleClick} 
+            className="glass-card p-4 flex flex-col items-start justify-between text-left group w-full h-32"
             style={{ animationDelay: delay }}
         >
             <div>
@@ -137,11 +146,18 @@ const HomeNavCard: React.FC<{
 };
 
 const Home: React.FC = () => {
-    const { t } = useContext(LanguageContext) as LanguageContextType;
+    const { t, setView, setInitialMoreView } = useContext(LanguageContext) as LanguageContextType;
+
+    const handleNavigateToMore = (subView: string) => {
+        setInitialMoreView(subView);
+        setView('more');
+    };
     
     const cardIcons = {
         dua: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.375 3.375 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
         quran: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+        quiz: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+        live: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.375V6.75M8.25 12.75l-2.625 2.625M17.625 10.125l-2.625-2.625M12 21.75c5.625 0 10.125-4.5 10.125-10.125S17.625 1.5 12 1.5 1.875 6 1.875 11.625 6.375 21.75 12 21.75z" /></svg>,
     }
 
     return (
@@ -159,10 +175,11 @@ const Home: React.FC = () => {
             
             <HadithOfTheDay />
             
-            <div className="grid grid-cols-2 gap-4 h-24" style={{ animationDelay: '200ms' }}>
-                {/* FIX: Changed view from 'dua' to 'assistant' to match the 'View' type definition. The 'dua' card navigates to the Assistant feature. */}
+            <div className="grid grid-cols-2 gap-4" style={{ animationDelay: '200ms' }}>
                 <HomeNavCard view="assistant" title={t('homeCardDua')} description={t('homeCardDuaDesc')} icon={cardIcons.dua} delay="250ms" />
                 <HomeNavCard view="quran" title={t('homeCardQuran')} description={t('homeCardQuranDesc')} icon={cardIcons.quran} delay="300ms" />
+                <HomeNavCard onClick={() => handleNavigateToMore('quiz')} title={t('homeCardQuiz')} description={t('homeCardQuizDesc')} icon={cardIcons.quiz} delay="350ms" />
+                <HomeNavCard onClick={() => handleNavigateToMore('live')} title={t('homeCardLive')} description={t('homeCardLiveDesc')} icon={cardIcons.live} delay="400ms" />
             </div>
         </div>
     );

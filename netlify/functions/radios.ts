@@ -1,4 +1,8 @@
-// This function acts as a proxy to bypass CORS issues with the radio API.
+import type { RadioStation } from '../../types';
+
+interface HandlerEvent {
+  httpMethod: string;
+}
 
 interface HandlerResponse {
   statusCode: number;
@@ -6,55 +10,52 @@ interface HandlerResponse {
   body: string;
 }
 
-export const handler = async (): Promise<HandlerResponse> => {
+export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
   };
+  
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 204, headers: corsHeaders, body: "" };
+  }
 
   try {
-    // Using a static JSON file which should be more reliable than the PHP/API endpoints.
-    const response = await fetch('https://www.mp3quran.net/api/radios/radio_arabic.json', {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+    const response = await fetch('https://mp3quran.net/api/v3/radios', {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'AYA-Islamic-App/1.0'
+      }
     });
-    
+
     if (!response.ok) {
-      return {
-        statusCode: response.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ error: `Upstream API error: ${response.statusText}` }),
-      };
+      throw new Error(`Failed to fetch radios: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    // First, get the response as text to handle potential malformations (like BOMs or extra characters)
+    const responseText = await response.text();
+    // Then, parse the text. This is more robust than response.json() for some APIs.
+    const data = JSON.parse(responseText.trim());
 
-    // The static JSON file does not have IDs, which the frontend expects.
-    // We add an ID based on the array index.
-    if (data && data.radios && Array.isArray(data.radios)) {
-        const radiosWithIds = data.radios.map((radio: any, index: number) => ({
-            ...radio,
-            id: index + 1, // Use a 1-based index for the ID
-        }));
-        
-        return {
-          statusCode: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          body: JSON.stringify({ radios: radiosWithIds }),
-        };
+    if (!data || !Array.isArray(data.radios)) {
+      throw new Error('Invalid data structure from radio API');
     }
 
-    // If the structure is not as expected, return an error.
+    // Map to the structure expected by the frontend for robustness
+    const stations: RadioStation[] = data.radios.map((s: any) => ({
+      id: s.id.toString(),
+      name: s.name,
+      url: s.url,
+    }));
+    
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Invalid data structure from radio API." }),
+      body: JSON.stringify({ radios: stations }),
     };
-
   } catch (e) {
-    console.error("Radio proxy function error:", e);
+    console.error("Error in radios function:", e);
     const errorMessage = e instanceof Error ? e.message : "An unknown server error occurred.";
     return { 
       statusCode: 500, 
