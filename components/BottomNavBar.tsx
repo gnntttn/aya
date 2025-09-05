@@ -41,10 +41,10 @@ const BottomNavBar: React.FC = () => {
             activeIcon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10.781V21h5.25v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21H19V10.781l-7-6.998-8 6.998zM21.75 12l-9.75-9.75L2.25 12h2.25v9h15v-9h2.25z"/></svg>
         },
         {
-            viewName: 'prayer' as View,
-            label: t('navPrayer'),
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 18h16M2 22h20M6 18V9.282c0-2.022 1.234-3.834 3.09-4.633L12 3l2.91 1.649c1.856.799 3.09 2.611 3.09 4.633V18M10 22v-3.455c0-.448.349-.817.785-.817h2.43c.436 0 .785.369.785.817V22"/></svg>,
-            activeIcon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L2 12h3v8h14v-8h3L12 3zm.785 14.728H10.5V18h2.285v-1.272c0-1.222- .92-2.228-2.093-2.228h-.384c-1.173 0-2.093 1.006-2.093 2.228V18H6V9.282c0-1.517.925-2.874 2.318-3.475L12 4.05l3.682 1.757c1.393.601 2.318 1.958 2.318 3.475V18h-2.215v-1.272c0-1.222-.92-2.228-2.093-2.228h-.384c-1.173 0-2.093 1.006-2.093 2.228V18h-.715z M2 22h20v-2H2v2z"/></svg>
+            viewName: 'fiqh' as View,
+            label: t('navFiqh'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>,
+            activeIcon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.98-3.033c1.146-1.025 3.016-1.025 4.162 0 1.146 1.025 1.146 2.688 0 3.712-.204.18-.438.33-.69.442-1.015.492-1.464 1.353-1.464 2.392v.946a.75.75 0 01-1.5 0v-.946c0-1.358.734-2.523 1.776-3.131.25-.12.483-.264.686-.442 1.147-1.025.29-2.836-1.282-2.25-1.033.39-1.288 1.728-.593 2.454a.75.75 0 01-1.139.966c-.529-.623-.39-1.66.529-2.126zM12 15.75a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clipRule="evenodd" /></svg>
         },
         {
             viewName: 'quran' as View,
@@ -57,6 +57,12 @@ const BottomNavBar: React.FC = () => {
             label: t('navAssistant'),
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.5 2.6l1.9 4 4.4.6-3.2 3.1.8 4.4-3.9-2-3.9 2 .8-4.4-3.2-3.1 4.4-.6L9.5 2.6zM16 10l-1.3 2.6-2.9.4 2.1 2.1-.5 2.9 2.6-1.4 2.6 1.4-.5-2.9 2.1-2.1-2.9-.4L16 10z"/></svg>,
             activeIcon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>,
+        },
+        {
+            viewName: 'live' as View,
+            label: t('navLive'),
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+            activeIcon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>,
         },
         {
             viewName: 'more' as View,

@@ -8,7 +8,8 @@ import Quran from './components/Quran';
 import More from './components/More';
 import SurahDetail from './components/SurahDetail';
 import Onboarding from './components/Onboarding';
-import PrayerTimes from './components/PrayerTimes';
+import FiqhQA from './components/FiqhQA';
+import LiveBroadcast from './components/LiveBroadcast';
 import { recitersData } from './data/recitersData';
 import { getSurahList } from './services/quranService';
 
@@ -24,6 +25,8 @@ const translations: { [key in Language]: Translations } = {
     navQuran: "Quran",
     navAssistant: "Assistant",
     navPrayer: "Prayer",
+    navLive: "Live",
+    navFiqh: "Q&A",
     navMore: "More",
     navQuiz: "Quiz",
     navSettings: "Settings",
@@ -92,6 +95,10 @@ const translations: { [key in Language]: Translations } = {
     tafsirTitle: "Explanation of Ayah {number}",
     getTafsir: "Explain with AI",
     getTafsirTitle: "Get AI Explanation",
+    shareAsImage: "Share as Image",
+    generatingImage: "Generating Image...",
+    imageCopied: "Image copied to clipboard!",
+    shareError: "Could not share image.",
     // Professional Tafsir
     tafsirLiteralTranslation: "Literal Translation",
     tafsirContext: "Context of Revelation",
@@ -315,6 +322,8 @@ const translations: { [key in Language]: Translations } = {
     navQuran: "القرآن",
     navAssistant: "المساعد",
     navPrayer: "الصلاة",
+    navLive: "البث",
+    navFiqh: "س & ج",
     navMore: "المزيد",
     navQuiz: "اختبار",
     navSettings: "الإعدادات",
@@ -379,6 +388,10 @@ const translations: { [key in Language]: Translations } = {
     tafsirTitle: "تفسير الآية رقم {number}",
     getTafsir: "تفسير بالذكاء الاصطناعي",
     getTafsirTitle: "الحصول على تفسير بالذكاء الاصطناعي",
+    shareAsImage: "مشاركة كصورة",
+    generatingImage: "جاري إنشاء الصورة...",
+    imageCopied: "تم نسخ الصورة إلى الحافظة!",
+    shareError: "تعذرت مشاركة الصورة.",
     tafsirLiteralTranslation: "الترجمة الحرفية",
     tafsirContext: "سبب النزول",
     tafsirExplanation: "الشرح والتفسير",
@@ -577,6 +590,8 @@ const translations: { [key in Language]: Translations } = {
     navQuran: "Coran",
     navAssistant: "Assistant",
     navPrayer: "Prière",
+    navLive: "Direct",
+    navFiqh: "Q&R",
     navMore: "Plus",
     navQuiz: "Quiz",
     navSettings: "Paramètres",
@@ -641,6 +656,10 @@ const translations: { [key in Language]: Translations } = {
     tafsirTitle: "Explication du Verset {number}",
     getTafsir: "Expliquer avec l'IA",
     getTafsirTitle: "Obtenir l'explication par l'IA",
+    shareAsImage: "Partager comme image",
+    generatingImage: "Génération de l'image...",
+    imageCopied: "Image copiée dans le presse-papiers !",
+    shareError: "Impossible de partager l'image.",
     tafsirLiteralTranslation: "Traduction Littérale",
     tafsirContext: "Contexte de la Révélation",
     tafsirExplanation: "Explication",
@@ -1041,9 +1060,10 @@ const AppContent: React.FC = () => {
     }
     switch (view) {
         case 'home': return <Home key="home" />;
+        case 'fiqh': return <FiqhQA key="fiqh" />;
         case 'assistant': return <Assistant key="assistant" />;
         case 'quran': return <Quran key="quran" />;
-        case 'prayer': return <PrayerTimes key="prayer" />;
+        case 'live': return <LiveBroadcast key="live" />;
         case 'more': return <More key="more" />;
         default: return <Home key="home" />;
     }

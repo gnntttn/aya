@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, SurahDetailData, Ayah } from '../types';
-import { getSurahDetail } from '../services/quranService';
+import type { LanguageContextType, SurahDetailData, Ayah, Theme, Language } from '../types';
+import { getSurahDetail, getAyahDetail } from '../services/quranService';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
 import ReciterSelector from './ReciterSelector';
@@ -18,8 +17,79 @@ const toArabicNumerals = (num: number) => {
     return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
 };
 
+// Helper function to generate Ayah image
+const generateAyahImage = (
+    ayah: Ayah, 
+    surahData: SurahDetailData, 
+    translationText: string,
+    theme: Theme,
+    language: Language
+): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const style = getComputedStyle(document.documentElement);
+
+        const cardWidth = 550;
+        const cardHeight = 350;
+
+        const bgColor = style.getPropertyValue('--bg-secondary-solid').trim() || (isDark ? '#1E293B' : '#ffffff');
+        const textColor = style.getPropertyValue('--text-primary').trim() || (isDark ? '#E2E8F0' : '#1A1A1A');
+        const secondaryColor = style.getPropertyValue('--text-secondary').trim() || (isDark ? '#94A3B8' : '#6B6B6B');
+        const accentColor = style.getPropertyValue('--accent-primary').trim() || (isDark ? '#2DD4BF' : '#D4AF37');
+
+        const htmlContent = `
+            <div xmlns="http://www.w3.org/1999/xhtml" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: 30px; background-color: ${bgColor}; color: ${textColor}; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: center; border-radius: 16px; border: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.07)'}; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                <p dir="rtl" style="font-family: 'Amiri', serif; font-size: 28px; text-align: right; margin: 0 0 16px 0; line-height: 1.8; color: ${textColor};">
+                    ${ayah.text}
+                </p>
+                <p style="font-size: 16px; margin: 0 0 24px 0; line-height: 1.6; color: ${secondaryColor}; ${language === 'ar' ? 'text-align: right;' : ''}">
+                    ${translationText}
+                </p>
+                <div style="margin-top: auto; text-align: center; border-top: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; padding-top: 12px; font-size: 15px; color: ${accentColor}; font-weight: 600;">
+                    ${surahData.englishName} (${surahData.name}) : ${ayah.numberInSurah}
+                </div>
+            </div>
+        `;
+
+        const svgString = `
+            <svg width="${cardWidth}" height="${cardHeight}" xmlns="http://www.w3.org/2000/svg">
+                <foreignObject width="100%" height="100%">
+                    ${htmlContent}
+                </foreignObject>
+            </svg>
+        `;
+
+        const svgUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+        
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = cardWidth * 2; // Render at 2x for better quality
+            canvas.height = cardHeight * 2;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.scale(2, 2);
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Canvas toBlob failed.'));
+                    }
+                }, 'image/png');
+            } else {
+                reject(new Error('Could not get canvas context.'));
+            }
+        };
+        img.onerror = () => {
+            reject(new Error('Image failed to load from SVG data URL.'));
+        };
+        img.src = svgUrl;
+    });
+};
+
 const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
-    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark, theme } = useContext(LanguageContext) as LanguageContextType;
     const [surahData, setSurahData] = useState<SurahDetailData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -29,6 +99,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation' | 'memorization', ayah: Ayah, anchor: HTMLElement} | null>(null);
+    const [isGeneratingImage, setIsGeneratingImage] = useState<number | null>(null);
     
     const isBookmarked = bookmarks.includes(surahNumber);
 
@@ -130,6 +201,47 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
 
     const closeModal = () => {
         setActiveModal(null);
+    };
+
+    const handleShareAsImage = async (ayah: Ayah) => {
+        if (!surahData) return;
+        setIsGeneratingImage(ayah.numberInSurah);
+        try {
+            const detailedAyah = await getAyahDetail(surahNumber, ayah.numberInSurah, language);
+            if (!detailedAyah || !detailedAyah.translationText) {
+                throw new Error("Could not fetch Ayah translation.");
+            }
+            
+            const imageBlob = await generateAyahImage(ayah, surahData, detailedAyah.translationText, theme, language);
+            const imageFile = new File([imageBlob], `ayah_${surahData.number}_${ayah.numberInSurah}.png`, { type: 'image/png' });
+
+            if (navigator.share && navigator.canShare({ files: [imageFile] })) {
+                await navigator.share({
+                    files: [imageFile],
+                    title: `${surahData.englishName} ${ayah.numberInSurah}`,
+                    text: `"${detailedAyah.translationText}" - Quran ${surahData.number}:${ayah.numberInSurah}`,
+                });
+            } else {
+                try {
+                    await navigator.clipboard.write([ new ClipboardItem({ 'image/png': imageBlob }) ]);
+                    alert(t('imageCopied'));
+                } catch (copyError) {
+                    console.error('Clipboard API failed, falling back to download:', copyError);
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(imageBlob);
+                    link.download = `ayah_${surahData.number}_${ayah.numberInSurah}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }
+            }
+        } catch (err) {
+            console.error("Failed to generate or share image:", err);
+            alert(t('shareError'));
+        } finally {
+            setIsGeneratingImage(null);
+        }
     };
 
 
@@ -244,6 +356,16 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                                     </svg>
+                                </button>
+                                
+                                <button onClick={() => handleShareAsImage(ayah)} title={t('shareAsImage')} disabled={isGeneratingImage === ayah.numberInSurah}>
+                                    {isGeneratingImage === ayah.numberInSurah ? (
+                                        <div className="w-5 h-5 border-2 border-transparent border-t-[var(--accent-primary)] rounded-full animate-spin"></div>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                        </svg>
+                                    )}
                                 </button>
 
                                 <button onClick={(e) => handlePracticeClick(e, ayah)} title={t('recitationPracticeTooltip')}>

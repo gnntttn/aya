@@ -18,10 +18,11 @@ import SalawatCounter from './SalawatCounter';
 import HadithSearch from './HadithSearch';
 import SpiritualGoals from './SpiritualGoals';
 import Tasbih from './Tasbih';
+import PrayerTimes from './PrayerTimes';
 import LiveBroadcast from './LiveBroadcast';
 
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'fiqh' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'live';
+type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'prayer' | 'live';
 
 const More: React.FC = () => {
     const { t, initialMoreView, setInitialMoreView } = useContext(LanguageContext) as LanguageContextType;
@@ -40,10 +41,10 @@ const More: React.FC = () => {
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>,
             color: 'bg-green-500/10 text-green-400',
         },
-        {
-            id: 'live' as SubView,
-            title: t('moreLiveBroadcast'),
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18.375V6.75M8.25 12.75l-2.625 2.625M17.625 10.125l-2.625-2.625M12 21.75c5.625 0 10.125-4.5 10.125-10.125S17.625 1.5 12 1.5 1.875 6 1.875 11.625 6.375 21.75 12 21.75z" /></svg>,
+        { 
+            id: 'prayer' as SubView, 
+            title: t('morePrayerTimes'), 
+            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 18h16M2 22h20M6 18V9.282c0-2.022 1.234-3.834 3.09-4.633L12 3l2.91 1.649c1.856.799 3.09 2.611 3.09 4.633V18M10 22v-3.455c0-.448.349-.817.785-.817h2.43c.436 0 .785.369.785.817V22"/></svg>,
             color: 'bg-red-500/10 text-red-400',
         },
         { 
@@ -51,12 +52,6 @@ const More: React.FC = () => {
             title: t('navQuiz'), 
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             color: 'bg-blue-500/10 text-blue-400',
-        },
-        {
-            id: 'fiqh' as SubView,
-            title: t('moreFiqhQA'),
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
-            color: 'bg-teal-500/10 text-teal-400',
         },
         {
             id: 'hadith' as SubView,
@@ -154,7 +149,7 @@ const More: React.FC = () => {
             case 'adhkar': return <Adhkar />;
             case 'prophets': return <ProphetStories />;
             case 'zakat': return <ZakatCalculator />;
-            case 'fiqh': return <FiqhQA />;
+            case 'live': return <LiveBroadcast />;
             case 'sahaba': return <SahabaStories />;
             case 'inheritance': return <InheritanceCalculator />;
             case 'hajj': return <HajjUmrahGuide />;
@@ -163,7 +158,7 @@ const More: React.FC = () => {
             case 'salawat': return <SalawatCounter />;
             case 'hadith': return <HadithSearch />;
             case 'goals': return <SpiritualGoals />;
-            case 'live': return <LiveBroadcast />;
+            case 'prayer': return <PrayerTimes />;
             default: return null;
         }
     }

@@ -11,7 +11,7 @@ export interface Dua {
 
 export type Language = 'en' | 'ar' | 'fr';
 
-export type View = 'home' | 'prayer' | 'quran' | 'assistant' | 'more';
+export type View = 'home' | 'fiqh' | 'quran' | 'assistant' | 'live' | 'more';
 
 export type Theme = 'light' | 'dark' | 'system';
 
