@@ -31,8 +31,11 @@ const SegmentedControl: React.FC<{
     );
 };
 
+interface SettingsProps {
+    onNavigate: (view: 'admin') => void;
+}
 
-const Settings: React.FC = () => {
+const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
     const { t, language, setLanguage, theme, setTheme, reciter, setReciter, notificationPermission, setNotificationPermission } = useContext(LanguageContext) as LanguageContextType;
     const [linkCopied, setLinkCopied] = useState(false);
     const [showInstallModal, setShowInstallModal] = useState(false);
@@ -98,7 +101,7 @@ const Settings: React.FC = () => {
     };
 
     return (
-        <div className="w-full animate-fade-in">
+        <div className="w-full">
             {showInstallModal && <InstallGuideModal onClose={() => setShowInstallModal(false)} />}
             <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('settingsTitle')}</h2>
 
@@ -201,6 +204,19 @@ const Settings: React.FC = () => {
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 text-[var(--text-primary)] font-semibold rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-sm"
                     >
                         <span>{t('settingsInstallButton')}</span>
+                    </button>
+                </div>
+
+                {/* Admin Dashboard Row */}
+                <div className="flex items-center justify-between gap-4 py-3 px-2">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-500/10 text-gray-400 shrink-0">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                         <span className="font-semibold text-base text-[var(--text-primary)]">{t('navAdmin')}</span>
+                    </div>
+                     <button onClick={() => onNavigate('admin')} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
                     </button>
                 </div>
 

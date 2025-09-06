@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType, SurahDetailData, Ayah, Theme, Language } from '../types';
 import { getSurahDetail, getAyahDetail } from '../services/quranService';
@@ -25,66 +25,110 @@ const generateAyahImage = (
     theme: Theme,
     language: Language
 ): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        const style = getComputedStyle(document.documentElement);
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Ensure fonts from index.html are loaded before measuring text
+            await document.fonts.ready;
 
-        const cardWidth = 550;
-        const cardHeight = 350;
+            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const style = getComputedStyle(document.documentElement);
 
-        const bgColor = style.getPropertyValue('--bg-secondary-solid').trim() || (isDark ? '#1E293B' : '#ffffff');
-        const textColor = style.getPropertyValue('--text-primary').trim() || (isDark ? '#E2E8F0' : '#1A1A1A');
-        const secondaryColor = style.getPropertyValue('--text-secondary').trim() || (isDark ? '#94A3B8' : '#6B6B6B');
-        const accentColor = style.getPropertyValue('--accent-primary').trim() || (isDark ? '#2DD4BF' : '#D4AF37');
+            const cardWidth = 550;
+            const padding = 30;
 
-        const htmlContent = `
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: ${cardWidth}px; height: ${cardHeight}px; padding: 30px; background-color: ${bgColor}; color: ${textColor}; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: center; border-radius: 16px; border: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.07)'}; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                <p dir="rtl" style="font-family: 'Amiri', serif; font-size: 28px; text-align: right; margin: 0 0 16px 0; line-height: 1.8; color: ${textColor};">
+            const bgColor = style.getPropertyValue('--bg-secondary-solid').trim() || (isDark ? '#1E293B' : '#ffffff');
+            const textColor = style.getPropertyValue('--text-primary').trim() || (isDark ? '#E2E8F0' : '#1A1A1A');
+            const secondaryColor = style.getPropertyValue('--text-secondary').trim() || (isDark ? '#94A3B8' : '#6B6B6B');
+            const accentColor = style.getPropertyValue('--accent-primary').trim() || (isDark ? '#2DD4BF' : '#D4AF37');
+            const borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+            const borderRadius = '16px';
+
+            // Define shared content and styles
+            const innerHtmlForCard = `
+                <p dir="rtl" style="font-family: 'Amiri', serif; font-size: 28px; text-align: right; margin: 0 0 16px 0; line-height: 1.8; color: ${textColor}; word-wrap: break-word; white-space: pre-wrap;">
                     ${ayah.text}
                 </p>
-                <p style="font-size: 16px; margin: 0 0 24px 0; line-height: 1.6; color: ${secondaryColor}; ${language === 'ar' ? 'text-align: right;' : ''}">
+                <p style="font-size: 16px; margin: 0 0 24px 0; line-height: 1.6; color: ${secondaryColor}; ${language === 'ar' ? 'text-align: right;' : 'text-align: left;'} word-wrap: break-word; white-space: pre-wrap;">
                     ${translationText}
                 </p>
-                <div style="margin-top: auto; text-align: center; border-top: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; padding-top: 12px; font-size: 15px; color: ${accentColor}; font-weight: 600;">
+                <div style="margin-top: auto; text-align: center; border-top: 1px solid ${borderColor}; padding-top: 12px; font-size: 15px; color: ${accentColor}; font-weight: 600; font-family: 'Inter', sans-serif;">
                     ${surahData.englishName} (${surahData.name}) : ${ayah.numberInSurah}
                 </div>
-            </div>
-        `;
+            `;
 
-        const svgString = `
-            <svg width="${cardWidth}" height="${cardHeight}" xmlns="http://www.w3.org/2000/svg">
-                <foreignObject width="100%" height="100%">
-                    ${htmlContent}
-                </foreignObject>
-            </svg>
-        `;
+            // --- Dynamic Height Calculation ---
+            const measurementDiv = document.createElement('div');
+            Object.assign(measurementDiv.style, {
+                width: `${cardWidth}px`,
+                padding: `${padding}px`,
+                boxSizing: 'border-box',
+                fontFamily: "'Inter', sans-serif",
+                position: 'absolute',
+                left: '-9999px',
+                top: '0',
+                visibility: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+            });
+            measurementDiv.innerHTML = innerHtmlForCard;
+            document.body.appendChild(measurementDiv);
+            
+            // Allow browser to compute styles
+            await new Promise(r => requestAnimationFrame(r));
+            
+            const contentHeight = measurementDiv.scrollHeight;
+            document.body.removeChild(measurementDiv);
+            const cardHeight = contentHeight;
+            // --- End of Dynamic Height Calculation ---
 
-        const svgUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-        
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = cardWidth * 2; // Render at 2x for better quality
-            canvas.height = cardHeight * 2;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.scale(2, 2);
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob((blob) => {
-                    if (blob) {
-                        resolve(blob);
-                    } else {
-                        reject(new Error('Canvas toBlob failed.'));
-                    }
-                }, 'image/png');
-            } else {
-                reject(new Error('Could not get canvas context.'));
-            }
-        };
-        img.onerror = () => {
-            reject(new Error('Image failed to load from SVG data URL.'));
-        };
-        img.src = svgUrl;
+            const htmlContainerStyle = `width: ${cardWidth}px; height: ${cardHeight}px; padding: ${padding}px; background-color: ${bgColor}; color: ${textColor}; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: center; border-radius: ${borderRadius}; border: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.07)'}; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box;`;
+
+            const fullHtmlContent = `
+                <div xmlns="http://www.w3.org/1999/xhtml" style="${htmlContainerStyle}">
+                    ${innerHtmlForCard}
+                </div>
+            `;
+
+            const svgString = `
+                <svg width="${cardWidth}" height="${cardHeight}" xmlns="http://www.w3.org/2000/svg">
+                    <foreignObject width="100%" height="100%">
+                        ${fullHtmlContent}
+                    </foreignObject>
+                </svg>
+            `;
+
+            const svgUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+            
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = 2; // Render at 2x for better quality
+                canvas.width = cardWidth * scale;
+                canvas.height = cardHeight * scale;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.scale(scale, scale);
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Canvas toBlob failed.'));
+                        }
+                    }, 'image/png');
+                } else {
+                    reject(new Error('Could not get canvas context.'));
+                }
+            };
+            img.onerror = (e) => {
+                console.error("Image loading error:", e);
+                reject(new Error('Image failed to load from SVG data URL.'));
+            };
+            img.src = svgUrl;
+        } catch (err) {
+            console.error("Error generating Ayah image:", err);
+            reject(err);
+        }
     });
 };
 

@@ -172,6 +172,7 @@ const translations: { [key in Language]: Translations } = {
     tasbihCycleComplete: "Cycle Complete!",
     // More Page
     moreTitle: "More Features",
+    moreAllFeatures: "All Other Features",
     morePrayerTimes: "Prayer Times",
     moreTasbih: "Tasbih Counter",
     moreAsmaulHusna: "Names of Allah",
@@ -340,6 +341,28 @@ const translations: { [key in Language]: Translations } = {
     adminClearData: "Clear Local Data",
     adminDataCleared: "Data Cleared",
     adminConfirmClear: "Are you sure? This will reset saved duas, goals, bookmarks, and settings.",
+    adminFeatureUsage: "Feature Usage",
+    adminApiLog: "API Performance Log",
+    adminDynamicContent: "Dynamic Content Management",
+    adminFeatureFlags: "Feature Flags",
+    adminVerseOfTheDayOverride: "Verse of the Day Override",
+    adminOverrideInstructions: "Enter a Surah and Ayah number to feature it on the home screen. Clear to resume random verses.",
+    adminSurahNumber: "Surah Number",
+    adminAyahNumber: "Ayah Number",
+    adminSet: "Set",
+    adminClear: "Clear",
+    adminCurrentOverride: "Currently Overridden",
+    adminNoOverride: "None (Random)",
+    adminFeatureNewQuranUI: "Enable New Quran UI",
+    adminFeatureDescNewQuranUI: "A preview of the redesigned Quran reading experience.",
+    adminLogType: "Type",
+    adminLogDuration: "Duration (ms)",
+    adminLogStatus: "Status",
+    adminLogTime: "Time",
+    adminLogSuccess: "Success",
+    adminLogFailed: "Failed",
+    adminNoUsage: "No feature usage tracked yet.",
+    adminNoApiLogs: "No API calls logged yet.",
     // General
     checkingConfig: "Checking configuration...",
     back: "Back",
@@ -489,6 +512,7 @@ const translations: { [key in Language]: Translations } = {
     tasbihReset: "إعادة تعيين",
     tasbihCycleComplete: "اكتملت الدورة!",
     moreTitle: "ميزات إضافية",
+    moreAllFeatures: "جميع الميزات الأخرى",
     morePrayerTimes: "مواقيت الصلاة",
     moreTasbih: "المسبحة الإلكترونية",
     moreAsmaulHusna: "أسماء الله الحسنى",
@@ -639,6 +663,28 @@ const translations: { [key in Language]: Translations } = {
     adminClearData: "مسح البيانات المحلية",
     adminDataCleared: "تم مسح البيانات",
     adminConfirmClear: "هل أنت متأكد؟ سيؤدي هذا إلى إعادة تعيين الأدعية والأهداف والإشارات المرجعية والإعدادات المحفوظة.",
+    adminFeatureUsage: "استخدام الميزات",
+    adminApiLog: "سجل أداء API",
+    adminDynamicContent: "إدارة المحتوى الديناميكي",
+    adminFeatureFlags: "أعلام الميزات",
+    adminVerseOfTheDayOverride: "تجاوز آية اليوم",
+    adminOverrideInstructions: "أدخل رقم سورة وآية لعرضها في الشاشة الرئيسية. امسح الحقول للعودة للآيات العشوائية.",
+    adminSurahNumber: "رقم السورة",
+    adminAyahNumber: "رقم الآية",
+    adminSet: "تعيين",
+    adminClear: "مسح",
+    adminCurrentOverride: "التجاوز الحالي",
+    adminNoOverride: "لا يوجد (عشوائي)",
+    adminFeatureNewQuranUI: "تفعيل واجهة القرآن الجديدة",
+    adminFeatureDescNewQuranUI: "معاينة للتصميم المحدث لتجربة قراءة القرآن.",
+    adminLogType: "النوع",
+    adminLogDuration: "المدة (مللي ثانية)",
+    adminLogStatus: "الحالة",
+    adminLogTime: "الوقت",
+    adminLogSuccess: "نجاح",
+    adminLogFailed: "فشل",
+    adminNoUsage: "لم يتم تتبع استخدام أي ميزة بعد.",
+    adminNoApiLogs: "لم يتم تسجيل أي استدعاءات API بعد.",
     checkingConfig: "جاري التحقق من الإعدادات...",
     back: "رجوع",
     close: "إغلاق",
@@ -787,6 +833,7 @@ const translations: { [key in Language]: Translations } = {
     tasbihReset: "Réinitialiser",
     tasbihCycleComplete: "Cycle terminé !",
     moreTitle: "Plus de fonctionnalités",
+    moreAllFeatures: "Toutes les autres fonctionnalités",
     morePrayerTimes: "Horaires de Prière",
     moreTasbih: "Compteur Tasbih",
     moreAsmaulHusna: "Noms d'Allah",
@@ -937,6 +984,28 @@ const translations: { [key in Language]: Translations } = {
     adminClearData: "Effacer les données locales",
     adminDataCleared: "Données effacées",
     adminConfirmClear: "Êtes-vous sûr ? Cela réinitialisera les dou'as, les objectifs, les favoris et les paramètres enregistrés.",
+    adminFeatureUsage: "Utilisation des Fonctionnalités",
+    adminApiLog: "Journal de Performance de l'API",
+    adminDynamicContent: "Gestion de Contenu Dynamique",
+    adminFeatureFlags: "Indicateurs de Fonctionnalités",
+    adminVerseOfTheDayOverride: "Forcer le Verset du Jour",
+    adminOverrideInstructions: "Entrez un numéro de Sourate et de Verset à afficher sur l'accueil. Videz pour reprendre les versets aléatoires.",
+    adminSurahNumber: "Numéro de Sourate",
+    adminAyahNumber: "Numéro de Verset",
+    adminSet: "Définir",
+    adminClear: "Effacer",
+    adminCurrentOverride: "Actuellement forcé",
+    adminNoOverride: "Aucun (Aléatoire)",
+    adminFeatureNewQuranUI: "Activer la nouvelle IU du Coran",
+    adminFeatureDescNewQuranUI: "Un aperçu de l'expérience de lecture du Coran repensée.",
+    adminLogType: "Type",
+    adminLogDuration: "Durée (ms)",
+    adminLogStatus: "Statut",
+    adminLogTime: "Heure",
+    adminLogSuccess: "Succès",
+    adminLogFailed: "Échec",
+    adminNoUsage: "Aucune utilisation de fonctionnalité suivie.",
+    adminNoApiLogs: "Aucun appel d'API enregistré.",
     checkingConfig: "Vérification de la configuration...",
     back: "Retour",
     close: "Fermer",
@@ -982,6 +1051,10 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
   const [notificationPermission, setNotificationPermissionState] = useState<NotificationPermission>(
     () => (typeof Notification !== 'undefined' ? Notification.permission : 'default')
   );
+  const [featureFlags, setFeatureFlagsState] = useState<{ [key: string]: boolean }>(() => {
+    const storedFlags = localStorage.getItem('aya-feature-flags');
+    return storedFlags ? JSON.parse(storedFlags) : {};
+  });
 
   const t = (key: string, replacements?: { [key: string]: string | number }) => {
     let translation = translations[language][key] || translations['en'][key] || key;
@@ -1122,6 +1195,12 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     setNotificationPermissionState(permission);
   };
   
+  const setFeatureFlag = (flag: string, value: boolean) => {
+    const newFlags = { ...featureFlags, [flag]: value };
+    setFeatureFlagsState(newFlags);
+    localStorage.setItem('aya-feature-flags', JSON.stringify(newFlags));
+  };
+
   useEffect(() => {
     if (view !== 'quran' && selectedSurah !== null) {
       setSelectedSurah(null);
@@ -1176,6 +1255,8 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     setInitialMoreView,
     notificationPermission,
     setNotificationPermission,
+    featureFlags,
+    setFeatureFlag,
   };
 
   return (

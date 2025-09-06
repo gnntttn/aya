@@ -192,6 +192,15 @@ export interface SpiritualGoal {
     lastCompleted: string | null;
 }
 
+export interface ApiLogEntry {
+    type: string;
+    duration: number;
+    success: boolean;
+    timestamp: number;
+}
+
+export type FeatureUsage = { [key: string]: number };
+
 export interface Translations {
   [key:string]: string;
 }
@@ -225,6 +234,8 @@ export interface LanguageContextType {
   setInitialMoreView: (view: string) => void;
   notificationPermission: NotificationPermission;
   setNotificationPermission: (permission: NotificationPermission) => void;
+  featureFlags: { [key: string]: boolean };
+  setFeatureFlag: (flag: string, value: boolean) => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

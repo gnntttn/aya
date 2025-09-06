@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
+import { trackFeatureUsage } from '../services/trackingService';
 import Settings from './Settings';
 import Quiz from './Quiz';
 import AsmaulHusna from './AsmaulHusna';
@@ -8,7 +9,6 @@ import Qibla from './Qibla';
 import Adhkar from './Adhkar';
 import ProphetStories from './ProphetStories';
 import ZakatCalculator from './ZakatCalculator';
-import FiqhQA from './FiqhQA';
 import SahabaStories from './SahabaStories';
 import InheritanceCalculator from './InheritanceCalculator';
 import HajjUmrahGuide from './HajjUmrahGuide';
@@ -23,19 +23,31 @@ import LiveBroadcast from './LiveBroadcast';
 import AdminDashboard from './AdminDashboard';
 
 
-type SubView = 'menu' | 'settings' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'prayer' | 'live' | 'admin';
+type SubView = 'menu' | 'settings' | 'allFeatures' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'prayer' | 'live' | 'admin';
 
 const More: React.FC = () => {
     const { t, initialMoreView, setInitialMoreView } = useContext(LanguageContext) as LanguageContextType;
     const [subView, setSubView] = useState<SubView>(initialMoreView as SubView);
 
     useEffect(() => {
-        if (initialMoreView !== 'menu') {
-            setInitialMoreView('menu');
+        if (initialMoreView !== 'menu' && initialMoreView !== 'admin' && initialMoreView !== 'settings' && initialMoreView !== 'allFeatures') {
+            trackFeatureUsage(initialMoreView);
         }
-    }, []);
+        // This effect ensures that if we navigate to a sub-page from another part of the app (like Home),
+        // the state is reset once we leave the 'More' tab.
+        return () => {
+            if (initialMoreView !== 'menu') {
+                setInitialMoreView('menu');
+            }
+        };
+    }, [initialMoreView, setInitialMoreView]);
 
-    const menuItems = [
+    const handleFeatureSelect = (view: SubView) => {
+        trackFeatureUsage(view);
+        setSubView(view);
+    };
+
+    const allFeaturesItems = [
         { 
             id: 'goals' as SubView, 
             title: t('moreSpiritualGoals'), 
@@ -132,23 +144,11 @@ const More: React.FC = () => {
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>,
             color: 'bg-violet-500/10 text-violet-400',
         },
-        { 
-            id: 'settings' as SubView, 
-            title: t('navSettings'), 
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-            color: 'bg-amber-500/10 text-amber-400',
-        },
-        { 
-            id: 'admin' as SubView, 
-            title: t('navAdmin'), 
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
-            color: 'bg-gray-500/10 text-gray-400',
-        },
     ];
     
     const renderSubView = () => {
         switch (subView) {
-            case 'settings': return <Settings />;
+            case 'settings': return <Settings onNavigate={setSubView} />;
             case 'quiz': return <Quiz />;
             case 'tasbih': return <Tasbih />;
             case 'asma': return <AsmaulHusna />;
@@ -171,38 +171,87 @@ const More: React.FC = () => {
         }
     }
 
-    if (subView !== 'menu') {
+    const handleBack = () => {
+        if (subView === 'admin') {
+            setSubView('settings');
+        } else if (subView === 'settings' || subView === 'allFeatures') {
+            setSubView('menu');
+        } else {
+            // It's a feature, go back to the list of features
+            setSubView('allFeatures');
+        }
+    };
+
+    if (subView === 'menu') {
         return (
+            <div className="w-full animate-fade-in">
+                <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreTitle')}</h2>
+                <div className="space-y-3">
+                    <button
+                        onClick={() => setSubView('settings')}
+                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-400 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </div>
+                            <span className="font-semibold text-base text-[var(--text-primary)]">{t('navSettings')}</span>
+                        </div>
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                    </button>
+                     <button
+                        onClick={() => setSubView('allFeatures')}
+                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-teal-500/10 text-teal-400 shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            </div>
+                            <span className="font-semibold text-base text-[var(--text-primary)]">{t('moreAllFeatures')}</span>
+                        </div>
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    
+    if (subView === 'allFeatures') {
+         return (
             <div className="w-full animate-fade-in">
                  <button onClick={() => setSubView('menu')} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full mb-4">
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                      {t('back')}
                 </button>
-                {renderSubView()}
+                <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreAllFeatures')}</h2>
+                <div className="space-y-3">
+                    {allFeaturesItems.map(item => (
+                        <button
+                            key={item.id}
+                            onClick={() => handleFeatureSelect(item.id)}
+                            className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
+                                    {item.icon}
+                                </div>
+                                <span className="font-semibold text-base text-[var(--text-primary)]">{item.title}</span>
+                            </div>
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                        </button>
+                    ))}
+                </div>
             </div>
-        )
+        );
     }
 
     return (
         <div className="w-full animate-fade-in">
-            <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreTitle')}</h2>
-            <div className="space-y-3">
-                {menuItems.map(item => (
-                    <button
-                        key={item.id}
-                        onClick={() => setSubView(item.id)}
-                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
-                                {item.icon}
-                            </div>
-                            <span className="font-semibold text-base text-[var(--text-primary)]">{item.title}</span>
-                        </div>
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
-                    </button>
-                ))}
-            </div>
+             <button onClick={handleBack} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full mb-4">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                 {t('back')}
+            </button>
+            {renderSubView()}
         </div>
     );
 };

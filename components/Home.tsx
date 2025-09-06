@@ -11,14 +11,37 @@ const VerseOfTheDay: React.FC = () => {
     const [verse, setVerse] = useState<Ayah | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchRandomVerse = useCallback(async () => {
+    const fetchVerse = useCallback(async () => {
         if (surahs.length === 0) return;
         setIsLoading(true);
+
         try {
-            const randomSurah = surahs[Math.floor(Math.random() * surahs.length)];
-            const randomAyahNumber = Math.floor(Math.random() * randomSurah.numberOfAyahs) + 1;
-            const ayahDetail = await getAyahDetail(randomSurah.number, randomAyahNumber, language);
-            setVerse(ayahDetail);
+            let verseToFetch: { surah: number; ayah: number } | null = null;
+            
+            // Check for admin override
+            const override = localStorage.getItem('aya-verse-override');
+            if (override) {
+                try {
+                    const parsedOverride = JSON.parse(override);
+                    if (parsedOverride.surah && parsedOverride.ayah) {
+                        verseToFetch = { surah: parseInt(parsedOverride.surah, 10), ayah: parseInt(parsedOverride.ayah, 10) };
+                    }
+                } catch (e) {
+                    console.error("Failed to parse verse override", e);
+                }
+            }
+
+            if (verseToFetch) {
+                // Fetch the overridden verse
+                const ayahDetail = await getAyahDetail(verseToFetch.surah, verseToFetch.ayah, language);
+                setVerse(ayahDetail);
+            } else {
+                // Fetch a random verse
+                const randomSurah = surahs[Math.floor(Math.random() * surahs.length)];
+                const randomAyahNumber = Math.floor(Math.random() * randomSurah.numberOfAyahs) + 1;
+                const ayahDetail = await getAyahDetail(randomSurah.number, randomAyahNumber, language);
+                setVerse(ayahDetail);
+            }
         } catch (err) {
             console.error("Failed to fetch verse of the day:", err);
             setVerse(null);
@@ -28,8 +51,8 @@ const VerseOfTheDay: React.FC = () => {
     }, [language, surahs]);
 
     useEffect(() => {
-        fetchRandomVerse();
-    }, [fetchRandomVerse]);
+        fetchVerse();
+    }, [fetchVerse]);
     
     const navigateToSurah = () => {
         if(verse && verse.surah) {
