@@ -33,7 +33,7 @@ const SegmentedControl: React.FC<{
 
 
 const Settings: React.FC = () => {
-    const { t, language, setLanguage, theme, setTheme, reciter, setReciter } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setLanguage, theme, setTheme, reciter, setReciter, notificationPermission, setNotificationPermission } = useContext(LanguageContext) as LanguageContextType;
     const [linkCopied, setLinkCopied] = useState(false);
     const [showInstallModal, setShowInstallModal] = useState(false);
     
@@ -67,6 +67,33 @@ const Settings: React.FC = () => {
             navigator.clipboard.writeText(shareData.url);
             setLinkCopied(true);
             setTimeout(() => setLinkCopied(false), 2000);
+        }
+    };
+
+    const handleRequestNotificationPermission = async () => {
+        if (typeof Notification !== 'undefined') {
+            const permission = await Notification.requestPermission();
+            setNotificationPermission(permission);
+        }
+    };
+
+    const getNotificationButton = () => {
+        switch (notificationPermission) {
+            case 'granted':
+                return <span className="text-sm font-semibold text-green-400">{t('notifEnabled')}</span>;
+            case 'denied':
+                return (
+                    <div className="text-right">
+                        <span className="text-sm font-semibold text-red-400">{t('notifBlocked')}</span>
+                        <p className="text-xs text-[var(--text-secondary)] max-w-[150px]">{t('notifBlockedHelp')}</p>
+                    </div>
+                );
+            default:
+                return (
+                     <button onClick={handleRequestNotificationPermission} className="flex items-center justify-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 text-[var(--text-primary)] font-semibold rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-sm">
+                        {t('notifEnable')}
+                    </button>
+                );
         }
     };
 
@@ -132,6 +159,17 @@ const Settings: React.FC = () => {
                         </select>
                         <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                     </div>
+                </div>
+
+                 {/* Notification Settings Row */}
+                <div className="flex items-center justify-between gap-4 py-3 px-2">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-500/10 text-red-400 shrink-0">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        </div>
+                         <span className="font-semibold text-base text-[var(--text-primary)]">{t('settingsNotifications')}</span>
+                    </div>
+                    {getNotificationButton()}
                 </div>
                 
                 {/* Share App Row */}

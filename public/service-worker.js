@@ -52,3 +52,54 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+let reminderTimeoutIds = [];
+
+const clearReminders = () => {
+    reminderTimeoutIds.forEach(id => clearTimeout(id));
+    reminderTimeoutIds = [];
+    if (self.registration.getNotifications) {
+        self.registration.getNotifications({ tag: 'aya-reminder' }).then(notifications => {
+            notifications.forEach(notification => notification.close());
+        });
+    }
+};
+
+self.addEventListener('message', event => {
+    if (event.data.command === 'cancel-notifications') {
+        clearReminders();
+    } else if (event.data.command === 'schedule-notifications') {
+        clearReminders();
+        const notifications = event.data.notifications;
+
+        notifications.forEach(notificationInfo => {
+            const id = setTimeout(() => {
+                self.registration.showNotification(notificationInfo.title, {
+                    body: notificationInfo.body,
+                    icon: '/icons/icon-192x192.png',
+                    badge: '/icons/icon-192x192.png',
+                    tag: 'aya-reminder'
+                });
+            }, notificationInfo.delay);
+            reminderTimeoutIds.push(id);
+        });
+    }
+});
+
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+            if (clientList.length > 0) {
+                let client = clientList[0];
+                for (let i = 0; i < clientList.length; i++) {
+                    if (clientList[i].focused) {
+                        client = clientList[i];
+                    }
+                }
+                return client.focus();
+            }
+            return clients.openWindow('/');
+        })
+    );
+});

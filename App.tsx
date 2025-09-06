@@ -150,6 +150,20 @@ const translations: { [key in Language]: Translations } = {
     settingsLinkCopied: "Link Copied!",
     settingsInstallApp: "Install App",
     settingsInstallButton: "Install",
+    settingsNotifications: "Notifications",
+    notifEnable: "Enable Notifications",
+    notifEnabled: "Notifications Enabled",
+    notifBlocked: "Notifications Blocked",
+    notifBlockedHelp: "Please enable notifications for this site in your browser settings.",
+    // Notification Content
+    notifTitle: "AYA Reminder",
+    notif5h: "Have you taken a moment for reflection today? AYA is waiting for you.",
+    notif1d: "Don't miss today's Verse of the Day. Open AYA for a spiritual boost.",
+    notif2d: "Your spiritual journey continues. Come back to AYA to explore the Quran.",
+    notif3d: "We miss you! It's been a while. Let's reconnect with your faith.",
+    notif5d: "A gentle reminder to nurture your soul. Your companion AYA is here for you.",
+    notif7d: "Consistency is key in faith. Let's get back on track with AYA.",
+    notif10d: "Has it been 10 days? Your spiritual goals await. Let's achieve them together.",
     // Tasbih Page
     tasbihTitle: "Tasbih Counter",
     tasbihTarget: "Target: {count}",
@@ -438,6 +452,19 @@ const translations: { [key in Language]: Translations } = {
     settingsLinkCopied: "تم نسخ الرابط!",
     settingsInstallApp: "تثبيت التطبيق",
     settingsInstallButton: "تثبيت",
+    settingsNotifications: "الإشعارات",
+    notifEnable: "تفعيل الإشعارات",
+    notifEnabled: "الإشعارات مفعلة",
+    notifBlocked: "الإشعارات محظورة",
+    notifBlockedHelp: "يرجى تفعيل الإشعارات لهذا الموقع من إعدادات المتصفح.",
+    notifTitle: "تذكير من آية",
+    notif5h: "هل أخذت لحظة للتأمل اليوم؟ تطبيق آية في انتظارك.",
+    notif1d: "لا تفوّت آية اليوم. افتح تطبيق آية لجرعة روحانية.",
+    notif2d: "رحلتك الروحانية مستمرة. عد إلى تطبيق آية لتصفح القرآن.",
+    notif3d: "اشتقنا إليك! لقد مر وقت. لنجدد اتصالنا بإيمانك.",
+    notif5d: "تذكير لطيف لتغذية روحك. رفيقك، تطبيق آية، هنا من أجلك.",
+    notif7d: "الاستمرارية هي مفتاح الإيمان. لنعد إلى المسار الصحيح مع تطبيق آية.",
+    notif10d: "هل مرت 10 أيام؟ أهدافك الروحانية بانتظارك. لنحققها معًا.",
     tasbihTitle: "المسبحة الإلكترونية",
     tasbihTarget: "الهدف: {count}",
     tasbihReset: "إعادة تعيين",
@@ -706,6 +733,19 @@ const translations: { [key in Language]: Translations } = {
     settingsLinkCopied: "Lien copié !",
     settingsInstallApp: "Installer l'App",
     settingsInstallButton: "Installer",
+    settingsNotifications: "Notifications",
+    notifEnable: "Activer les notifications",
+    notifEnabled: "Notifications activées",
+    notifBlocked: "Notifications bloquées",
+    notifBlockedHelp: "Veuillez activer les notifications pour ce site dans les paramètres de votre navigateur.",
+    notifTitle: "Rappel de AYA",
+    notif5h: "Avez-vous pris un moment pour la réflexion aujourd'hui ? AYA vous attend.",
+    notif1d: "Ne manquez pas le Verset du Jour. Ouvrez AYA pour un élan spirituel.",
+    notif2d: "Votre voyage spirituel continue. Revenez sur AYA pour explorer le Coran.",
+    notif3d: "Vous nous manquez ! Cela fait un moment. Reconnectons-nous avec votre foi.",
+    notif5d: "Un doux rappel pour nourrir votre âme. Votre compagnon AYA est là pour vous.",
+    notif7d: "La constance est la clé de la foi. Reprenons le bon chemin avec AYA.",
+    notif10d: "Déjà 10 jours ? Vos objectifs spirituels vous attendent. Atteignons-les ensemble.",
     tasbihTitle: "Compteur Tasbih",
     tasbihTarget: "Objectif : {count}",
     tasbihReset: "Réinitialiser",
@@ -887,7 +927,19 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     }));
   });
   const [initialMoreView, setInitialMoreView] = useState<string>('menu');
+  const [notificationPermission, setNotificationPermissionState] = useState<NotificationPermission>(
+    () => (typeof Notification !== 'undefined' ? Notification.permission : 'default')
+  );
 
+  const t = (key: string, replacements?: { [key: string]: string | number }) => {
+    let translation = translations[language][key] || translations['en'][key] || key;
+    if (replacements) {
+        Object.keys(replacements).forEach(placeholder => {
+            translation = translation.replace(`{${placeholder}}`, String(replacements[placeholder]));
+        });
+    }
+    return translation;
+  };
 
   useEffect(() => {
     const fetchSurahs = async () => {
@@ -912,6 +964,44 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
   useEffect(() => {
     localStorage.setItem('aya-goals', JSON.stringify(goals.map(({ id, text, lastCompleted }) => ({ id, text, lastCompleted }))));
   }, [goals]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+        if (typeof Notification === 'undefined' || !navigator.serviceWorker.controller) {
+            return;
+        }
+
+        if (document.visibilityState === 'hidden' && notificationPermission === 'granted') {
+            const schedule = [
+                { delay: 5 * 3600 * 1000, key: 'notif5h' },
+                { delay: 1 * 24 * 3600 * 1000, key: 'notif1d' },
+                { delay: 2 * 24 * 3600 * 1000, key: 'notif2d' },
+                { delay: 3 * 24 * 3600 * 1000, key: 'notif3d' },
+                { delay: 5 * 24 * 3600 * 1000, key: 'notif5d' },
+                { delay: 7 * 24 * 3600 * 1000, key: 'notif7d' },
+                { delay: 10 * 24 * 3600 * 1000, key: 'notif10d' },
+            ];
+
+            const notifications = schedule.map(item => ({
+                delay: item.delay,
+                title: t('notifTitle'),
+                body: t(item.key)
+            }));
+
+            navigator.serviceWorker.controller.postMessage({
+                command: 'schedule-notifications',
+                notifications,
+            });
+        } else {
+            navigator.serviceWorker.controller.postMessage({ command: 'cancel-notifications' });
+        }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [notificationPermission, language, t]);
 
   const addBookmark = (surahNumber: number) => {
     if (!bookmarks.includes(surahNumber)) {
@@ -975,6 +1065,10 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     localStorage.setItem('onboarding-complete', 'true');
     setIsOnboardingComplete(true);
   };
+
+  const setNotificationPermission = (permission: NotificationPermission) => {
+    setNotificationPermissionState(permission);
+  };
   
   useEffect(() => {
     if (view !== 'quran' && selectedSurah !== null) {
@@ -1000,16 +1094,6 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
   }, [language]);
-
-  const t = (key: string, replacements?: { [key: string]: string | number }) => {
-    let translation = translations[language][key] || translations['en'][key] || key;
-    if (replacements) {
-        Object.keys(replacements).forEach(placeholder => {
-            translation = translation.replace(`{${placeholder}}`, String(replacements[placeholder]));
-        });
-    }
-    return translation;
-  };
 
   const contextValue: LanguageContextType = {
     language,
@@ -1038,6 +1122,8 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     removeGoal,
     initialMoreView,
     setInitialMoreView,
+    notificationPermission,
+    setNotificationPermission,
   };
 
   return (

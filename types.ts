@@ -223,6 +223,8 @@ export interface LanguageContextType {
   removeGoal: (goalId: string) => void;
   initialMoreView: string;
   setInitialMoreView: (view: string) => void;
+  notificationPermission: NotificationPermission;
+  setNotificationPermission: (permission: NotificationPermission) => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
