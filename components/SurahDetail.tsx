@@ -8,6 +8,7 @@ import ReciterSelector from './ReciterSelector';
 import TafsirModal from './TafsirModal';
 import RecitationPracticeModal from './RecitationPracticeModal';
 import MemorizationModal from './MemorizationModal';
+import ImageCustomizationModal from './ImageCustomizationModal';
 
 interface SurahDetailProps {
   surahNumber: number;
@@ -17,38 +18,39 @@ const toArabicNumerals = (num: number) => {
     return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
 };
 
+export interface ImageStyleOptions {
+    ayahColor: string;
+    translationColor: string;
+    backgroundColor: string;
+    borderColor: string;
+    accentColor: string;
+}
+
 // Helper function to generate Ayah image
 const generateAyahImage = (
     ayah: Ayah, 
     surahData: SurahDetailData, 
     translationText: string,
-    theme: Theme,
-    language: Language
+    language: Language,
+    options: ImageStyleOptions
 ): Promise<Blob> => {
     return new Promise(async (resolve, reject) => {
         try {
             // Ensure fonts from index.html are loaded before measuring text
             await document.fonts.ready;
 
-            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            const style = getComputedStyle(document.documentElement);
-
             const cardWidth = 550;
             const padding = 30;
 
-            const bgColor = style.getPropertyValue('--bg-secondary-solid').trim() || (isDark ? '#1E293B' : '#ffffff');
-            const textColor = style.getPropertyValue('--text-primary').trim() || (isDark ? '#E2E8F0' : '#1A1A1A');
-            const secondaryColor = style.getPropertyValue('--text-secondary').trim() || (isDark ? '#94A3B8' : '#6B6B6B');
-            const accentColor = style.getPropertyValue('--accent-primary').trim() || (isDark ? '#2DD4BF' : '#D4AF37');
-            const borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+            const { backgroundColor, ayahColor, translationColor, accentColor, borderColor } = options;
             const borderRadius = '16px';
 
             // Define shared content and styles
             const innerHtmlForCard = `
-                <p dir="rtl" style="font-family: 'Amiri', serif; font-size: 28px; text-align: right; margin: 0 0 16px 0; line-height: 1.8; color: ${textColor}; word-wrap: break-word; white-space: pre-wrap;">
+                <p dir="rtl" style="font-family: 'Amiri', serif; font-size: 28px; text-align: right; margin: 0 0 16px 0; line-height: 1.8; color: ${ayahColor}; word-wrap: break-word; white-space: pre-wrap;">
                     ${ayah.text}
                 </p>
-                <p style="font-size: 16px; margin: 0 0 24px 0; line-height: 1.6; color: ${secondaryColor}; ${language === 'ar' ? 'text-align: right;' : 'text-align: left;'} word-wrap: break-word; white-space: pre-wrap;">
+                <p style="font-size: 16px; margin: 0 0 24px 0; line-height: 1.6; color: ${translationColor}; ${language === 'ar' ? 'text-align: right;' : 'text-align: left;'} word-wrap: break-word; white-space: pre-wrap;">
                     ${translationText}
                 </p>
                 <div style="margin-top: auto; text-align: center; border-top: 1px solid ${borderColor}; padding-top: 12px; font-size: 15px; color: ${accentColor}; font-weight: 600; font-family: 'Inter', sans-serif;">
@@ -81,7 +83,7 @@ const generateAyahImage = (
             const cardHeight = contentHeight;
             // --- End of Dynamic Height Calculation ---
 
-            const htmlContainerStyle = `width: ${cardWidth}px; height: ${cardHeight}px; padding: ${padding}px; background-color: ${bgColor}; color: ${textColor}; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: center; border-radius: ${borderRadius}; border: 1px solid ${isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.07)'}; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box;`;
+            const htmlContainerStyle = `width: ${cardWidth}px; height: ${cardHeight}px; padding: ${padding}px; background-color: ${backgroundColor}; color: ${ayahColor}; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; justify-content: center; border-radius: ${borderRadius}; border: 1px solid ${borderColor}; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box;`;
 
             const fullHtmlContent = `
                 <div xmlns="http://www.w3.org/1999/xhtml" style="${htmlContainerStyle}">
@@ -133,7 +135,7 @@ const generateAyahImage = (
 };
 
 const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
-    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark, theme } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark } = useContext(LanguageContext) as LanguageContextType;
     const [surahData, setSurahData] = useState<SurahDetailData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -144,6 +146,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
 
     const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation' | 'memorization', ayah: Ayah, anchor: HTMLElement} | null>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState<number | null>(null);
+    const [customizingAyah, setCustomizingAyah] = useState<Ayah | null>(null);
     
     const isBookmarked = bookmarks.includes(surahNumber);
 
@@ -247,45 +250,49 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         setActiveModal(null);
     };
 
-    const handleShareAsImage = async (ayah: Ayah) => {
-        if (!surahData) return;
-        setIsGeneratingImage(ayah.numberInSurah);
+    const handleFinalImageGeneration = async (options: ImageStyleOptions) => {
+        if (!customizingAyah || !surahData) return;
+
+        const ayahToProcess = customizingAyah;
+        setCustomizingAyah(null);
+        setIsGeneratingImage(ayahToProcess.numberInSurah);
+
         try {
-            const detailedAyah = await getAyahDetail(surahNumber, ayah.numberInSurah, language);
+            const detailedAyah = await getAyahDetail(surahNumber, ayahToProcess.numberInSurah, language);
             if (!detailedAyah || !detailedAyah.translationText) {
                 throw new Error("Could not fetch Ayah translation.");
             }
             
-            const imageBlob = await generateAyahImage(ayah, surahData, detailedAyah.translationText, theme, language);
-            const imageFile = new File([imageBlob], `ayah_${surahData.number}_${ayah.numberInSurah}.png`, { type: 'image/png' });
+            const imageBlob = await generateAyahImage(ayahToProcess, surahData, detailedAyah.translationText, language, options);
+            const imageFile = new File([imageBlob], `ayah_${surahData.number}_${ayahToProcess.numberInSurah}.png`, { type: 'image/png' });
 
             if (navigator.share && navigator.canShare({ files: [imageFile] })) {
                 await navigator.share({
                     files: [imageFile],
-                    title: `${surahData.englishName} ${ayah.numberInSurah}`,
-                    text: `"${detailedAyah.translationText}" - Quran ${surahData.number}:${ayah.numberInSurah}`,
+                    title: `${surahData.englishName} ${ayahToProcess.numberInSurah}`,
+                    text: `"${detailedAyah.translationText}" - Quran ${surahData.number}:${ayahToProcess.numberInSurah}`,
                 });
             } else {
-                try {
-                    await navigator.clipboard.write([ new ClipboardItem({ 'image/png': imageBlob }) ]);
-                    alert(t('imageCopied'));
-                } catch (copyError) {
-                    console.error('Clipboard API failed, falling back to download:', copyError);
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(imageBlob);
-                    link.download = `ayah_${surahData.number}_${ayah.numberInSurah}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
-                }
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(imageBlob);
+                link.download = `ayah_${surahData.number}_${ayahToProcess.numberInSurah}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
             }
         } catch (err) {
             console.error("Failed to generate or share image:", err);
-            alert(t('shareError'));
+            if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                alert(t('shareError'));
+            }
         } finally {
             setIsGeneratingImage(null);
         }
+    };
+
+    const handleShareAsImage = (ayah: Ayah) => {
+        setCustomizingAyah(ayah);
     };
 
 
@@ -319,6 +326,14 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                     ayah={activeModal.ayah}
                     onClose={closeModal}
                     anchorEl={activeModal.anchor}
+                />
+            )}
+            {customizingAyah && surahData && (
+                <ImageCustomizationModal
+                    ayah={customizingAyah}
+                    surahData={surahData}
+                    onClose={() => setCustomizingAyah(null)}
+                    onGenerate={handleFinalImageGeneration}
                 />
             )}
             <header className="text-center mb-6 relative flex items-center justify-between">
