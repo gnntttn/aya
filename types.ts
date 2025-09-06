@@ -201,6 +201,17 @@ export interface ApiLogEntry {
 
 export type FeatureUsage = { [key: string]: number };
 
+export interface QuranSettings {
+    fontSize: number;
+    lineHeight: number;
+}
+
+export interface Khatmah {
+    startDate: string; // ISO String
+    targetDate: string; // ISO String
+    pagesRead: number;
+}
+
 export interface Translations {
   [key:string]: string;
 }
@@ -236,6 +247,12 @@ export interface LanguageContextType {
   setNotificationPermission: (permission: NotificationPermission) => void;
   featureFlags: { [key: string]: boolean };
   setFeatureFlag: (flag: string, value: boolean) => void;
+  quranSettings: QuranSettings;
+  setQuranSettings: (settings: QuranSettings) => void;
+  khatmah: Khatmah | null;
+  startKhatmah: (targetDate: string) => void;
+  updateKhatmahProgress: (pages: number) => void;
+  resetKhatmah: () => void;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

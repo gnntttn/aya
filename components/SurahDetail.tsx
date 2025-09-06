@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 import { LanguageContext } from '../types';
-import type { LanguageContextType, SurahDetailData, Ayah, Theme, Language } from '../types';
+import type { LanguageContextType, SurahDetailData, Ayah, Theme, Language, QuranSettings } from '../types';
 import { getSurahDetail, getAyahDetail } from '../services/quranService';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
@@ -134,8 +134,54 @@ const generateAyahImage = (
     });
 };
 
+const ReadingPrefsPanel: React.FC<{
+    settings: QuranSettings;
+    onSettingsChange: (newSettings: QuranSettings) => void;
+    onClose: () => void;
+}> = ({ settings, onSettingsChange, onClose }) => {
+    const { t } = useContext(LanguageContext) as LanguageContextType;
+    
+    const handleFontSizeChange = (delta: number) => {
+        onSettingsChange({ ...settings, fontSize: Math.max(1.2, Math.min(3.2, settings.fontSize + delta)) });
+    };
+    
+    const handleLineHeightChange = (delta: number) => {
+        onSettingsChange({ ...settings, lineHeight: Math.max(2.2, Math.min(4.2, settings.lineHeight + delta)) });
+    };
+
+    return (
+        <div className="absolute top-16 right-0 z-20 w-64 glass-card p-4 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="font-lora font-semibold text-[var(--text-primary)]">{t('quranReadingPrefs')}</h3>
+                <button onClick={onClose} className="text-[var(--text-secondary)] font-bold text-xl p-1 leading-none">&times;</button>
+            </div>
+            
+            <div className="space-y-4">
+                {/* Font Size Control */}
+                <div>
+                    <label className="text-sm font-medium text-[var(--text-secondary)]">{t('quranFontSize')}</label>
+                    <div className="flex items-center gap-2 mt-1">
+                        <button onClick={() => handleFontSizeChange(-0.1)} className="font-bold text-lg p-1 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5">-</button>
+                        <div className="flex-grow text-center font-mono">{settings.fontSize.toFixed(1)}rem</div>
+                        <button onClick={() => handleFontSizeChange(0.1)} className="font-bold text-lg p-1 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5">+</button>
+                    </div>
+                </div>
+                {/* Line Height Control */}
+                <div>
+                    <label className="text-sm font-medium text-[var(--text-secondary)]">{t('quranLineHeight')}</label>
+                    <div className="flex items-center gap-2 mt-1">
+                        <button onClick={() => handleLineHeightChange(-0.1)} className="font-bold text-lg p-1 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5">-</button>
+                        <div className="flex-grow text-center font-mono">{settings.lineHeight.toFixed(1)}</div>
+                        <button onClick={() => handleLineHeightChange(0.1)} className="font-bold text-lg p-1 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
-    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setSelectedSurah, surahs, reciter, bookmarks, addBookmark, removeBookmark, quranSettings, setQuranSettings } = useContext(LanguageContext) as LanguageContextType;
     const [surahData, setSurahData] = useState<SurahDetailData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -147,6 +193,8 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const [activeModal, setActiveModal] = useState<{type: 'tafsir' | 'recitation' | 'memorization', ayah: Ayah, anchor: HTMLElement} | null>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState<number | null>(null);
     const [customizingAyah, setCustomizingAyah] = useState<Ayah | null>(null);
+    const [loopingAyahIndex, setLoopingAyahIndex] = useState<number | null>(null);
+    const [showReadingPrefs, setShowReadingPrefs] = useState(false);
     
     const isBookmarked = bookmarks.includes(surahNumber);
 
@@ -177,6 +225,11 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         if (!audioEl) return;
 
         const handleAudioEnd = () => {
+            if (loopingAyahIndex !== null && loopingAyahIndex === currentPlayingAyahIndex) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.error("Audio replay failed:", e));
+                return;
+            }
             if (surahData && currentPlayingAyahIndex !== null && currentPlayingAyahIndex < surahData.ayahs.length - 1) {
                 playAyahByIndex(currentPlayingAyahIndex + 1);
             } else {
@@ -188,7 +241,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         audioEl.addEventListener('ended', handleAudioEnd);
         return () => audioEl.removeEventListener('ended', handleAudioEnd);
 
-    }, [currentPlayingAyahIndex, surahData]);
+    }, [currentPlayingAyahIndex, surahData, loopingAyahIndex]);
     
     const playAyahByIndex = (index: number) => {
         if (!surahData || !audioRef.current) return;
@@ -295,6 +348,9 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         setCustomizingAyah(ayah);
     };
 
+    const handleLoopToggle = (index: number) => {
+        setLoopingAyahIndex(prev => (prev === index ? null : index));
+    };
 
     if (isLoading) return <div className="pt-20"><LoadingIndicator message={t('loadingSurah')} /></div>;
     if (error || !surahData) return <ErrorMessage message={error || "Could not load Surah data."} />;
@@ -336,22 +392,28 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                     onGenerate={handleFinalImageGeneration}
                 />
             )}
-            <header className="text-center mb-6 relative flex items-center justify-between">
+            <header className="text-center mb-6 relative flex items-center justify-between gap-2">
                 <button onClick={() => setSelectedSurah(null)} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <ReciterSelector />
-                <button onClick={handleBookmarkToggle} className="text-amber-400 hover:text-amber-300 transition-colors p-2 rounded-full" title={isBookmarked ? t('unbookmarkSurah') : t('bookmarkSurah')}>
-                    {isBookmarked ? (
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                           <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                    )}
-                </button>
+                 <div className="flex items-center">
+                    <button onClick={() => setShowReadingPrefs(prev => !prev)} className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                    <button onClick={handleBookmarkToggle} className="text-amber-400 hover:text-amber-300 transition-colors p-2 rounded-full" title={isBookmarked ? t('unbookmarkSurah') : t('bookmarkSurah')}>
+                        {isBookmarked ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+                {showReadingPrefs && <ReadingPrefsPanel settings={quranSettings} onSettingsChange={setQuranSettings} onClose={() => setShowReadingPrefs(false)} />}
             </header>
             
             <div className="quran-page-container">
@@ -389,7 +451,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                             key={ayah.number}
                             className={`ayah-block ${currentPlayingAyahIndex === index ? 'bg-yellow-400/10 rounded-lg' : ''}`}
                         >
-                            <p dir="rtl" className="ayah-text-container">
+                            <p dir="rtl" className="ayah-text-container" style={{ fontSize: `${quranSettings.fontSize}rem`, lineHeight: quranSettings.lineHeight }}>
                                 {ayah.text}
                                 <span className="ayah-number-circle">{toArabicNumerals(ayah.numberInSurah)}</span>
                             </p>
@@ -409,6 +471,10 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                                     ) : (
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                                     )}
+                                </button>
+                                
+                                <button onClick={() => handleLoopToggle(index)} title={t('quranLoopAyah')} className={`${loopingAyahIndex === index ? 'text-[var(--accent-primary)] bg-black/5 dark:bg-white/5' : ''}`}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 </button>
 
                                 <button onClick={(e) => handleTafsirClick(e, ayah)} title={t('getTafsirTitle')}>

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua, SpiritualGoal } from './types';
+import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua, SpiritualGoal, QuranSettings, Khatmah } from './types';
 import { LanguageContext } from './types';
 import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
@@ -100,6 +100,13 @@ const translations: { [key in Language]: Translations } = {
     generatingImage: "Generating Image...",
     imageCopied: "Image copied to clipboard!",
     shareError: "Could not share image.",
+    quranLoopAyah: "Repeat Ayah",
+    quranReadingPrefs: "Reading Preferences",
+    quranFontSize: "Font Size",
+    quranLineHeight: "Line Spacing",
+    quranSearchByJuz: "Filter by Juz'",
+    juz: "Juz",
+    allJuz: "All Juz'",
     // Image Customization
     imageCustomizationTitle: "Customize Ayah Image",
     ayahColor: "Verse Color",
@@ -197,6 +204,23 @@ const translations: { [key in Language]: Translations } = {
     moreHadithSearch: "Hadith Search",
     moreSpiritualGoals: "Spiritual Goals",
     moreLiveBroadcast: "Live Broadcast",
+    moreKhatmahTracker: "Khatmah Tracker",
+    khatmahTrackerTitle: "Khatmah Tracker",
+    khatmahTrackerDesc: "Set your goal and track your Quran reading progress.",
+    // Khatmah Tracker
+    khatmahSetupTitle: "Start Your Khatmah",
+    khatmahTargetDate: "Set your target completion date",
+    khatmahStartButton: "Begin Khatmah",
+    khatmahProgressTitle: "Khatmah Progress",
+    khatmahPagesReadOf: "{read} of {total} pages read",
+    khatmahDaysLeft: "{days} days left",
+    khatmahDailyGoal: "Your goal is ~{pages} pages today",
+    khatmahLogToday: "Log pages read today",
+    khatmahLogPlaceholder: "e.g., 10",
+    khatmahAddProgress: "Add Progress",
+    khatmahCompletedTitle: "Masha'Allah!",
+    khatmahCompletedDesc: "You have successfully completed your Khatmah. May Allah accept it from you.",
+    khatmahStartNew: "Start New Khatmah",
     // Prayer Times
     prayerTimesTitle: "Prayer Times",
     prayerTimesDescription: "Allow location access to see prayer times for your area.",
@@ -455,6 +479,13 @@ const translations: { [key in Language]: Translations } = {
     generatingImage: "جاري إنشاء الصورة...",
     imageCopied: "تم نسخ الصورة إلى الحافظة!",
     shareError: "تعذرت مشاركة الصورة.",
+    quranLoopAyah: "تكرار الآية",
+    quranReadingPrefs: "خيارات القراءة",
+    quranFontSize: "حجم الخط",
+    quranLineHeight: "تباعد الأسطر",
+    quranSearchByJuz: "تصفية بالجزء",
+    juz: "الجزء",
+    allJuz: "كل الأجزاء",
     imageCustomizationTitle: "تخصيص صورة الآية",
     ayahColor: "لون الآية",
     translationColor: "لون الترجمة",
@@ -543,6 +574,22 @@ const translations: { [key in Language]: Translations } = {
     moreHadithSearch: "باحث الأحاديث",
     moreSpiritualGoals: "أهدافي الروحانية",
     moreLiveBroadcast: "البث المباشر",
+    moreKhatmahTracker: "متتبع الختمة",
+    khatmahTrackerTitle: "متتبع الختمة",
+    khatmahTrackerDesc: "حدد هدفك وتتبع تقدمك في قراءة القرآن.",
+    khatmahSetupTitle: "ابدأ ختمتك",
+    khatmahTargetDate: "حدد تاريخ الانتهاء المستهدف",
+    khatmahStartButton: "ابدأ الختمة",
+    khatmahProgressTitle: "تقدم ختمتك",
+    khatmahPagesReadOf: "تمت قراءة {read} من {total} صفحة",
+    khatmahDaysLeft: "تبقى {days} يوم",
+    khatmahDailyGoal: "هدفك هو ~{pages} صفحة اليوم",
+    khatmahLogToday: "سجل الصفحات المقروءة اليوم",
+    khatmahLogPlaceholder: "مثال: 10",
+    khatmahAddProgress: "إضافة تقدم",
+    khatmahCompletedTitle: "ما شاء الله!",
+    khatmahCompletedDesc: "لقد أتممت ختمتك بنجاح. تقبل الله منك.",
+    khatmahStartNew: "ابدأ ختمة جديدة",
     prayerTimesTitle: "مواقيت الصلاة",
     prayerTimesDescription: "اسمح بالوصول للموقع لعرض مواقيت الصلاة لمنطقتك.",
     prayerAllowLocation: "السماح بالموقع",
@@ -782,6 +829,13 @@ const translations: { [key in Language]: Translations } = {
     generatingImage: "Génération de l'image...",
     imageCopied: "Image copiée dans le presse-papiers !",
     shareError: "Impossible de partager l'image.",
+    quranLoopAyah: "Répéter le Verset",
+    quranReadingPrefs: "Préférences de lecture",
+    quranFontSize: "Taille de la police",
+    quranLineHeight: "Interligne",
+    quranSearchByJuz: "Filtrer par Juz'",
+    juz: "Juz'",
+    allJuz: "Tous les Juz'",
     imageCustomizationTitle: "Personnaliser l'image du verset",
     ayahColor: "Couleur du verset",
     translationColor: "Couleur de la traduction",
@@ -870,6 +924,22 @@ const translations: { [key in Language]: Translations } = {
     moreHadithSearch: "Recherche de Hadith",
     moreSpiritualGoals: "Objectifs Spirituels",
     moreLiveBroadcast: "Diffusion en direct",
+    moreKhatmahTracker: "Suivi de Khatmah",
+    khatmahTrackerTitle: "Suivi de Khatmah",
+    khatmahTrackerDesc: "Définissez votre objectif et suivez vos progrès de lecture du Coran.",
+    khatmahSetupTitle: "Commencez votre Khatmah",
+    khatmahTargetDate: "Définissez votre date d'achèvement cible",
+    khatmahStartButton: "Commencer la Khatmah",
+    khatmahProgressTitle: "Progression de la Khatmah",
+    khatmahPagesReadOf: "{read} sur {total} pages lues",
+    khatmahDaysLeft: "{days} jours restants",
+    khatmahDailyGoal: "Votre objectif est d'environ {pages} pages aujourd'hui",
+    khatmahLogToday: "Enregistrer les pages lues aujourd'hui",
+    khatmahLogPlaceholder: "ex: 10",
+    khatmahAddProgress: "Ajouter la progression",
+    khatmahCompletedTitle: "Masha'Allah !",
+    khatmahCompletedDesc: "Vous avez terminé votre Khatmah avec succès. Qu'Allah l'accepte de votre part.",
+    khatmahStartNew: "Commencer une nouvelle Khatmah",
     prayerTimesTitle: "Horaires de Prière",
     prayerTimesDescription: "Autorisez l'accès à la localisation pour voir les horaires de prière de votre région.",
     prayerAllowLocation: "Autoriser la localisation",
@@ -1074,6 +1144,14 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     const storedFlags = localStorage.getItem('aya-feature-flags');
     return storedFlags ? JSON.parse(storedFlags) : {};
   });
+  const [quranSettings, setQuranSettingsState] = useState<QuranSettings>(() => {
+    const storedSettings = localStorage.getItem('aya-quran-settings');
+    return storedSettings ? JSON.parse(storedSettings) : { fontSize: 1.8, lineHeight: 2.8 };
+  });
+  const [khatmah, setKhatmahState] = useState<Khatmah | null>(() => {
+    const storedKhatmah = localStorage.getItem('aya-khatmah');
+    return storedKhatmah ? JSON.parse(storedKhatmah) : null;
+  });
 
   const t = (key: string, replacements?: { [key: string]: string | number }) => {
     let translation = translations[language][key] || translations['en'][key] || key;
@@ -1220,6 +1298,35 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     localStorage.setItem('aya-feature-flags', JSON.stringify(newFlags));
   };
 
+  const setQuranSettings = (settings: QuranSettings) => {
+    setQuranSettingsState(settings);
+    localStorage.setItem('aya-quran-settings', JSON.stringify(settings));
+  };
+
+  const startKhatmah = (targetDate: string) => {
+    const newKhatmah: Khatmah = {
+      startDate: new Date().toISOString(),
+      targetDate,
+      pagesRead: 0,
+    };
+    setKhatmahState(newKhatmah);
+    localStorage.setItem('aya-khatmah', JSON.stringify(newKhatmah));
+  };
+
+  const updateKhatmahProgress = (pages: number) => {
+    if (khatmah) {
+      const newPagesRead = Math.min(604, khatmah.pagesRead + pages);
+      const updatedKhatmah = { ...khatmah, pagesRead: newPagesRead };
+      setKhatmahState(updatedKhatmah);
+      localStorage.setItem('aya-khatmah', JSON.stringify(updatedKhatmah));
+    }
+  };
+
+  const resetKhatmah = () => {
+    setKhatmahState(null);
+    localStorage.removeItem('aya-khatmah');
+  };
+
   useEffect(() => {
     if (view !== 'quran' && selectedSurah !== null) {
       setSelectedSurah(null);
@@ -1276,6 +1383,12 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     setNotificationPermission,
     featureFlags,
     setFeatureFlag,
+    quranSettings,
+    setQuranSettings,
+    khatmah,
+    startKhatmah,
+    updateKhatmahProgress,
+    resetKhatmah,
   };
 
   return (

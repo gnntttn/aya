@@ -1,26 +1,68 @@
-
 import React, { useState, useMemo, useContext } from 'react';
 import type { LanguageContextType } from '../types';
 import { LanguageContext } from '../types';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
+import { juzData } from '../data/juzData';
 
 const Quran: React.FC = () => {
     const { t, language, setSelectedSurah, surahs, bookmarks } = useContext(LanguageContext) as LanguageContextType;
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedJuz, setSelectedJuz] = useState<number | null>(null);
     
     const isLoading = surahs.length === 0;
 
     const filteredSurahs = useMemo(() => {
-        if (!searchTerm) return surahs;
+        let surahsToFilter = [...surahs];
+
+        // Filter by Juz'
+        if (selectedJuz !== null && juzData[selectedJuz - 1]) {
+            const startSurahNum = juzData[selectedJuz - 1].surah;
+            const endSurahNum = juzData[selectedJuz] ? juzData[selectedJuz].surah : 115; // Use 115 to include surah 114
+
+            surahsToFilter = surahs.filter(s => {
+                // Find all surahs that start within the range of this Juz.
+                // This is an approximation but works well for a list filter.
+                const nextJuz = juzData.find(j => j.juz > s.number);
+                let startJuzForSurah = 1;
+                if (nextJuz) {
+                    const prevJuz = juzData[nextJuz.juz - 2];
+                    if (prevJuz.surah > s.number) {
+                        // This logic is complex, find a surah's starting juz.
+                    }
+                }
+                
+                // Simplified logic: Show all surahs from the start of the selected juz
+                // up to the start of the next juz.
+                const surahIsInJuzRange = s.number >= startSurahNum && s.number < endSurahNum;
+
+                // Handle the last Juz (30) which includes surahs until the end.
+                const isLastJuz = selectedJuz === 30;
+                
+                if (isLastJuz) {
+                    return s.number >= startSurahNum;
+                }
+                
+                // Include the starting surah of the next Juz if it contains ayahs from the current Juz
+                if (s.number === startSurahNum && juzData[selectedJuz-1].ayah > 1) {
+                    return true;
+                }
+
+                return surahIsInJuzRange;
+            });
+        }
+        
+        // Then filter by search term
+        if (!searchTerm) return surahsToFilter;
+
         const lowercasedTerm = searchTerm.toLowerCase();
-        return surahs.filter(surah => 
+        return surahsToFilter.filter(surah => 
             surah.name.toLowerCase().includes(lowercasedTerm) ||
             surah.englishName.toLowerCase().includes(lowercasedTerm) ||
             surah.englishNameTranslation.toLowerCase().includes(lowercasedTerm) ||
             String(surah.number).includes(lowercasedTerm)
         );
-    }, [searchTerm, surahs]);
+    }, [searchTerm, surahs, selectedJuz]);
 
     return (
         <div className="w-full text-center animate-fade-in">
@@ -29,7 +71,7 @@ const Quran: React.FC = () => {
                 {t('quranDescription')}
             </p>
 
-            <div className="mb-6 sticky top-4 z-10">
+            <div className="mb-6 sticky top-4 z-10 space-y-3">
                 <input
                     type="search"
                     placeholder={t('searchPlaceholder')}
@@ -38,6 +80,20 @@ const Quran: React.FC = () => {
                     className="w-full p-3 border-none rounded-lg focus:ring-2 focus:ring-[var(--accent-primary)] transition-shadow duration-200 bg-[var(--bg-secondary-solid)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] shadow-sm"
                     aria-label={t('searchPlaceholder')}
                 />
+                 <div className="select-with-chevron">
+                    <select
+                        value={selectedJuz ?? ''}
+                        onChange={(e) => setSelectedJuz(e.target.value ? Number(e.target.value) : null)}
+                        className="w-full p-3 border-none rounded-lg focus:ring-2 focus:ring-[var(--accent-primary)] transition-shadow duration-200 bg-[var(--bg-secondary-solid)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] shadow-sm"
+                        aria-label={t('quranSearchByJuz')}
+                    >
+                        <option value="">{t('allJuz')}</option>
+                        {juzData.map(j => (
+                            <option key={j.juz} value={j.juz}>{t('juz')} {j.juz} ({j.name})</option>
+                        ))}
+                    </select>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                </div>
             </div>
 
             {isLoading && <LoadingIndicator message={t('loadingMessage')} />}
