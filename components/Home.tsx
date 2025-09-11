@@ -28,7 +28,6 @@ const Home: React.FC = () => {
 
     // State for Calendar
     const [hijriDate, setHijriDate] = useState<HijriDate | null>(null);
-    const [gregorianDate, setGregorianDate] = useState('');
 
     const calculateNextPrayer = useCallback((times: PrayerTimesData) => {
         const now = new Date();
@@ -90,13 +89,6 @@ const Home: React.FC = () => {
 
     const fetchHijriDate = useCallback(() => {
         const now = new Date();
-        setGregorianDate(now.toLocaleDateString(language === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }));
-        
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
@@ -162,16 +154,18 @@ const Home: React.FC = () => {
 
             {/* Main Display */}
             <div className="relative w-full max-w-sm mx-auto my-8">
-                <img src="/ornament.svg" alt="Islamic Ornament" className="w-full h-auto"/>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-[var(--accent-primary)]">
+                <img src="/prayer-time-bg.svg" alt="Prayer time background" className="w-full h-auto"/>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     {nextPrayerInfo ? (
                         <>
-                            <p className="text-6xl font-semibold -mb-1">{nextPrayerInfo.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
-                            <p className="text-lg font-semibold uppercase tracking-widest">{nextPrayerInfo.nameKey}</p>
-                            <div className="mt-4 text-white font-semibold text-sm">
-                                <p>{gregorianDate}</p>
-                                {hijriDate && <p>{hijriDate.day} {language === 'ar' ? hijriDate.month.ar : hijriDate.month.en} {hijriDate.year} AH</p>}
-                            </div>
+                            <p className="text-6xl font-semibold -mb-1 text-[var(--accent-primary)]">{nextPrayerInfo.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
+                            <p className="text-lg font-semibold uppercase tracking-widest text-[var(--accent-primary)]">{nextPrayerInfo.nameKey}</p>
+                             {hijriDate && (
+                                <div className="mt-4 text-white font-semibold text-sm space-y-1">
+                                    <p>{hijriDate.weekday.en}, {hijriDate.day} {hijriDate.month.en} {hijriDate.year} AH</p>
+                                    <p className="font-amiri">{hijriDate.weekday.ar}، {hijriDate.day} {hijriDate.month.ar} {hijriDate.year} هـ</p>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className="text-white text-sm">Loading Prayer Times...</div>
