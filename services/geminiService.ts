@@ -1,5 +1,4 @@
-
-import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith, ProphetStory, FiqhAnswer, SahabiStory, InheritanceInput, InheritanceResult, TravelInfo, DreamInterpretation, HadithSearchResult } from '../types';
+import type { Dua, QuizQuestion, Language, Ayah, Reflection, Tafsir, RecitationFeedback, Hadith, ProphetStory, FiqhAnswer, SahabiStory, InheritanceInput, InheritanceResult, TravelInfo, DreamInterpretation, HadithSearchResult, SermonOutline, HistorySummary } from '../types';
 import { logApiCall } from './trackingService';
 
 /**
@@ -74,3 +73,5 @@ export const getHajjUmrahQa = async (question: string, language: Language): Prom
     const data = await callGeminiApi('hajjUmrahQA', { question, language });
     return data.answer;
 };
+export const generateSermonOutline = (topic: string, language: Language): Promise<SermonOutline> => callGeminiApi('sermon', { topic, language });
+export const getIslamicHistorySummary = (topic: string, language: Language): Promise<HistorySummary> => callGeminiApi('history', { topic, language });

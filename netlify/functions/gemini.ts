@@ -1,6 +1,5 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Dua, QuizQuestion, Language, Ayah, Hadith, ProphetStory, FiqhAnswer, InheritanceInput, SahabiStory, TravelInfo, DreamInterpretation, HadithSearchResult, InheritanceResult } from "../../types";
+import type { Dua, QuizQuestion, Language, Ayah, Hadith, ProphetStory, FiqhAnswer, InheritanceInput, SahabiStory, TravelInfo, DreamInterpretation, HadithSearchResult, InheritanceResult, SermonOutline, HistorySummary } from "../../types";
 
 // Define TypeScript interfaces for the Lambda event and response
 interface HandlerEvent {
@@ -229,6 +228,52 @@ const getHadithSearchSchema = (languageName: string) => ({
 });
 const getHadithSearchSystemInstruction = (languageName: string) => `You are an expert Islamic scholar AI with access to a vast collection of authentic Hadith. The user will provide a topic. Your task is to find 3-5 relevant, authentic Hadith related to that topic. For each Hadith, provide its text, reference, and a brief explanation in ${languageName}. Adhere strictly to the provided JSON schema. If no relevant Hadith are found, return an empty array.`;
 
+// --- SERMON GENERATOR ---
+const getSermonOutlineSchema = (languageName: string) => ({
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING, description: `A short, relevant title for the sermon in ${languageName}.` },
+    introduction: { type: Type.STRING, description: `An engaging introduction for the sermon in ${languageName}.` },
+    points: {
+      type: Type.ARRAY,
+      description: `An array of 2 to 4 main points for the sermon, in ${languageName}.`,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          point: { type: Type.STRING, description: "The key message of this point." },
+          evidence: { type: Type.STRING, description: "Supporting evidence from the Quran or Sunnah, with reference (e.g., 'Quran 2:155' or 'Sahih al-Bukhari')." }
+        },
+        required: ['point', 'evidence']
+      }
+    },
+    conclusion: { type: Type.STRING, description: `A powerful conclusion summarizing the key messages, in ${languageName}.` },
+    dua: { type: Type.STRING, description: `A short, relevant concluding supplication (dua) in ${languageName}.` }
+  },
+  required: ['title', 'introduction', 'points', 'conclusion', 'dua']
+});
+const getSermonOutlineSystemInstruction = (languageName: string) => `You are an expert Islamic scholar and orator. Generate a structured sermon outline on the given topic in ${languageName}. The outline should include an introduction, key points with supporting evidence from the Quran and Sunnah (with references), and a concluding dua. The response should be well-organized, spiritually uplifting, and adhere strictly to the provided JSON schema.`;
+
+// --- ISLAMIC HISTORY ---
+const getHistorySummarySchema = (languageName: string) => ({
+  type: Type.OBJECT,
+  properties: {
+    summary: { type: Type.STRING, description: `A detailed summary of the historical period or event, in ${languageName}.` },
+    keyFigures: {
+      type: Type.ARRAY,
+      description: `A list of key historical figures from this period, in ${languageName}.`,
+      items: { type: Type.STRING }
+    },
+    keyEvents: {
+      type: Type.ARRAY,
+      description: `A list of key events that occurred during this period, in ${languageName}.`,
+      items: { type: Type.STRING }
+    },
+    significance: { type: Type.STRING, description: `A brief explanation of the significance and impact of this period in Islamic history, in ${languageName}.` }
+  },
+  required: ['summary', 'keyFigures', 'keyEvents', 'significance']
+});
+const getHistorySummarySystemInstruction = (languageName: string) => `You are a knowledgeable and engaging historian specializing in Islamic history. Based on the topic provided, generate a concise but informative summary in ${languageName}. The summary should be well-structured, historically accurate, and easy for a general audience to understand, focusing on the key events, figures, and significance of the period or event. Adhere strictly to the provided JSON schema.`;
+
 
 export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   const corsHeaders = {
@@ -450,6 +495,30 @@ export const handler = async (event: HandlerEvent): Promise<HandlerResponse> => 
             },
         });
         result = { answer: response.text };
+    } else if (type === 'sermon') {
+        const { topic } = payload as { topic: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Generate a sermon outline about "${topic}" in ${languageName}.`,
+            config: {
+                systemInstruction: getSermonOutlineSystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getSermonOutlineSchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
+    } else if (type === 'history') {
+        const { topic } = payload as { topic: string };
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: `Provide a historical summary about "${topic}" in ${languageName}.`,
+            config: {
+                systemInstruction: getHistorySummarySystemInstruction(languageName),
+                responseMimeType: "application/json",
+                responseSchema: getHistorySummarySchema(languageName),
+            },
+        });
+        result = JSON.parse(response.text);
     } else {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Invalid request type" }) };
     }

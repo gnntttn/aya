@@ -212,6 +212,24 @@ export interface Khatmah {
     pagesRead: number;
 }
 
+export interface SermonOutline {
+    title: string;
+    introduction: string;
+    points: {
+        point: string;
+        evidence: string;
+    }[];
+    conclusion: string;
+    dua: string;
+}
+
+export interface HistorySummary {
+    summary: string;
+    keyFigures: string[];
+    keyEvents: string[];
+    significance: string;
+}
+
 export interface Translations {
   [key:string]: string;
 }

@@ -5,6 +5,7 @@ import { getAyahDetail } from '../services/quranService';
 import { getHadithOfTheDay } from '../services/geminiService';
 import SpiritualReflection from './SpiritualReflection';
 import IslamicCalendar from './IslamicCalendar';
+import PrayerTimesWidget from './PrayerTimesWidget';
 
 const VerseOfTheDay: React.FC = () => {
     const { t, language, surahs, setSelectedSurah, setView } = useContext(LanguageContext) as LanguageContextType;
@@ -191,6 +192,8 @@ const Home: React.FC = () => {
             </header>
             
             <IslamicCalendar />
+            
+            <PrayerTimesWidget />
 
             <SpiritualReflection />
 
