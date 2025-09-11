@@ -24,12 +24,13 @@ import AdminDashboard from './AdminDashboard';
 import KhatmahTracker from './KhatmahTracker';
 import SermonGenerator from './SermonGenerator';
 import IslamicHistory from './IslamicHistory';
+import BackButton from './BackButton';
 
 
 type SubView = 'menu' | 'settings' | 'allFeatures' | 'quiz' | 'tasbih' | 'asma' | 'qibla' | 'adhkar' | 'prophets' | 'zakat' | 'sahaba' | 'inheritance' | 'hajj' | 'travel' | 'dream' | 'salawat' | 'hadith' | 'goals' | 'prayer' | 'live' | 'admin' | 'khatmah' | 'sermon' | 'history';
 
 const PlaceholderFeature: React.FC<{title: string; description: string}> = ({title, description}) => (
-    <div className="text-center p-8 glass-card">
+    <div className="text-center p-8 bg-[var(--bg-secondary-solid)] rounded-lg">
         <h3 className="font-lora text-2xl font-bold mb-4">{title}</h3>
         <p className="text-[var(--text-secondary)]">{description}</p>
         <p className="mt-4 text-sm font-semibold text-[var(--accent-primary)]">Coming Soon!</p>
@@ -37,15 +38,13 @@ const PlaceholderFeature: React.FC<{title: string; description: string}> = ({tit
 );
 
 const More: React.FC = () => {
-    const { t, initialMoreView, setInitialMoreView } = useContext(LanguageContext) as LanguageContextType;
+    const { t, initialMoreView, setInitialMoreView, setView } = useContext(LanguageContext) as LanguageContextType;
     const [subView, setSubView] = useState<SubView>(initialMoreView as SubView);
 
     useEffect(() => {
         if (initialMoreView !== 'menu' && initialMoreView !== 'admin' && initialMoreView !== 'settings' && initialMoreView !== 'allFeatures') {
             trackFeatureUsage(initialMoreView);
         }
-        // This effect ensures that if we navigate to a sub-page from another part of the app (like Home),
-        // the state is reset once we leave the 'More' tab.
         return () => {
             if (initialMoreView !== 'menu') {
                 setInitialMoreView('menu');
@@ -203,7 +202,7 @@ const More: React.FC = () => {
         }
     }
 
-    const handleBack = () => {
+    const handleBackToMenu = () => {
         if (subView === 'admin') {
             setSubView('settings');
         } else if (subView === 'settings' || subView === 'allFeatures') {
@@ -216,12 +215,13 @@ const More: React.FC = () => {
 
     if (subView === 'menu') {
         return (
-            <div className="w-full animate-fade-in">
+            <div className="w-full animate-fade-in pt-12">
+                <BackButton onClick={() => setView('home')} />
                 <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreTitle')}</h2>
                 <div className="space-y-3">
                     <button
                         onClick={() => setSubView('settings')}
-                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                        className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
                     >
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-400 shrink-0">
@@ -233,7 +233,7 @@ const More: React.FC = () => {
                     </button>
                      <button
                         onClick={() => setSubView('allFeatures')}
-                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                        className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
                     >
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-teal-500/10 text-teal-400 shrink-0">
@@ -250,18 +250,15 @@ const More: React.FC = () => {
     
     if (subView === 'allFeatures') {
          return (
-            <div className="w-full animate-fade-in">
-                 <button onClick={() => setSubView('menu')} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full mb-4">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                     {t('back')}
-                </button>
+            <div className="w-full animate-fade-in pt-12">
+                 <BackButton onClick={() => setSubView('menu')} text={t('back')} />
                 <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreAllFeatures')}</h2>
                 <div className="space-y-3">
                     {allFeaturesItems.map(item => (
                         <button
                             key={item.id}
                             onClick={() => handleFeatureSelect(item.id)}
-                            className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                            className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
                         >
                             <div className="flex items-center gap-4">
                                 <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
@@ -278,11 +275,8 @@ const More: React.FC = () => {
     }
 
     return (
-        <div className="w-full animate-fade-in">
-             <button onClick={handleBack} className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors p-2 rounded-full mb-4">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                 {t('back')}
-            </button>
+        <div className="w-full animate-fade-in pt-12">
+             <BackButton onClick={handleBackToMenu} text={t('back')} />
             {renderSubView()}
         </div>
     );

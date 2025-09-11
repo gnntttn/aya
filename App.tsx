@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import type { Language, LanguageContextType, Translations, View, Reciter, Theme, Surah, Dua, SpiritualGoal, QuranSettings, Khatmah } from './types';
 import { LanguageContext } from './types';
-import BottomNavBar from './components/BottomNavBar';
 import Home from './components/Home';
 import Assistant from './components/Assistant';
 import Quran from './components/Quran';
@@ -16,11 +15,19 @@ import { getSurahList } from './services/quranService';
 const translations: { [key in Language]: Translations } = {
   en: {
     // Onboarding
-    chooseLanguage: "Choose Language",
     welcomeTitle: "Welcome to AYA",
     welcomeDescription: "Your companion for spiritual reflection and growth.",
     continueButton: "Begin Journey",
-    // Nav
+    // Nav (Now for Home Grid)
+    navPrayerTimes: "Prayer times",
+    navMasjidFinder: "Masjid Finder",
+    navAlQuran: "Al-Quran",
+    navQibla: "Qibla",
+    navCalendar: "Calendar",
+    navTasbeeh: "Tasbeeh",
+    nav5Pillars: "5 Pillars",
+    navDuas: "Duas",
+    navAboutUs: "About Us",
     navHome: "Home",
     navQuran: "Quran",
     navAssistant: "Assistant",
@@ -426,10 +433,18 @@ const translations: { [key in Language]: Translations } = {
     close: "Close",
   },
   ar: {
-    chooseLanguage: "اختر لغتك",
     welcomeTitle: "أهلاً بك في آية",
     welcomeDescription: "رفيقك للتأمل والنمو الروحي.",
     continueButton: "ابدأ الرحلة",
+    navPrayerTimes: "أوقات الصلاة",
+    navMasjidFinder: "مكتشف المسجد",
+    navAlQuran: "القرآن الكريم",
+    navQibla: "القبلة",
+    navCalendar: "التقويم",
+    navTasbeeh: "المسبحة",
+    nav5Pillars: "الأركان الخمسة",
+    navDuas: "أدعية",
+    navAboutUs: "حول التطبيق",
     navHome: "الرئيسية",
     navQuran: "القرآن",
     navAssistant: "المساعد",
@@ -799,10 +814,18 @@ const translations: { [key in Language]: Translations } = {
     close: "إغلاق",
   },
   fr: {
-    chooseLanguage: "Choisissez la langue",
     welcomeTitle: "Bienvenue à AYA",
     welcomeDescription: "Votre compagnon pour la réflexion et la croissance spirituelle.",
     continueButton: "Commencer le voyage",
+    navPrayerTimes: "Horaires de Prière",
+    navMasjidFinder: "Trouver une Mosquée",
+    navAlQuran: "Al-Quran",
+    navQibla: "Qibla",
+    navCalendar: "Calendrier",
+    navTasbeeh: "Tasbeeh",
+    nav5Pillars: "5 Piliers",
+    navDuas: "Dou'as",
+    navAboutUs: "À propos",
     navHome: "Accueil",
     navQuran: "Coran",
     navAssistant: "Assistant",
@@ -1178,7 +1201,7 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
   
   const [language, setLanguageState] = useState<Language>(() => {
     const savedLang = localStorage.getItem('aya-lang') as Language;
-    return ['en', 'ar', 'fr'].includes(savedLang) ? savedLang : 'en';
+    return ['en', 'ar', 'fr'].includes(savedLang) ? savedLang : 'ar';
   });
   
   const [reciter, setReciterState] = useState<Reciter>(() => {
@@ -1406,18 +1429,9 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
   }, [view, selectedSurah]);
 
   useEffect(() => {
-    const applyTheme = () => {
-        const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.toggle('dark', isDarkMode);
-    };
-    applyTheme();
-    if (theme === 'system') {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => applyTheme();
-        mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, [theme]);
+    // Force dark theme based on new design
+    document.documentElement.classList.add('dark');
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -1471,10 +1485,10 @@ const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children })
 };
 
 const AppContent: React.FC = () => {
-  const { view, selectedSurah, isOnboardingComplete, completeOnboarding, language } = useContext(LanguageContext) as LanguageContextType;
+  const { view, selectedSurah, isOnboardingComplete, language, setView } = useContext(LanguageContext) as LanguageContextType;
 
   if (!isOnboardingComplete) {
-    return <Onboarding onComplete={completeOnboarding} />;
+    return <Onboarding />;
   }
 
   const renderView = () => {
@@ -1496,10 +1510,9 @@ const AppContent: React.FC = () => {
 
   return (
      <div className={`flex flex-col min-h-[100dvh] ${fontClass}`}>
-      <main className="flex-grow w-full px-4 pt-8 pb-28 flex flex-col items-center relative">
+      <main className="flex-grow w-full px-4 pt-6 pb-8 flex flex-col items-center relative">
         {renderView()}
       </main>
-      <BottomNavBar />
     </div>
   );
 };

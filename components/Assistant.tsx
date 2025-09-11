@@ -6,11 +6,12 @@ import LoadingIndicator from './LoadingIndicator';
 import DuaCard from './DuaCard';
 import ErrorMessage from './ErrorMessage';
 import { sampleDuas } from '../data/sampleDuas';
+import BackButton from './BackButton';
 
 type ApiKeyStatus = 'checking' | 'available' | 'unavailable';
 
 const Assistant: React.FC = () => {
-  const { language, t, savedDuas, addSavedDua, removeSavedDua } = useContext(LanguageContext) as LanguageContextType;
+  const { language, t, savedDuas, addSavedDua, removeSavedDua, setView } = useContext(LanguageContext) as LanguageContextType;
   const [prompt, setPrompt] = useState<string>('');
   const [dua, setDua] = useState<Dua | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,7 +62,8 @@ const Assistant: React.FC = () => {
   );
 
   return (
-    <div className="w-full text-center animate-fade-in flex flex-col items-center">
+    <div className="w-full text-center animate-fade-in flex flex-col items-center pt-12">
+      <BackButton onClick={() => setView('home')} />
       <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-2">{t('pageTitleDua')}</h2>
       
       {apiKeyStatus === 'checking' && <LoadingIndicator message={t('checkingConfig')} />}
@@ -80,7 +82,7 @@ const Assistant: React.FC = () => {
             <p className="text-md text-[var(--text-secondary)] mb-8 max-w-xl">
               {t('pageDescriptionDua')}
             </p>
-            <form onSubmit={handleSubmit} className="w-full mb-6 glass-card p-4">
+            <form onSubmit={handleSubmit} className="w-full mb-6 bg-[var(--bg-secondary-solid)] rounded-lg p-4">
                 <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}

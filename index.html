@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#F9F9F7" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#1A202C">
     <link rel="manifest" href="/public/manifest.json">
     <link rel="apple-touch-icon" href="/public/icons/icon-192x192.png">
     
@@ -17,28 +16,29 @@
       @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
       
       :root {
-        --bg-primary: #F9F9F7;
-        --bg-secondary-trans: rgba(255, 255, 255, 0.6);
-        --bg-secondary-solid: #ffffff;
-        --text-primary: #1A1A1A;
-        --text-secondary: #6B6B6B;
-        --accent-primary: #D4AF37;
-        --accent-secondary: #C09E31;
-        --accent-text: #1A1A1A;
-        --border-color: rgba(0, 0, 0, 0.07);
-        --shadow-color-rgb: 90, 90, 90;
+        --bg-primary: #1A202C;
+        --bg-secondary-trans: rgba(255, 255, 255, 0.05);
+        --bg-secondary-solid: #2D3748;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #D69E2E;
+        --accent-secondary: #B88A24;
+        --accent-text: #1A202C;
+        --border-color: rgba(214, 175, 46, 0.2);
+        --shadow-color-rgb: 0, 0, 0;
       }
       
+      /* The app is now always dark, so dark variables are the same as root */
       html.dark {
-        --bg-primary: #0F172A;
-        --bg-secondary-trans: rgba(30, 41, 59, 0.7);
-        --bg-secondary-solid: #1E293B;
-        --text-primary: #E2E8F0;
-        --text-secondary: #94A3B8;
-        --accent-primary: #2DD4BF;
-        --accent-secondary: #14B8A6;
-        --accent-text: #0F172A;
-        --border-color: rgba(148, 163, 184, 0.2);
+        --bg-primary: #1A202C;
+        --bg-secondary-trans: rgba(255, 255, 255, 0.05);
+        --bg-secondary-solid: #2D3748;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A0AEC0;
+        --accent-primary: #D69E2E;
+        --accent-secondary: #B88A24;
+        --accent-text: #1A202C;
+        --border-color: rgba(214, 175, 46, 0.2);
         --shadow-color-rgb: 0, 0, 0;
       }
       
@@ -46,23 +46,7 @@
         font-family: 'Inter', sans-serif;
         background-color: var(--bg-primary);
         color: var(--text-primary);
-        transition: background-color 0.3s ease, color 0.3s ease;
         -webkit-tap-highlight-color: transparent;
-      }
-
-      body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-image:
-            radial-gradient(circle at 10% 10%, var(--accent-primary) 0.5px, transparent 0.5px),
-            radial-gradient(circle at 90% 80%, var(--accent-primary) 0.5px, transparent 0.5px);
-        background-size: 60px 60px;
-        opacity: 0.1;
-        z-index: -1;
       }
 
       #root {
@@ -74,23 +58,6 @@
       .font-amiri { font-family: 'Amiri', serif; }
       .font-inter { font-family: 'Inter', sans-serif; }
       
-      .glass-card {
-        background-color: var(--bg-secondary-trans);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid var(--border-color);
-        border-radius: 1rem; /* 16px */
-        box-shadow: 0 4px 24px 0 rgba(var(--shadow-color-rgb), 0.08);
-        transition: background-color 0.3s ease, border 0.3s ease;
-      }
-
-      .glass-nav {
-        background-color: var(--bg-secondary-trans);
-        backdrop-filter: blur(24px) saturate(180%);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        border-top: 1px solid var(--border-color);
-      }
-
       @keyframes fade-in {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
@@ -106,21 +73,6 @@
         animation: fade-in 0.5s ease-out forwards;
       }
 
-      @keyframes ping-wave {
-        0%, 100% {
-          stroke-opacity: 0.8;
-          transform: scale(0.6);
-        }
-        80% {
-          stroke-opacity: 0;
-          transform: scale(1);
-        }
-      }
-      .animate-ping-wave {
-        transform-origin: center;
-        animation: ping-wave 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-      }
-      
       /* Quran Page Styles */
       .quran-page-container {
         background-color: #FDFCF8;
@@ -129,9 +81,9 @@
         padding: 1rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
-      html.dark .quran-page-container {
-        background-color: #161E29;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+      html .quran-page-container {
+        background-color: var(--bg-secondary-solid);
+        border: 1px solid var(--border-color);
       }
       .surah-header {
         text-align: center;
@@ -171,7 +123,7 @@
         justify-content: center;
         width: 2.2rem;
         height: 2.2rem;
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%232DD4BF' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23D69E2E' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -180,9 +132,6 @@
         font-size: 0.9rem;
         font-weight: 500;
         margin: 0 0.5rem;
-      }
-      html.dark .ayah-number-circle {
-        color: var(--text-primary);
       }
       .ayah-actions {
         display: flex;
@@ -204,9 +153,6 @@
       }
       .ayah-actions button:hover {
         color: var(--accent-primary);
-        background-color: rgba(0,0,0,0.05);
-      }
-      html.dark .ayah-actions button:hover {
         background-color: rgba(255,255,255,0.05);
       }
       .ayah-actions svg {
@@ -246,7 +192,7 @@
 </script>
 </head>
   <body>
-    <div id="root" class="max-w-lg mx-auto shadow-2xl min-h-[100dvh] bg-[var(--bg-primary)]"></div>
+    <div id="root" class="max-w-lg mx-auto min-h-[100dvh] bg-[var(--bg-primary)]"></div>
     <script type="module" src="/index.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {

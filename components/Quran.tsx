@@ -4,9 +4,10 @@ import { LanguageContext } from '../types';
 import ErrorMessage from './ErrorMessage';
 import LoadingIndicator from './LoadingIndicator';
 import { juzData } from '../data/juzData';
+import BackButton from './BackButton';
 
 const Quran: React.FC = () => {
-    const { t, language, setSelectedSurah, surahs, bookmarks } = useContext(LanguageContext) as LanguageContextType;
+    const { t, language, setSelectedSurah, surahs, bookmarks, setView } = useContext(LanguageContext) as LanguageContextType;
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedJuz, setSelectedJuz] = useState<number | null>(null);
     
@@ -65,7 +66,8 @@ const Quran: React.FC = () => {
     }, [searchTerm, surahs, selectedJuz]);
 
     return (
-        <div className="w-full text-center animate-fade-in">
+        <div className="w-full text-center animate-fade-in pt-12">
+            <BackButton onClick={() => setView('home')} />
             <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-2">{t('quranTitle')}</h2>
             <p className="text-md text-[var(--text-secondary)] mb-8 max-w-xl mx-auto">
                 {t('quranDescription')}
@@ -104,14 +106,14 @@ const Quran: React.FC = () => {
                     <button 
                         key={surah.number} 
                         onClick={() => setSelectedSurah(surah.number)} 
-                        className="w-full text-left glass-card p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group"
+                        className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
                     >
                         <div className="flex items-center">
                             <div className="relative w-12 h-12 flex items-center justify-center text-[var(--accent-primary)] font-bold text-sm transition-transform duration-300 group-hover:scale-105">
                                 <svg className="absolute w-full h-full opacity-40 group-hover:opacity-80 transition-opacity" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M86.6 50L75 67.5L50 75L25 67.5L13.4 50L25 32.5L50 25L75 32.5L86.6 50Z M75 50L68.75 62.5L50 68.75L31.25 62.5L25 50L31.25 37.5L50 31.25L68.75 37.5L75 50Z" fill="currentColor"/>
                                 </svg>
-                                <span className="z-10 text-[var(--accent-text)]">{surah.number}</span>
+                                <span className="z-10 text-[var(--text-primary)]">{surah.number}</span>
                             </div>
                             <div className={`mx-3 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                                 <div className="flex items-center gap-2">
