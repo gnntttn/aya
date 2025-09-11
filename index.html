@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1A202C">
+    <meta name="theme-color" content="#1C243C">
     <link rel="manifest" href="/public/manifest.json">
     <link rel="apple-touch-icon" href="/public/icons/icon-192x192.png">
     
@@ -16,35 +16,37 @@
       @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
       
       :root {
-        --bg-primary: #1A202C;
-        --bg-secondary-trans: rgba(255, 255, 255, 0.05);
-        --bg-secondary-solid: #2D3748;
-        --text-primary: #FFFFFF;
-        --text-secondary: #A0AEC0;
-        --accent-primary: #D69E2E;
-        --accent-secondary: #B88A24;
-        --accent-text: #1A202C;
-        --border-color: rgba(214, 175, 46, 0.2);
+        --bg-primary: #1C243C;
+        --bg-gradient: linear-gradient(180deg, #1C243C 0%, #322A54 100%);
+        --bg-secondary-trans: rgba(255, 255, 255, 0.08);
+        --bg-secondary-solid: #2a3452;
+        --text-primary: #F1F5F9;
+        --text-secondary: #94A3B8;
+        --accent-primary: #FBBF24;
+        --accent-secondary: #F59E0B;
+        --accent-text: #1C243C;
+        --border-color: rgba(255, 255, 255, 0.1);
         --shadow-color-rgb: 0, 0, 0;
       }
       
       /* The app is now always dark, so dark variables are the same as root */
       html.dark {
-        --bg-primary: #1A202C;
-        --bg-secondary-trans: rgba(255, 255, 255, 0.05);
-        --bg-secondary-solid: #2D3748;
-        --text-primary: #FFFFFF;
-        --text-secondary: #A0AEC0;
-        --accent-primary: #D69E2E;
-        --accent-secondary: #B88A24;
-        --accent-text: #1A202C;
-        --border-color: rgba(214, 175, 46, 0.2);
+        --bg-primary: #1C243C;
+        --bg-gradient: linear-gradient(180deg, #1C243C 0%, #322A54 100%);
+        --bg-secondary-trans: rgba(255, 255, 255, 0.08);
+        --bg-secondary-solid: #2a3452;
+        --text-primary: #F1F5F9;
+        --text-secondary: #94A3B8;
+        --accent-primary: #FBBF24;
+        --accent-secondary: #F59E0B;
+        --accent-text: #1C243C;
+        --border-color: rgba(255, 255, 255, 0.1);
         --shadow-color-rgb: 0, 0, 0;
       }
       
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--bg-primary);
+        background: var(--bg-gradient);
         color: var(--text-primary);
         -webkit-tap-highlight-color: transparent;
       }
@@ -72,18 +74,24 @@
         transform: translateY(15px);
         animation: fade-in 0.5s ease-out forwards;
       }
+      
+      /* New Glass Card */
+      .glass-card {
+        background-color: var(--bg-secondary-trans);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 30px rgba(var(--shadow-color-rgb), 0.1);
+      }
 
       /* Quran Page Styles */
       .quran-page-container {
-        background-color: #FDFCF8;
-        border: 1px solid rgba(0, 0, 0, 0.08);
+        background-color: var(--bg-secondary-solid);
+        border: 1px solid var(--border-color);
         border-radius: 0.5rem;
         padding: 1rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-      html .quran-page-container {
-        background-color: var(--bg-secondary-solid);
-        border: 1px solid var(--border-color);
       }
       .surah-header {
         text-align: center;
@@ -123,7 +131,7 @@
         justify-content: center;
         width: 2.2rem;
         height: 2.2rem;
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23D69E2E' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FBBF24' fill-opacity='0.1' d='M50 0L61.226 21.434L85.355 25.004L69.341 42.19L71.696 66.212L50 55.45L28.304 66.212L30.659 42.19L14.645 25.004L38.774 21.434L50 0Z'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -178,6 +186,13 @@
         transform: translateY(-50%);
         pointer-events: none;
         color: var(--text-secondary);
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .hide-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
       }
     </style>
   <script type="importmap">

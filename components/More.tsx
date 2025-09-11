@@ -174,8 +174,75 @@ const More: React.FC = () => {
         },
     ];
     
-    const renderSubView = () => {
+    const handleBack = () => {
+        if (subView === 'admin') {
+            setSubView('settings');
+        } else if (subView !== 'allFeatures' && subView !== 'settings' && subView !== 'menu') {
+            // This is a specific feature, go back to the list.
+            setSubView('allFeatures');
+        } else {
+            // This is a top-level view within "More" (allFeatures, settings, or menu), go back to home.
+            setView('home');
+        }
+    };
+
+    const renderCurrentView = () => {
         switch (subView) {
+            case 'menu':
+                return (
+                    <>
+                        <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreTitle')}</h2>
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => setSubView('settings')}
+                                className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-400 shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    </div>
+                                    <span className="font-semibold text-base text-[var(--text-primary)]">{t('navSettings')}</span>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                            </button>
+                            <button
+                                onClick={() => setSubView('allFeatures')}
+                                className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-teal-500/10 text-teal-400 shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                    </div>
+                                    <span className="font-semibold text-base text-[var(--text-primary)]">{t('moreAllFeatures')}</span>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    </>
+                );
+            case 'allFeatures':
+                return (
+                    <>
+                        <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreAllFeatures')}</h2>
+                        <div className="space-y-3">
+                            {allFeaturesItems.map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleFeatureSelect(item.id)}
+                                    className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
+                                            {item.icon}
+                                        </div>
+                                        <span className="font-semibold text-base text-[var(--text-primary)]">{item.title}</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                );
             case 'settings': return <Settings onNavigate={setSubView} />;
             case 'quiz': return <Quiz />;
             case 'tasbih': return <Tasbih />;
@@ -200,84 +267,12 @@ const More: React.FC = () => {
             case 'history': return <IslamicHistory />;
             default: return null;
         }
-    }
-
-    const handleBackToMenu = () => {
-        if (subView === 'admin') {
-            setSubView('settings');
-        } else if (subView === 'settings' || subView === 'allFeatures') {
-            setSubView('menu');
-        } else {
-            // It's a feature, go back to the list of features
-            setSubView('allFeatures');
-        }
     };
-
-    if (subView === 'menu') {
-        return (
-            <div className="w-full animate-fade-in pt-12">
-                <BackButton onClick={() => setView('home')} />
-                <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreTitle')}</h2>
-                <div className="space-y-3">
-                    <button
-                        onClick={() => setSubView('settings')}
-                        className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-400 shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            </div>
-                            <span className="font-semibold text-base text-[var(--text-primary)]">{t('navSettings')}</span>
-                        </div>
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
-                    </button>
-                     <button
-                        onClick={() => setSubView('allFeatures')}
-                        className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-teal-500/10 text-teal-400 shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                            </div>
-                            <span className="font-semibold text-base text-[var(--text-primary)]">{t('moreAllFeatures')}</span>
-                        </div>
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
-                    </button>
-                </div>
-            </div>
-        );
-    }
-    
-    if (subView === 'allFeatures') {
-         return (
-            <div className="w-full animate-fade-in pt-12">
-                 <BackButton onClick={() => setSubView('menu')} text={t('back')} />
-                <h2 className="font-lora text-3xl font-bold text-[var(--text-primary)] mb-10 text-center">{t('moreAllFeatures')}</h2>
-                <div className="space-y-3">
-                    {allFeaturesItems.map(item => (
-                        <button
-                            key={item.id}
-                            onClick={() => handleFeatureSelect(item.id)}
-                            className="w-full text-left bg-[var(--bg-secondary-solid)] p-4 flex items-center justify-between hover:border-[var(--accent-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] focus:ring-[var(--accent-primary)] group rounded-lg border border-transparent"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${item.color} shrink-0`}>
-                                    {item.icon}
-                                </div>
-                                <span className="font-semibold text-base text-[var(--text-primary)]">{item.title}</span>
-                            </div>
-                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--text-secondary)] group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="w-full animate-fade-in pt-12">
-             <BackButton onClick={handleBackToMenu} text={t('back')} />
-            {renderSubView()}
+            <BackButton onClick={handleBack} />
+            {renderCurrentView()}
         </div>
     );
 };
