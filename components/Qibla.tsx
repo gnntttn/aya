@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { LanguageContext } from '../types';
 import type { LanguageContextType } from '../types';
 import LoadingIndicator from './LoadingIndicator';
@@ -13,6 +12,7 @@ const Qibla: React.FC = () => {
     const [heading, setHeading] = useState<number | null>(null);
     const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const calibrationTimeoutRef = useRef<number | null>(null);
 
     const KAABA_LAT = 21.4225;
     const KAABA_LON = 39.8262;
@@ -34,8 +34,9 @@ const Qibla: React.FC = () => {
     };
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
-        const compassHeading = (event as any).webkitCompassHeading || event.alpha;
-        if (compassHeading !== null) {
+        // Use nullish coalescing for modern browsers and check for null/undefined robustly
+        const compassHeading = (event as any).webkitCompassHeading ?? event.alpha;
+        if (compassHeading != null) {
             setHeading(compassHeading);
             if (status !== 'ready') setStatus('ready');
         } else if (status === 'requesting') {
@@ -55,12 +56,20 @@ const Qibla: React.FC = () => {
                         setStatus('error');
                     }
                 })
-                .catch((err) => {
+                .catch((err: Error) => { // Type the error for safety
                     setError(err.message);
                     setStatus('error');
                 });
         } else {
+            // For other browsers like Chrome on Android
             window.addEventListener('deviceorientation', handleOrientation);
+            // If permission is denied, the event may never fire.
+            // Move to calibrating state to trigger a timeout if no event is received.
+            setTimeout(() => {
+                if (status === 'requesting') {
+                    setStatus('calibrating');
+                }
+            }, 1500);
         }
     };
     
@@ -79,6 +88,30 @@ const Qibla: React.FC = () => {
         );
     };
 
+    // Effect for handling the calibration timeout
+    useEffect(() => {
+        if (status === 'calibrating') {
+            if (calibrationTimeoutRef.current) {
+                clearTimeout(calibrationTimeoutRef.current);
+            }
+            calibrationTimeoutRef.current = window.setTimeout(() => {
+                // Check status again inside timeout to avoid race conditions
+                if (status === 'calibrating') {
+                    setError(t('qiblaCalibrationError'));
+                    setStatus('error');
+                }
+            }, 10000); // 10-second timeout
+        }
+
+        // Cleanup: Clear timeout if status changes or component unmounts
+        return () => {
+            if (calibrationTimeoutRef.current) {
+                clearTimeout(calibrationTimeoutRef.current);
+            }
+        };
+    }, [status, t]);
+
+    // Effect for cleaning up the global event listener
     useEffect(() => {
         return () => window.removeEventListener('deviceorientation', handleOrientation);
     }, []);
