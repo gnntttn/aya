@@ -9,6 +9,7 @@ interface ImageCustomizationModalProps {
     surahData: SurahDetailData;
     onClose: () => void;
     onGenerate: (options: ImageStyleOptions) => void;
+    isGenerating: boolean;
 }
 
 const colorPalettes: { name: string; styles: ImageStyleOptions }[] = [
@@ -79,7 +80,7 @@ const ColorInput: React.FC<{ label: string; value: string; onChange: (value: str
 );
 
 
-const ImageCustomizationModal: React.FC<ImageCustomizationModalProps> = ({ ayah, surahData, onClose, onGenerate }) => {
+const ImageCustomizationModal: React.FC<ImageCustomizationModalProps> = ({ ayah, surahData, onClose, onGenerate, isGenerating }) => {
     const { t, language } = useContext(LanguageContext) as LanguageContextType;
     const [styles, setStyles] = useState<ImageStyleOptions>(colorPalettes[0].styles);
     const [translation, setTranslation] = useState<string | null>(null);
@@ -160,9 +161,13 @@ const ImageCustomizationModal: React.FC<ImageCustomizationModalProps> = ({ ayah,
                     </button>
                     <button 
                         onClick={handleGenerate}
-                        className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-full text-sm shadow-md hover:bg-[var(--accent-secondary)] transition-colors"
+                        disabled={isGenerating}
+                        className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold rounded-full text-sm shadow-md hover:bg-[var(--accent-secondary)] transition-colors flex items-center justify-center min-w-[150px] h-10 disabled:opacity-70"
                     >
-                        {t('generateAndShare')}
+                        {isGenerating 
+                            ? <div className="w-5 h-5 border-2 border-transparent border-t-[var(--accent-text)] rounded-full animate-spin"></div> 
+                            : t('generateAndShare')
+                        }
                     </button>
                 </footer>
             </div>

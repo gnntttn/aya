@@ -26,7 +26,7 @@ export interface ImageStyleOptions {
     accentColor: string;
 }
 
-// Helper function to generate Ayah image
+// Helper function to generate Ayah image - moved outside component
 const generateAyahImage = (
     ayah: Ayah, 
     surahData: SurahDetailData, 
@@ -134,6 +134,7 @@ const generateAyahImage = (
     });
 };
 
+
 const ReadingPrefsPanel: React.FC<{
     settings: QuranSettings;
     onSettingsChange: (newSettings: QuranSettings) => void;
@@ -195,6 +196,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
     const [customizingAyah, setCustomizingAyah] = useState<Ayah | null>(null);
     const [loopingAyahIndex, setLoopingAyahIndex] = useState<number | null>(null);
     const [showReadingPrefs, setShowReadingPrefs] = useState(false);
+    const [shareableImage, setShareableImage] = useState<{ blob: Blob; ayah: Ayah; detailedAyah: Ayah } | null>(null);
     
     const isBookmarked = bookmarks.includes(surahNumber);
 
@@ -303,11 +305,58 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
         setActiveModal(null);
     };
 
+    const shareOrDownloadImage = async (imageBlob: Blob, ayah: Ayah, detailedAyah: Ayah) => {
+        if (!surahData) return;
+        const imageFile = new File([imageBlob], `ayah_${surahData.number}_${ayah.numberInSurah}.png`, { type: 'image/png' });
+
+        try {
+            if (navigator.share && navigator.canShare({ files: [imageFile] })) {
+                await navigator.share({
+                    files: [imageFile],
+                    title: `${surahData.englishName} ${ayah.numberInSurah}`,
+                    text: `"${detailedAyah.translationText}" - Quran ${surahData.number}:${ayah.numberInSurah}`,
+                });
+            } else {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(imageBlob);
+                link.download = `ayah_${surahData.number}_${ayah.numberInSurah}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+        } catch (err) {
+             if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                console.error("Failed to share image:", err);
+                alert(t('shareError'));
+            }
+        }
+    };
+    
+    useEffect(() => {
+        // This effect triggers when the modal is closed AND there's an image ready to be shared.
+        if (customizingAyah === null && shareableImage) {
+            // Using a timeout gives the browser a moment to process the DOM update (closing the modal)
+            // before we block the thread with the native share dialog.
+            const timerId = setTimeout(() => {
+                const { blob, ayah, detailedAyah } = shareableImage;
+                shareOrDownloadImage(blob, ayah, detailedAyah)
+                    .finally(() => {
+                        // Clean up the state to prevent re-sharing on subsequent renders.
+                        setShareableImage(null);
+                    });
+            }, 150); // A small delay is more robust than 0.
+
+            // Cleanup function for the timeout
+            return () => clearTimeout(timerId);
+        }
+    }, [customizingAyah, shareableImage]);
+
+
     const handleFinalImageGeneration = async (options: ImageStyleOptions) => {
         if (!customizingAyah || !surahData) return;
 
         const ayahToProcess = customizingAyah;
-        setCustomizingAyah(null);
         setIsGeneratingImage(ayahToProcess.numberInSurah);
 
         try {
@@ -317,32 +366,21 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
             }
             
             const imageBlob = await generateAyahImage(ayahToProcess, surahData, detailedAyah.translationText, language, options);
-            const imageFile = new File([imageBlob], `ayah_${surahData.number}_${ayahToProcess.numberInSurah}.png`, { type: 'image/png' });
+            
+            // Set the image data and trigger the modal to close.
+            // The useEffect hook above will handle the actual sharing.
+            setShareableImage({ blob: imageBlob, ayah: ayahToProcess, detailedAyah });
+            setCustomizingAyah(null);
 
-            if (navigator.share && navigator.canShare({ files: [imageFile] })) {
-                await navigator.share({
-                    files: [imageFile],
-                    title: `${surahData.englishName} ${ayahToProcess.numberInSurah}`,
-                    text: `"${detailedAyah.translationText}" - Quran ${surahData.number}:${ayahToProcess.numberInSurah}`,
-                });
-            } else {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(imageBlob);
-                link.download = `ayah_${surahData.number}_${ayahToProcess.numberInSurah}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            }
         } catch (err) {
-            console.error("Failed to generate or share image:", err);
-            if (!(err instanceof DOMException && err.name === 'AbortError')) {
-                alert(t('shareError'));
-            }
+            setCustomizingAyah(null);
+            console.error("Failed to generate image:", err);
+            alert(t('shareError'));
         } finally {
             setIsGeneratingImage(null);
         }
     };
+
 
     const handleShareAsImage = (ayah: Ayah) => {
         setCustomizingAyah(ayah);
@@ -390,6 +428,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                     surahData={surahData}
                     onClose={() => setCustomizingAyah(null)}
                     onGenerate={handleFinalImageGeneration}
+                    isGenerating={isGeneratingImage === customizingAyah.numberInSurah}
                 />
             )}
             <header className="text-center mb-6 relative flex items-center justify-between gap-2">
@@ -483,7 +522,7 @@ const SurahDetail: React.FC<SurahDetailProps> = ({ surahNumber }) => {
                                     </svg>
                                 </button>
                                 
-                                <button onClick={() => handleShareAsImage(ayah)} title={t('shareAsImage')} disabled={isGeneratingImage === ayah.numberInSurah}>
+                                <button onClick={() => handleShareAsImage(ayah)} title={t('shareAsImage')} disabled={isGeneratingImage !== null}>
                                     {isGeneratingImage === ayah.numberInSurah ? (
                                         <div className="w-5 h-5 border-2 border-transparent border-t-[var(--accent-primary)] rounded-full animate-spin"></div>
                                     ) : (
